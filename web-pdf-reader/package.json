@@ -1,0 +1,17 @@
+{
+  "name": "web-pdf-reader",
+  "version": "1.0.0",
+  "description": "Madiran will be the major language of this project. An online PDF reader to optiomize rendering and search speed for large PDF file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "algoliasearch": "^4.18.0",
+    "command-line-args": "^5.2.1",
+    "dotenv": "^16.3.1",
+    "pdf2html": "^3.1.0"
+  }
+}
