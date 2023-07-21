@@ -22,14 +22,23 @@ cpdf ./path/to/interpellation/data.pdf -split -chunk 10 -o 'path/to/csr/report/%
 
 # 壓縮 PDF
 mkdir compressed
-./tools/minify-pdf.sh ./path/to/csr/report/ ./compressed
+./minify-pdf.sh ./path/to/csr/report/ ./compressed
 ```
 
 並將 PDF 上傳到合適的線上空間
 
+### 準備 Algolia
+
+1. 建立好空白的 index
+2. 新增以下環境變數，可以放在系統中，或放在 `.env`
+   - ALGOLIA_APP_ID
+   - ALGOLIA_DATA_API_KEY # 有寫入權限的 API Key
+   - ALGOLIA_INDEX_NAME
+
 ### 建立搜尋索引
 
-
-
+```
+node ./build-index.js -s <source pdf>  -i 統編 -y 資料年度
+```
 
 
