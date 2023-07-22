@@ -12,5 +12,7 @@ const companyId = ref(route.params.companyId)
   p {{ year }} - {{ companyId }} xx
   interpellation-src-viewer(
     :start-page="23"
+    year="2021"
+    company-id="11913502"
   )
 </template>

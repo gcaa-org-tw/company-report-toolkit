@@ -47,10 +47,9 @@ import {
   onBeforeUnmount,
   nextTick
 } from 'vue'
-const DEFAULT_ROUND = '3rd'
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
-const PDF_SRC_BASE = 'https://tainansprout.github.io/tainan-council-data/interpellation/round'
+const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
 const PAGE_PER_CHUNK = 10
 const RENDER_SLOWLY = 300
 
@@ -68,17 +67,13 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  councilorRound: {
-    type: String,
-    default: DEFAULT_ROUND
+  year: {
+    type: [Number, String],
+    default: 2019
   },
-  meetingRound: {
-    type: Number,
-    default: 1
-  },
-  meetingType: {
-    type: String,
-    default: 'regular'
+  companyId: {
+    type: [Number, String],
+    required: true
   },
   highlight: {
     type: String,
@@ -103,6 +98,8 @@ const isRenderReady = computed(() => {
 })
 
 // call show to open pdf reader
+defineExpose({ show })
+
 async function show () {
   isOpened.value = true
   if (!isRenderReady.value) {
@@ -123,7 +120,6 @@ function hide () {
 onMounted(() => {
   keepCheckingPdfLibReadiness()
   isPageMounted.value = true
-  show()
 })
 
 onBeforeUnmount(() => {
@@ -142,8 +138,7 @@ const isMainReady = computed(() => {
 })
 
 const pdfLinkBase = computed(() => {
-  const meetingRoundStr = `${props.meetingRound}`.padStart(2, '0')
-  return `${PDF_SRC_BASE}/${props.councilorRound}/${props.meetingType}/${meetingRoundStr}`
+  return `${PDF_SRC_BASE}/${props.year}/${props.companyId}`
 })
 
 const highlightHead = computed(() => {
