@@ -3,7 +3,11 @@ module.exports = {
     browser: true,
     es2021: true
   },
-  extends: ['@nuxtjs/eslint-config-typescript', 'plugin:vue/vue3-recommended'],
+  extends: [
+    '@nuxtjs/eslint-config-typescript',
+    'plugin:vue/vue3-recommended',
+    'plugin:vue-pug/vue3-recommended'
+  ],
   parserOptions: {
     ecmaVersion: 13,
     sourceType: 'module'
