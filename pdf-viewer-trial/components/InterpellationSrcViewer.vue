@@ -4,7 +4,7 @@
   .intViewer__container(v-if="isMainReady")
     .intViewer__close.flex.justify-end
       button.plainButton.f4.cursor(@click="hide")
-        i.fas.fa-times-circle
+        | ❎
     client-only
       infinite-loading(v-if="mainPage" :distance="0" direction="top" @infinite="loadMore(false, $event)" )
         // template(#no-more)
@@ -59,6 +59,10 @@ const MIN_SEARCH_LEN = 12
 
 </script>
 <script setup lang="ts">
+useHead({
+  link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
+})
+
 const props = defineProps({
   startPage: {
     type: Number,
@@ -82,12 +86,11 @@ const props = defineProps({
   }
 })
 
-// non-deep
 const isLibLoaded = ref(false)
 const isPageMounted = ref(false)
 const isOpenedPending = ref(false)
 const isOpened = ref(false)
-const pdfLibTimer = ref(null)
+const pdfLibTimer = ref<number | undefined>(undefined)
 const pageChunk = shallowRef<any>({})
 const mainPage = shallowRef(null)
 const headPages = ref([])
@@ -95,16 +98,47 @@ const headLoadingState = ref<any>(null)
 const tailPages = ref([])
 const tailLoadingState = ref<any>(null)
 
-useHead({
-  link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
+const isRenderReady = computed(() => {
+  return isPageMounted.value && isLibLoaded.value
+})
+
+// call show to open pdf reader
+async function show () {
+  isOpened.value = true
+  if (!isRenderReady.value) {
+    isOpenedPending.value = true
+    // vue-meta onload trigger only once, we need to do it ourselves
+    keepCheckingPdfLibReadiness()
+  } else {
+    await nextTick()
+    renderMainPage()
+  }
+}
+
+function hide () {
+  isOpened.value = false
+  isOpenedPending.value = false
+}
+
+onMounted(() => {
+  keepCheckingPdfLibReadiness()
+  isPageMounted.value = true
+  show()
+})
+
+onBeforeUnmount(() => {
+  clearTimeout(pdfLibTimer.value)
+})
+
+watch(isRenderReady, () => {
+  if (isOpenedPending.value) {
+    renderMainPage()
+    isOpenedPending.value = false
+  }
 })
 
 const isMainReady = computed(() => {
   return mainPage.value && isOpened.value
-})
-
-const isRenderReady = computed(() => {
-  return isPageMounted.value && isLibLoaded.value
 })
 
 const pdfLinkBase = computed(() => {
@@ -120,23 +154,6 @@ const highlightHead = computed(() => {
   return head
 })
 
-watch(isRenderReady, () => {
-  if (isOpenedPending.value) {
-    renderMainPage()
-    isOpenedPending.value = false
-  }
-})
-
-onMounted(() => {
-  keepCheckingPdfLibRediness()
-  isPageMounted.value = true
-  show()
-})
-
-onBeforeUnmount(() => {
-  clearTimeout(pdfLibTimer.value)
-})
-
 function handlePageClick (e) {
   // hide when not clicking pdf
   if (!e.target.closest('.textLayer')) {
@@ -144,32 +161,15 @@ function handlePageClick (e) {
   }
 }
 
-async function show () {
-  isOpened.value = true
-  if (!isRenderReady.value) {
-    isOpenedPending.value = true
-    // vue-meta onload trigger only once, we need to do it ourselves
-    keepCheckingPdfLibRediness()
-  } else {
-    await nextTick()
-    renderMainPage()
-  }
-}
-
-function hide () {
-  isOpened.value = false
-  isOpenedPending.value = false
-}
-
 function checkPdfLibReadiness () {
   return !!window && !!window.pdfjsLib && !!window.pdfjsViewer
 }
 
-function keepCheckingPdfLibRediness () {
+function keepCheckingPdfLibReadiness () {
   pdfLibTimer.value = setTimeout(() => {
     isLibLoaded.value = checkPdfLibReadiness()
     if (!isLibLoaded.value) {
-      keepCheckingPdfLibRediness()
+      keepCheckingPdfLibReadiness()
     } else {
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_BASE}/build/pdf.worker.js`
     }
@@ -202,7 +202,7 @@ async function preparePdf (pageIndex: number): Promise<any> {
 
 async function renderMainPage () {
   const pdf = await preparePdf(props.startPage)
-  pdf.highlight = highlightHead
+  pdf.highlight = highlightHead.value
   mainPage.value = pdf
 }
 
