@@ -72,7 +72,7 @@ function renderPdf () {
     } else {
       const scrollEle = pdfSinglePageViewer.container.parentElement
       const top = scrollEle.scrollTop
-      // pdfSinglePageViewer.currentPageNumber = props.page
+      pdfSinglePageViewer.currentPageNumber = props.page
       pdfSinglePageViewer.container.parentElement.scrollTo({ top })
     }
     emit('loaded')

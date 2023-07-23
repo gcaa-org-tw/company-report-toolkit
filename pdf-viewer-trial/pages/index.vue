@@ -48,7 +48,6 @@ async function selectReport (targetYead: number, report: any) {
   year.value = targetYead
   companyId.value = report.id
   await nextTick()
-  console.warn('??', pdfViewer.value)
   pdfViewer.value?.show()
 }
 

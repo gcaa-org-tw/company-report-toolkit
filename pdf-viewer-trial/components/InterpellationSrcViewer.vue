@@ -227,6 +227,11 @@ async function loadMore (isTail: boolean, $state: any) {
   } else {
     nextPage = nextPage - headPages.value.length - 1
   }
+  // TODO: handle end of pdf
+  if (nextPage < 1) {
+    $state.complete()
+    return
+  }
   const pdf = await preparePdf(nextPage)
   const page = {
     id: nextPage,
