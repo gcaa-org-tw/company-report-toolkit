@@ -1,0 +1,106 @@
+- category: 環境
+  fields:
+    - label: ISO 14064
+      type: boolean
+      keywords:
+        - 14064
+    - label: 範疇一直接排放
+      type: number
+      keywords:
+        - 範疇一
+      notes: 要抓的是台灣全場的，可能會有各工廠、或是全世界
+    - label: 範疇二間接排放
+      type: number
+      keywords:
+        - 範疇二
+        - 範疇 2
+        - 範疇2
+      notes: 要抓的是台灣全場的，可能會有各工廠、或是全世界
+    - label: 碳密集度
+      type: string
+      keywords:
+        - 密集度
+      notes: 可能會分不同場、不同產線，如果有的話，分開寫，須註記單位
+    - label: 碳定價
+      type: number
+      keywords:
+        - 碳定價
+    - label: 總用電量
+      type: number
+      keywords:
+        - 電力
+        - 用電
+        - 能源
+      notes: 單位：千度，電力只看電力欄位，因為可能會有其他石化燃料等
+    - label: 再生能源設置量
+      type: number
+      keywords:
+        - 再生能源
+      notes: 單位：KW ，可能是寫「沒有使用」
+    - label: 再生能源發電量
+      type: number
+      keywords:
+        - 再生能源
+      notes: 單位：千度，可能是寫「沒有使用」
+- category: 社會
+  fields:
+    - label: 正式員工數
+      type: number
+      keywords:
+        - 正式員工
+        - 全職
+        - 定期員工
+      notes: 單位：人
+    - label: 非正式員工數
+      type: number
+      keywords:
+        - 非正式員工
+        - 不定期
+        - 協力
+        - 派遣
+      notes: 單位：人
+    - label: 性別比
+      type: number
+      keywords:
+        - 性別
+      notes: 男/女
+    - label: 是否聘用移工
+      type: boolean
+      keywords:
+        - 外籍
+        - 移工
+    - label: 是否聘用身障人士
+      type: boolean
+      keywords:
+        - 身心障礙
+    - label: 新進率
+      type: number
+      keywords:
+        - 新進
+    - label: 離職率
+      type: number
+      keywords:
+        - 離職
+- category: 治理
+  fields:
+    - label: ISO 9001
+      type: boolean
+      keywords:
+        - 9001
+    - label: ISO 14001
+      type: number
+      keywords:
+        - 14001
+    - label: 營利事業所得稅稅額
+      type: number
+      keywords:
+        - 繳納
+        - 營所稅
+        - 所得
+      notes: 單位：元
+    - label: 政府補助、補貼金額
+      type: number
+      keywords:
+        - 201-4
+        - 抵減稅額
+      notes: 單位：元
