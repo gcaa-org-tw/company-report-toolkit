@@ -1,4 +1,5 @@
-import ViteYaml from '@modyfi/vite-plugin-yaml';
+import ViteYaml from '@modyfi/vite-plugin-yaml'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
@@ -24,5 +25,12 @@ export default defineNuxtConfig({
     plugins: [
       ViteYaml()
     ]
+  },
+  runtimeConfig: {
+    public: {
+      algoliaAppId: '',
+      algoliaSearchApiKey: '',
+      algoliaIndexName: ''
+    }
   }
 })

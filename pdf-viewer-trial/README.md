@@ -61,3 +61,11 @@ yarn preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+
+## Environment variable
+
+1. required
+   - NUXT_PUBLIC_ALGOLIA_APP_ID, for PDF search
+   - NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY, for PDF search
+   - NUXT_PUBLIC_ALGOLIA_INDEX_NAME, for PDF search
