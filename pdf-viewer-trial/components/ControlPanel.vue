@@ -14,8 +14,7 @@
   .bt.bb.b--gray.mv3.pv2
     .f6.b {{ curField.category }} | {{ curField.label }}
     .mv3.pb2.bb
-      input.w-100.controlPanel__input(placeholder="我是假的輸入框 😛")
-      .controlPanel__keywordSection.mt2
+      .controlPanel__keywordSection
         .flex.f6
           .flex-none 欄位關鍵字
           .flex.flex-wrap
@@ -26,6 +25,7 @@
               @click="selectKeyword(keyword)"
             )
               | {{ keyword }}
+            input.mt1.f6.w-100.controlPanel__input(v-model.trim="customizedKeyword" placeholder="自訂關鍵字")
         .f6.gray.mv1(v-show="keywordResults.length")
           .flex.mv2(v-for="hit in keywordResults" :key="hit.page")
             .flex-none.dark-gray 頁{{ hit.page }}
@@ -52,7 +52,7 @@ const reportMap = [
   }
 ]
 
-const emit = defineEmits(['report', 'cursor'])
+const emit = defineEmits(['report'])
 
 const curYear = ref(2021)
 const curCompanyId = ref(reportMap[0].reports[0].id)
@@ -86,8 +86,11 @@ const prevField = computed(() => {
 })
 
 function selectReport (year: number, company: any) {
-  resetControl(year, company)
-  emit('report', { year, company })
+  curYear.value = year
+  curCompanyId.value = company.id
+  if (curKeyword.value) {
+    searchKeyword()
+  }
 }
 
 function isSelected (year: number, company: any) {
@@ -112,6 +115,8 @@ function gotoPrevField () {
 
 watch([curField], () => {
   keywordResults.value = []
+  customizedKeyword.value = ''
+  predefinedKeyword.value = ''
 })
 
 const runtimeConfig = useRuntimeConfig()
@@ -120,19 +125,34 @@ const agClient = algoliasearch(
   runtimeConfig.public.algoliaSearchApiKey)
 const agIndex = agClient.initIndex(runtimeConfig.public.algoliaIndexName)
 
-const curKeyword = ref<string | null>('')
+const predefinedKeyword = ref<string>('')
+const customizedKeyword = ref('')
 const keywordResults = ref([])
 
-// const isShowingMiscKeyword = computed(() => {
-//   return curKeyword.value === null
-// })
+const curKeyword = computed(() => {
+  return customizedKeyword.value || predefinedKeyword.value || ''
+})
 
-function selectKeyword (keyword) {
-  curKeyword.value = keyword
-  searchKeyword()
+watch([predefinedKeyword, customizedKeyword], ([newPre, newCus], [oldPre, oldCus]) => {
+  if (newPre !== oldPre && newPre) {
+    customizedKeyword.value = ''
+  } else if (newCus !== oldCus && newCus) {
+    predefinedKeyword.value = ''
+  }
+})
+
+function selectKeyword (keyword: string) {
+  predefinedKeyword.value = keyword
 }
 
+watch([curKeyword], () => {
+  searchKeyword()
+})
+
 async function searchKeyword () {
+  if (!curKeyword.value) {
+    return
+  }
   const { hits } = await agIndex.search(curKeyword.value, {
     facetFilters: [
       `company:${curCompanyId.value}`,
@@ -148,7 +168,7 @@ const MATCH_SEGMENT_LEN = 7
 function extractMatchSegment (haystack: string) {
   // TODO: better detection, handle tail
   haystack = haystack.replace(/\n/g, '')
-  const keywordStr = `${curKeyword.value || ''}`
+  const keywordStr = `${predefinedKeyword.value || ''}`
   const index = haystack.indexOf(keywordStr)
   const minMatchLen = keywordStr.length + MATCH_SEGMENT_LEN
 
@@ -156,14 +176,6 @@ function extractMatchSegment (haystack: string) {
     return '...' + haystack.slice(index - MATCH_SEGMENT_LEN, index + MATCH_SEGMENT_LEN + minMatchLen) + '...'
   } else {
     return haystack.slice(0, minMatchLen * 2) + '...'
-  }
-}
-
-function resetControl (year, company) {
-  curYear.value = year
-  curCompanyId.value = company.id
-  if (curKeyword.value) {
-    searchKeyword()
   }
 }
 
@@ -181,7 +193,7 @@ function resetControl (year, company) {
 
   &__input {
     border: none;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #ccc;
     outline: none;
   }
 
