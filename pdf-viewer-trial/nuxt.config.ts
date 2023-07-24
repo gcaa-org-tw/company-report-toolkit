@@ -7,7 +7,8 @@ const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
-    '@nuxtjs/eslint-module'
+    '@nuxtjs/eslint-module',
+    '@vueuse/nuxt'
   ],
   css: [
     'tachyons/css/tachyons.css'
@@ -32,8 +33,5 @@ export default defineNuxtConfig({
       algoliaSearchApiKey: '',
       algoliaIndexName: ''
     }
-  },
-  modules: [
-    '@vueuse/nuxt'
-  ]
+  }
 })
