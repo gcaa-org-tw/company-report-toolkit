@@ -27,7 +27,12 @@
               | {{ keyword }}
             input.mt1.f6.w-100.controlPanel__input(v-model.trim="customizedKeyword" placeholder="自訂關鍵字")
         .f6.gray.mv1(v-show="keywordResults.length")
-          .flex.mv2(v-for="hit in keywordResults" :key="hit.page")
+          .flex.mv2.dim.pointer(
+            v-for="hit in keywordResults"
+            :key="hit.page"
+            :class="{'b': hit === curSearchHit}"
+            @click="gotoSelectedPage(hit)"
+          )
             .flex-none.dark-gray 頁{{ hit.page }}
             .pl2 {{ extractMatchSegment(hit.content) }}
     .flex.justify-between.items-center
@@ -37,7 +42,7 @@
         | {{ nextField.label }} 》
 </template>
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import algoliasearch from 'algoliasearch'
 import fieldMap from '~/assets/field-map.yml'
 
@@ -52,7 +57,7 @@ const reportMap = [
   }
 ]
 
-const emit = defineEmits(['report'])
+const emit = defineEmits(['report', 'page'])
 
 const curYear = ref(2021)
 const curCompanyId = ref(reportMap[0].reports[0].id)
@@ -88,10 +93,13 @@ const prevField = computed(() => {
 function selectReport (year: number, company: any) {
   curYear.value = year
   curCompanyId.value = company.id
-  if (curKeyword.value) {
-    searchKeyword()
-  }
+  searchKeyword()
+  emit('report', { year, companyId: company.id })
 }
+
+onMounted(() => {
+  emit('report', { year: curYear.value, companyId: curCompanyId.value })
+})
 
 function isSelected (year: number, company: any) {
   return year === curYear.value && company.id === curCompanyId.value
@@ -151,6 +159,8 @@ watch([curKeyword], () => {
 
 async function searchKeyword () {
   if (!curKeyword.value) {
+    keywordResults.value = []
+    curSearchHit.value = null
     return
   }
   const { hits } = await agIndex.search(curKeyword.value, {
@@ -161,6 +171,7 @@ async function searchKeyword () {
   })
 
   keywordResults.value = hits
+  curSearchHit.value = null
 }
 
 const MATCH_SEGMENT_LEN = 7
@@ -177,6 +188,14 @@ function extractMatchSegment (haystack: string) {
   } else {
     return haystack.slice(0, minMatchLen * 2) + '...'
   }
+}
+
+const curSearchHit = ref(null)
+
+function gotoSelectedPage (hit) {
+  // TODO better keyword detection
+  curSearchHit.value = hit
+  emit('page', { highlight: curKeyword.value, page: hit.page })
 }
 
 </script>
