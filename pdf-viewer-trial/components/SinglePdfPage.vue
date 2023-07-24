@@ -2,11 +2,6 @@
 .sip.pdfViewer(ref="pageEle")
 </template>
 <script setup lang="ts">
-
-import { onMounted, ref } from 'vue'
-
-const DEFAULT_SCALE = 0.95
-
 const props = defineProps({
   document: {
     type: Object,
@@ -23,6 +18,10 @@ const props = defineProps({
   noScroll: {
     type: Boolean,
     default: true
+  },
+  scale: {
+    type: Number,
+    default: 0.95
   }
 })
 
@@ -58,7 +57,7 @@ function renderPdf () {
   viewerConfig.linkService.setViewer(pdfSinglePageViewer)
 
   eventBus.on('pagesinit', () => {
-    pdfSinglePageViewer._setScale(DEFAULT_SCALE, props.noScroll)
+    pdfSinglePageViewer._setScale(props.scale, props.noScroll)
 
     if (props.highlight) {
       // TODO: handle search not found
@@ -72,7 +71,7 @@ function renderPdf () {
     } else {
       const scrollEle = pdfSinglePageViewer.container.parentElement
       const top = scrollEle.scrollTop
-      // pdfSinglePageViewer.currentPageNumber = props.page
+      pdfSinglePageViewer.currentPageNumber = props.page
       pdfSinglePageViewer.container.parentElement.scrollTo({ top })
     }
     emit('loaded')
