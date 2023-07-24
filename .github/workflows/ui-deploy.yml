@@ -8,6 +8,7 @@ env:
   NUXT_PUBLIC_ALGOLIA_APP_ID: ${{ secrets.NUXT_PUBLIC_ALGOLIA_APP_ID }}
   NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: ${{ secrets.NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY }}
   NUXT_PUBLIC_ALGOLIA_INDEX_NAME: ${{ secrets.NUXT_PUBLIC_ALGOLIA_INDEX_NAME }}
+  NUXT_APP_BASE_URL: /company-report-toolkit/
 
 on:
   push:
@@ -25,20 +26,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node: [14]
+        node: [16]
 
     steps:
       - name: Checkout 🛎
         uses: actions/checkout@master
 
       - name: Setup node env 🏗
-        uses: actions/setup-node@v3.1.1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
 
       - name: Cache node_modules 📦
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -55,7 +55,7 @@ jobs:
         run: npm run generate
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3.8.0
+        uses: peaceiris/actions-gh-pages@v3
         with:
           DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           PUBLISH_BRANCH: gh-pages
