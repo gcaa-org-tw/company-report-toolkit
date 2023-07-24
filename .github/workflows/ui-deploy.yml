@@ -1,0 +1,62 @@
+name: ui-deploy
+
+defaults:
+  run:
+    working-directory: pdf-viewer-trial
+
+env:
+  NUXT_PUBLIC_ALGOLIA_APP_ID=${{ secrets.NUXT_PUBLIC_ALGOLIA_APP_ID }}
+  NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY=${{ secrets.NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY }}
+  NUXT_PUBLIC_ALGOLIA_INDEX_NAME=${{ secrets.NUXT_PUBLIC_ALGOLIA_INDEX_NAME }}
+
+on:
+  push:
+    paths:
+      - 'pdf-viewer-trial/**'
+      - '.github/workflows/**'
+    branches:
+      - main
+      - master
+
+jobs:
+  cd:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [14]
+
+    steps:
+      - name: Checkout 🛎
+        uses: actions/checkout@master
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v3.1.1
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+
+      - name: Cache node_modules 📦
+        uses: actions/cache@v3.0.2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies 👨🏻‍💻
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Prepare env
+        run: touch .env
+
+      - name: Build ui
+        run: npm run generate
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3.8.0
+        with:
+          DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./pdf-viewer-trial/dist

@@ -240,7 +240,6 @@ watch(() => props.page, async () => {
   await nextTick()
   const target = document.querySelector(`.reportViewer__page:nth-of-type(${props.page})`)
   if (target) {
-    console.log('target', target)
     target.scrollIntoView({
       behavior: 'smooth'
     })
