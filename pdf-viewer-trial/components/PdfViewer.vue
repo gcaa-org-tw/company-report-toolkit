@@ -1,6 +1,5 @@
 <template lang="pug">
-.intViewer.relative
-  // b-loading(:is-full-page="true" :active="!isMainReady")
+.intViewer.relative(ref="rootEle")
   .intViewer__container(v-if="isMainReady" :style="containerStyle")
     // client-only
     //   infinite-loading(v-if="mainPage" :distance="0" direction="top" @infinite="loadMore(false, $event)" )
@@ -32,14 +31,6 @@
 </template>
 <script lang="ts" setup>
 import InfiniteLoading from 'vue-infinite-loading'
-import {
-  ref,
-  shallowRef,
-  computed,
-  watch,
-  onBeforeUnmount,
-  nextTick
-} from 'vue'
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
 const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
@@ -156,6 +147,15 @@ async function renderMainPage () {
   mainPage.value = pdf
 }
 
+watch([pdfLinkBase], () => {
+  mainPage.value = null
+  pageChunk.value = {}
+  headPages.value = []
+  tailPages.value = []
+
+  renderMainPage()
+})
+
 function getPageChunkIndex (pageIndex: number) {
   //  1 -> return 001
   // 10 -> return 001
@@ -205,11 +205,15 @@ async function loadMore (isTail: boolean, $state: any) {
 
 const isMounted = useMounted()
 const { width: pageWidth } = useWindowSize()
+const rootEle = ref(null)
 
 const containerStyle = computed(() => {
   let width = 960
   if (isMounted.value) {
     width = pageWidth.value * 0.75 // grid size
+    if (rootEle.value) {
+      width = rootEle.value.clientWidth
+    }
   }
   return { width: `${width}px` }
 })
@@ -221,8 +225,8 @@ const containerStyle = computed(() => {
 
   &__container {
     position: absolute;
-    margin: 0 auto;
     padding-bottom: 2rem;
+    left: 0;
   }
 
   .sip + .sip {
