@@ -54,10 +54,7 @@ const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageChunk = shallowRef<any>({})
 const mainPage = shallowRef(null)
-const headPages = ref([])
-const headLoadingState = ref<any>(null)
 const tailPages = ref([])
-const tailLoadingState = ref<any>(null)
 
 onMounted(() => {
   keepCheckingPdfLibReadiness()
@@ -169,7 +166,7 @@ const pageStyle = computed(() => {
 })
 
 async function renderMainPage () {
-  const pdf = await preparePdf(props.startPage)
+  const pdf = await preparePdf(1)
   pdf.highlight = highlightHead.value
   mainPage.value = pdf
 }
@@ -181,7 +178,6 @@ watchEffect(() => {
   mainPage.value = null
   pdfSize.value = null
   pageChunk.value = {}
-  headPages.value = []
   tailPages.value = Array(props.company.totalPage).fill(null)
 
   renderMainPage()
@@ -193,17 +189,6 @@ function getPageChunkIndex (pageIndex: number) {
   // 11 -> return 002
   const chunkIndex = Math.ceil(pageIndex / PAGE_PER_CHUNK)
   return `${chunkIndex}`.padStart(3, '0')
-}
-
-function markLoadingDone (isTail: boolean) {
-  if (isTail && tailLoadingState.value) {
-    // TODO: handle end of pdf properly
-    tailLoadingState.value.loaded()
-    tailLoadingState.value = null
-  } else if (!isTail && headLoadingState.value) {
-    headLoadingState.value.loaded()
-    headLoadingState.value = null
-  }
 }
 
 async function loadPage (pageIndex: number) {
@@ -221,34 +206,6 @@ async function loadPage (pageIndex: number) {
     pdf: shallowRef(pdf)
   }
 }
-
-// async function loadMore (isTail: boolean, $state: any) {
-//   let nextPage = props.startPage
-//   if (isTail) {
-//     nextPage += tailPages.value.length + 1
-//   } else {
-//     nextPage = nextPage - headPages.value.length - 1
-//   }
-//   // TODO: handle end of pdf
-//   if (nextPage < 1) {
-//     $state.complete()
-//     return
-//   }
-//   const pdf = await preparePdf(nextPage)
-//   const page = {
-//     id: nextPage,
-//     pdf: shallowRef(pdf)
-//   }
-//   setTimeout(() => {
-//     if (isTail) {
-//       tailPages.value.push(page)
-//       tailLoadingState.value = $state
-//     } else {
-//       headPages.value.unshift(page)
-//       headLoadingState.value = $state
-//     }
-//   }, RENDER_SLOWLY)
-// }
 
 const isMounted = useMounted()
 const { width: pageWidth } = useWindowSize()
