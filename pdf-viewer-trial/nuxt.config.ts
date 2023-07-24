@@ -32,5 +32,8 @@ export default defineNuxtConfig({
       algoliaSearchApiKey: '',
       algoliaIndexName: ''
     }
-  }
+  },
+  modules: [
+    '@vueuse/nuxt'
+  ]
 })

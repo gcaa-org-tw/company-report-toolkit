@@ -2,9 +2,6 @@
 .sip.pdfViewer(ref="pageEle")
 </template>
 <script setup lang="ts">
-
-import { onMounted, ref } from 'vue'
-
 const DEFAULT_SCALE = 0.95
 
 const props = defineProps({

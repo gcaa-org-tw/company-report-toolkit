@@ -42,7 +42,6 @@
         | {{ nextField.label }} 》
 </template>
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
 import algoliasearch from 'algoliasearch'
 import fieldMap from '~/assets/field-map.yml'
 
@@ -50,8 +49,8 @@ const reportMap = [
   {
     year: 2021,
     reports: [
-      { id: '07838854', name: '中鴻' },
       { id: '11913502', name: '台泥' },
+      { id: '07838854', name: '中鴻' },
       { id: '89406518', name: '台塑' }
     ]
   }

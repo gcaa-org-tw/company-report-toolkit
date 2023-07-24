@@ -1,33 +1,27 @@
 <template lang="pug">
-.intViewer(:class="{db: isOpened, dn: !isOpened}" @click="hide")
+.intViewer.relative
   // b-loading(:is-full-page="true" :active="!isMainReady")
-  .intViewer__container(v-if="isMainReady")
-    .intViewer__close.flex.justify-end
-      button.plainButton.f4.cursor(@click="hide")
-        | ❎
-    client-only
-      infinite-loading(v-if="mainPage" :distance="0" direction="top" @infinite="loadMore(false, $event)" )
-        // template(#no-more)
-        // template(#no-results)
-    .h3
-    single-interpellation-pdf(
-      v-for="page in headPages"
-      :key="page.id"
-      v-bind="page.pdf"
-      @loaded="markLoadingDone(false)"
-      @click.stop="handlePageClick"
-    )
-    single-interpellation-pdf(
+  .intViewer__container(v-if="isMainReady" :style="containerStyle")
+    // client-only
+    //   infinite-loading(v-if="mainPage" :distance="0" direction="top" @infinite="loadMore(false, $event)" )
+    //     // template(#no-more)
+    //     // template(#no-results)
+    // .h3
+    // single-pdf-page(
+    //   v-for="page in headPages"
+    //   :key="page.id"
+    //   v-bind="page.pdf"
+    //   @loaded="markLoadingDone(false)"
+    // )
+    single-pdf-page(
       v-bind="mainPage"
       :no-scroll="false"
-      @click.stop="handlePageClick"
     )
-    single-interpellation-pdf(
+    single-pdf-page(
       v-for="page in tailPages"
       :key="page.id"
       v-bind="page.pdf"
       @loaded="markLoadingDone(true)"
-      @click.stop="handlePageClick"
     )
     .h3
     client-only
@@ -36,14 +30,13 @@
         // template(#no-results)
     .h3
 </template>
-<script lang="ts">
+<script lang="ts" setup>
 import InfiniteLoading from 'vue-infinite-loading'
 import {
   ref,
   shallowRef,
   computed,
   watch,
-  onMounted,
   onBeforeUnmount,
   nextTick
 } from 'vue'
@@ -56,8 +49,6 @@ const RENDER_SLOWLY = 300
 const CHECK_PDF_LIB_SOMETIME = 100
 const MIN_SEARCH_LEN = 12
 
-</script>
-<script setup lang="ts">
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
 })
@@ -82,9 +73,6 @@ const props = defineProps({
 })
 
 const isLibLoaded = ref(false)
-const isPageMounted = ref(false)
-const isOpenedPending = ref(false)
-const isOpened = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageChunk = shallowRef<any>({})
 const mainPage = shallowRef(null)
@@ -93,48 +81,20 @@ const headLoadingState = ref<any>(null)
 const tailPages = ref([])
 const tailLoadingState = ref<any>(null)
 
-const isRenderReady = computed(() => {
-  return isPageMounted.value && isLibLoaded.value
-})
-
-// call show to open pdf reader
-defineExpose({ show })
-
-async function show () {
-  isOpened.value = true
-  if (!isRenderReady.value) {
-    isOpenedPending.value = true
-    // vue-meta onload trigger only once, we need to do it ourselves
-    keepCheckingPdfLibReadiness()
-  } else {
-    await nextTick()
-    renderMainPage()
-  }
-}
-
-function hide () {
-  isOpened.value = false
-  isOpenedPending.value = false
-}
-
 onMounted(() => {
   keepCheckingPdfLibReadiness()
-  isPageMounted.value = true
 })
 
 onBeforeUnmount(() => {
   clearTimeout(pdfLibTimer.value)
 })
 
-watch(isRenderReady, () => {
-  if (isOpenedPending.value) {
-    renderMainPage()
-    isOpenedPending.value = false
-  }
+watch(isLibLoaded, () => {
+  renderMainPage()
 })
 
 const isMainReady = computed(() => {
-  return mainPage.value && isOpened.value
+  return mainPage.value
 })
 
 const pdfLinkBase = computed(() => {
@@ -149,25 +109,20 @@ const highlightHead = computed(() => {
   return head
 })
 
-function handlePageClick (e) {
-  // hide when not clicking pdf
-  if (!e.target.closest('.textLayer')) {
-    hide()
-  }
-}
-
 function checkPdfLibReadiness () {
   return !!window && !!window.pdfjsLib && !!window.pdfjsViewer
 }
 
 function keepCheckingPdfLibReadiness () {
-  pdfLibTimer.value = setTimeout(() => {
-    isLibLoaded.value = checkPdfLibReadiness()
-    if (!isLibLoaded.value) {
+  pdfLibTimer.value = setTimeout(async () => {
+    const isLoaded = checkPdfLibReadiness()
+    if (!isLoaded) {
       keepCheckingPdfLibReadiness()
     } else {
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_BASE}/build/pdf.worker.js`
+      await nextTick()
     }
+    isLibLoaded.value = isLoaded
   }, CHECK_PDF_LIB_SOMETIME)
 }
 
@@ -247,38 +202,27 @@ async function loadMore (isTail: boolean, $state: any) {
     }
   }, RENDER_SLOWLY)
 }
+
+const isMounted = useMounted()
+const { width: pageWidth } = useWindowSize()
+
+const containerStyle = computed(() => {
+  let width = 960
+  if (isMounted.value) {
+    width = pageWidth.value * 0.75 // grid size
+  }
+  return { width: `${width}px` }
+})
+
 </script>
 <style lang="scss" scoped>
 .intViewer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 1000;
   padding: 2rem;
-  overflow: auto;
-  background: #000a;
 
   &__container {
     position: absolute;
-    width: 100vw;
-    max-width: 62rem;
-    transform: translateX(-50%);
-    left: 50%;
-    top: 2rem;
+    margin: 0 auto;
     padding-bottom: 2rem;
-  }
-
-  &__close {
-    position: sticky;
-    top: 0rem;
-    z-index: 1;
-    padding: 0 1rem;
-    button {
-      color: #999;
-      padding: 1rem;
-    }
   }
 
   .sip + .sip {

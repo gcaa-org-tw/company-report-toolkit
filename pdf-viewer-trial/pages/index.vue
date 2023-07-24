@@ -5,8 +5,13 @@ main.main
       .main__control
         control-panel(@report="changeReport" @page="changePage")
   .main__reader
-    .pa3.ba.mv3 {{ report }}
-    .pa3.ba {{ reportPage }}
+    pdf-viewer(
+      v-if="report && reportPage"
+      :year="report.year"
+      :company-id="report.companyId"
+      :start-page="reportPage.page"
+      :highlight="reportPage.highlight"
+    )
 </template>
 <script setup lang="ts">
 const report = ref(null)
@@ -14,6 +19,7 @@ const reportPage = ref(null)
 
 function changeReport (newReport) {
   report.value = newReport
+  reportPage.value = { page: 1, highlight: '' }
 }
 
 function changePage (newPage) {
