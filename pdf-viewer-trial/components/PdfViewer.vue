@@ -7,15 +7,15 @@
       :scale="pdfScale.scale"
       :no-scroll="false"
     )
-    template(v-for="(page, index) in tailPages" :key="index")
+    template(v-for="(cursor, index) in tailPages" :key="index")
       empty-page.reportViewer__page(
-        v-if="!page"
+        v-if="!cursor"
         :style="pageStyle"
         @visible="loadPage(index)"
       )
       single-pdf-page.reportViewer__page(
         v-else
-        v-bind="page.pdf"
+        v-bind="cursor.pdf"
         :scale="pdfScale.scale"
       )
 </template>
@@ -32,9 +32,9 @@ useHead({
 })
 
 const props = defineProps({
-  startPage: {
+  page: {
     type: Number,
-    required: true
+    default: 1
   },
   year: {
     type: [Number, String],
@@ -45,7 +45,7 @@ const props = defineProps({
     required: true
   },
   highlight: {
-    type: String,
+    type: [String, Number],
     default: ''
   }
 })
@@ -76,10 +76,15 @@ const pdfLinkBase = computed(() => {
   return `${PDF_SRC_BASE}/${props.year}/${props.company.id}`
 })
 
+const normalizedHighlight = computed(() => {
+  return props.highlight + ''
+})
+
 const highlightHead = computed(() => {
-  let head = props.highlight.split(/[，。！？]/)[0]
+  const highlight = normalizedHighlight.value
+  let head = highlight.split(/[，。！？]/)[0]
   if (head.length < MIN_SEARCH_LEN) {
-    head = props.highlight.slice(0, MIN_SEARCH_LEN)
+    head = highlight.slice(0, MIN_SEARCH_LEN)
   }
   return head
 })
@@ -225,6 +230,20 @@ const containerWidth = computed(() => {
 const containerStyle = computed(() => {
   return {
     width: `${containerWidth.value}px`
+  }
+})
+
+// TODO: watch highlight
+watch(() => props.page, async () => {
+  const tailIndex = props.page - 2
+  await loadPage(tailIndex)
+  await nextTick()
+  const target = document.querySelector(`.reportViewer__page:nth-of-type(${props.page})`)
+  if (target) {
+    console.log('target', target)
+    target.scrollIntoView({
+      behavior: 'smooth'
+    })
   }
 })
 

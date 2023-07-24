@@ -9,7 +9,7 @@ main.main
       v-if="report && reportPage"
       :year="report.year"
       :company="report.company"
-      :start-page="reportPage.page"
+      :page="reportPage.page"
       :highlight="reportPage.highlight"
     )
 </template>
