@@ -8,7 +8,7 @@ main.main
     pdf-viewer(
       v-if="report && reportPage"
       :year="report.year"
-      :company-id="report.companyId"
+      :company="report.company"
       :start-page="reportPage.page"
       :highlight="reportPage.highlight"
     )
@@ -28,6 +28,9 @@ function changePage (newPage) {
 
 </script>
 <style lang="scss">
+body {
+  overflow: hidden;
+}
 .main {
   display: grid;
   grid-template-columns: 1fr 3fr;

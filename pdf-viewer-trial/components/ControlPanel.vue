@@ -49,9 +49,9 @@ const reportMap = [
   {
     year: 2021,
     reports: [
-      { id: '11913502', name: '台泥' },
-      { id: '07838854', name: '中鴻' },
-      { id: '89406518', name: '台塑' }
+      { id: '11913502', name: '台泥', totalPage: 121 },
+      { id: '07838854', name: '中鴻', totalPage: 115 },
+      { id: '89406518', name: '台塑', totalPage: 177 }
     ]
   }
 ]
@@ -59,7 +59,7 @@ const reportMap = [
 const emit = defineEmits(['report', 'page'])
 
 const curYear = ref(2021)
-const curCompanyId = ref(reportMap[0].reports[0].id)
+const curCompany = ref(reportMap[0].reports[0])
 const curFieldIndex = ref(0)
 
 const flatFieldMap = fieldMap.flatMap((category) => {
@@ -91,17 +91,17 @@ const prevField = computed(() => {
 
 function selectReport (year: number, company: any) {
   curYear.value = year
-  curCompanyId.value = company.id
+  curCompany.value = company
   searchKeyword()
-  emit('report', { year, companyId: company.id })
+  emit('report', { year, company })
 }
 
 onMounted(() => {
-  emit('report', { year: curYear.value, companyId: curCompanyId.value })
+  emit('report', { year: curYear.value, company: curCompany.value })
 })
 
 function isSelected (year: number, company: any) {
-  return year === curYear.value && company.id === curCompanyId.value
+  return year === curYear.value && company.id === curCompany.value.id
 }
 
 function gotoNextField () {
@@ -164,7 +164,7 @@ async function searchKeyword () {
   }
   const { hits } = await agIndex.search(curKeyword.value, {
     facetFilters: [
-      `company:${curCompanyId.value}`,
+      `company:${curCompany.value.id}`,
       `year:${curYear.value}`
     ]
   })

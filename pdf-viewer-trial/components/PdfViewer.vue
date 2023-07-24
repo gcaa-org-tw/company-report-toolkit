@@ -1,41 +1,28 @@
 <template lang="pug">
-.intViewer.relative(ref="rootEle")
-  .intViewer__container(v-if="isMainReady" :style="containerStyle")
-    // client-only
-    //   infinite-loading(v-if="mainPage" :distance="0" direction="top" @infinite="loadMore(false, $event)" )
-    //     // template(#no-more)
-    //     // template(#no-results)
-    // .h3
-    // single-pdf-page(
-    //   v-for="page in headPages"
-    //   :key="page.id"
-    //   v-bind="page.pdf"
-    //   @loaded="markLoadingDone(false)"
-    // )
-    single-pdf-page(
+.reportViewer.relative(ref="rootEle")
+  // .pa3.ba {{ tailPages.length }} - {{ tailPages.slice(0, 5) }} - {{ pdfScale }}
+  .reportViewer__container(v-if="isMainReady" :style="containerStyle")
+    single-pdf-page.reportViewer__page(
       v-bind="mainPage"
+      :scale="pdfScale.scale"
       :no-scroll="false"
     )
-    single-pdf-page(
-      v-for="page in tailPages"
-      :key="page.id"
-      v-bind="page.pdf"
-      @loaded="markLoadingDone(true)"
-    )
-    .h3
-    client-only
-      infinite-loading(v-if="mainPage" :distance="0" @infinite="loadMore(true, $event)")
-        // template(#no-more)
-        // template(#no-results)
-    .h3
+    template(v-for="(page, index) in tailPages" :key="index")
+      empty-page.reportViewer__page(
+        v-if="!page"
+        :style="pageStyle"
+        @visible="loadPage(index)"
+      )
+      single-pdf-page.reportViewer__page(
+        v-else
+        v-bind="page.pdf"
+        :scale="pdfScale.scale"
+      )
 </template>
 <script lang="ts" setup>
-import InfiniteLoading from 'vue-infinite-loading'
-
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
 const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
 const PAGE_PER_CHUNK = 10
-const RENDER_SLOWLY = 300
 
 const CHECK_PDF_LIB_SOMETIME = 100
 const MIN_SEARCH_LEN = 12
@@ -53,8 +40,8 @@ const props = defineProps({
     type: [Number, String],
     default: 2019
   },
-  companyId: {
-    type: [Number, String],
+  company: {
+    type: Object,
     required: true
   },
   highlight: {
@@ -85,11 +72,11 @@ watch(isLibLoaded, () => {
 })
 
 const isMainReady = computed(() => {
-  return mainPage.value
+  return mainPage.value && pdfScale.value
 })
 
 const pdfLinkBase = computed(() => {
-  return `${PDF_SRC_BASE}/${props.year}/${props.companyId}`
+  return `${PDF_SRC_BASE}/${props.year}/${props.company.id}`
 })
 
 const highlightHead = computed(() => {
@@ -134,6 +121,7 @@ async function preparePdf (pageIndex: number): Promise<any> {
   }
 
   const pdfDocument = await pageChunk.value[chunkIndex].promise
+  initPdfScaleIfNeeded(pdfDocument)
 
   return {
     document: pdfDocument,
@@ -141,17 +129,60 @@ async function preparePdf (pageIndex: number): Promise<any> {
   }
 }
 
+const pdfSize = ref(null)
+
+async function initPdfScaleIfNeeded (pdf) {
+  if (pdfSize.value) {
+    return
+  }
+  const p1 = await pdf.getPage(1)
+  const { width, height } = p1.getViewport({ scale: 1 })
+
+  pdfSize.value = { width, height }
+}
+
+const containerPadding = 16
+const pdfScale = computed(() => {
+  if (!pdfSize.value || !isMounted) {
+    return null
+  }
+  const outputScale = 1 || window.devicePixelRatio || 1
+  const canvasWidth = (containerWidth.value - containerPadding * 2) * outputScale
+  const scale = canvasWidth / pdfSize.value.width
+
+  return {
+    scale: 1 || scale,
+    // scale,
+    width: pdfSize.value.width * scale,
+    height: pdfSize.value.height * scale
+  }
+})
+
+const pageStyle = computed(() => {
+  if (!pdfScale.value) {
+    return {}
+  }
+  return {
+    width: `${pdfScale.value.width}px`,
+    height: `${pdfScale.value.height}px`
+  }
+})
+
 async function renderMainPage () {
   const pdf = await preparePdf(props.startPage)
   pdf.highlight = highlightHead.value
   mainPage.value = pdf
 }
 
-watch([pdfLinkBase], () => {
+watchEffect(() => {
+  if (!pdfLinkBase.value || !props.company) {
+    return
+  }
   mainPage.value = null
+  pdfSize.value = null
   pageChunk.value = {}
   headPages.value = []
-  tailPages.value = []
+  tailPages.value = Array(props.company.totalPage).fill(null)
 
   renderMainPage()
 })
@@ -175,39 +206,55 @@ function markLoadingDone (isTail: boolean) {
   }
 }
 
-async function loadMore (isTail: boolean, $state: any) {
-  let nextPage = props.startPage
-  if (isTail) {
-    nextPage += tailPages.value.length + 1
-  } else {
-    nextPage = nextPage - headPages.value.length - 1
+async function loadPage (pageIndex: number) {
+  if (pageIndex >= tailPages.value.length) {
+    throw new Error(`Invalid page number: ${pageIndex}`)
   }
-  // TODO: handle end of pdf
-  if (nextPage < 1) {
-    $state.complete()
+
+  if (tailPages.value[pageIndex]) {
     return
   }
-  const pdf = await preparePdf(nextPage)
-  const page = {
-    id: nextPage,
+
+  // zero index + exclude main page
+  const pdf = await preparePdf(pageIndex + 2)
+  tailPages.value[pageIndex] = {
     pdf: shallowRef(pdf)
   }
-  setTimeout(() => {
-    if (isTail) {
-      tailPages.value.push(page)
-      tailLoadingState.value = $state
-    } else {
-      headPages.value.unshift(page)
-      headLoadingState.value = $state
-    }
-  }, RENDER_SLOWLY)
 }
+
+// async function loadMore (isTail: boolean, $state: any) {
+//   let nextPage = props.startPage
+//   if (isTail) {
+//     nextPage += tailPages.value.length + 1
+//   } else {
+//     nextPage = nextPage - headPages.value.length - 1
+//   }
+//   // TODO: handle end of pdf
+//   if (nextPage < 1) {
+//     $state.complete()
+//     return
+//   }
+//   const pdf = await preparePdf(nextPage)
+//   const page = {
+//     id: nextPage,
+//     pdf: shallowRef(pdf)
+//   }
+//   setTimeout(() => {
+//     if (isTail) {
+//       tailPages.value.push(page)
+//       tailLoadingState.value = $state
+//     } else {
+//       headPages.value.unshift(page)
+//       headLoadingState.value = $state
+//     }
+//   }, RENDER_SLOWLY)
+// }
 
 const isMounted = useMounted()
 const { width: pageWidth } = useWindowSize()
 const rootEle = ref(null)
 
-const containerStyle = computed(() => {
+const containerWidth = computed(() => {
   let width = 960
   if (isMounted.value) {
     width = pageWidth.value * 0.75 // grid size
@@ -215,12 +262,18 @@ const containerStyle = computed(() => {
       width = rootEle.value.clientWidth
     }
   }
-  return { width: `${width}px` }
+  return width
+})
+
+const containerStyle = computed(() => {
+  return {
+    width: `${containerWidth.value}px`
+  }
 })
 
 </script>
 <style lang="scss" scoped>
-.intViewer {
+.reportViewer {
   padding: 2rem;
 
   &__container {
@@ -229,7 +282,7 @@ const containerStyle = computed(() => {
     left: 0;
   }
 
-  .sip + .sip {
+  &__page + .reportViewer__page {
     margin-top: 2rem;
   }
 }
