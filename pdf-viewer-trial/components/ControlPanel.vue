@@ -33,8 +33,9 @@
             :class="{'b': hit === curSearchHit}"
             @click="gotoSelectedPage(hit)"
           )
-            .flex-none.dark-gray 頁{{ hit.page }}
-            .pl2 {{ extractMatchSegment(hit.content) }}
+            .flex-none.dark-gray 頁{{ hit.page - 1 }}
+            // eslint-disable-next-line vue/no-v-html
+            .pl2(v-html="extractMatchSegment(hit.content)")
     .flex.justify-between.items-center
       button.controlPanel__cursor(@click="gotoPrevField")
         | 《 {{ prevField.label }}
@@ -42,6 +43,7 @@
         | {{ nextField.label }} 》
 </template>
 <script setup lang="ts">
+import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 import fieldMap from '~/assets/field-map.yml'
 
@@ -56,7 +58,7 @@ const reportMap = [
   }
 ]
 
-const emit = defineEmits(['report', 'page'])
+const emit = defineEmits(['report', 'page', 'matched-pages'])
 
 const curYear = ref(2021)
 const curCompany = ref(reportMap[0].reports[0])
@@ -173,6 +175,11 @@ async function searchKeyword () {
   curSearchHit.value = null
 }
 
+watch(keywordResults, (newResults) => {
+  const matchedPages = newResults.map(hit => hit.page)
+  emit('matched-pages', matchedPages)
+})
+
 const MATCH_SEGMENT_LEN = 7
 
 function extractMatchSegment (haystack: string) {
@@ -182,11 +189,20 @@ function extractMatchSegment (haystack: string) {
   const index = haystack.indexOf(keywordStr)
   const minMatchLen = keywordStr.length + MATCH_SEGMENT_LEN
 
+  if (index < 0) {
+    return haystack.slice(0, minMatchLen * 2)
+  }
+
+  const keywordLen = keywordStr.length
+  let head = haystack.slice(0, index)
+  const tail = `${haystack.slice(index + keywordLen, index + keywordLen + MATCH_SEGMENT_LEN)}...`
+
   if (index > MATCH_SEGMENT_LEN) {
-    return '...' + haystack.slice(index - MATCH_SEGMENT_LEN, index + MATCH_SEGMENT_LEN + minMatchLen) + '...'
+    head = `...${haystack.slice(index - MATCH_SEGMENT_LEN, index)}`
   } else {
     return haystack.slice(0, minMatchLen * 2) + '...'
   }
+  return `${_.escape(head)}<b class="underline">${keywordStr}</b>${_.escape(tail)}`
 }
 
 const curSearchHit = ref(null)
