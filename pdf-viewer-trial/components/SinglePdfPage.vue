@@ -60,8 +60,6 @@ function renderPdf () {
     pdfSinglePageViewer._setScale(props.scale, props.noScroll)
 
     if (props.highlight) {
-      // TODO: handle search not found
-      // console.warn('search', props.highlight)
       eventBus.dispatch('find', {
         type: '',
         query: props.highlight,
@@ -69,12 +67,21 @@ function renderPdf () {
         highlightAll: true
       })
     } else {
-      const scrollEle = pdfSinglePageViewer.container.parentElement
-      const top = scrollEle.scrollTop
+      // const scrollEle = pdfSinglePageViewer.container.parentElement
+      // const top = scrollEle.scrollTop
       pdfSinglePageViewer.currentPageNumber = props.page
-      pdfSinglePageViewer.container.parentElement.scrollTo({ top })
+      // pdfSinglePageViewer.container.parentElement.scrollTo({ top })
     }
     emit('loaded')
+  })
+
+  eventBus.on('updatefindcontrolstate', ({ source }) => {
+    // FindState.NOT_FOUND === 1
+    if (source._offset.pageIdx !== props.page - 1) {
+      setTimeout(() => {
+        pdfSinglePageViewer.currentPageNumber = props.page
+      })
+    }
   })
 
   eventBus.on('updatetextlayermatches', () => {
@@ -91,10 +98,14 @@ onMounted(renderPdf)
 
 </script>
 <style lang="scss" scoped>
-.sip {
-  ::v-deep {
-    .pdfViewer .page {
+.sip.pdfViewer {
+  ::v-deep() {
+    .page {
       box-sizing: content-box;
+    }
+    .textLayer .highlight {
+      border-radius: 0.125rem;
+      background: #060;
     }
   }
 }

@@ -3,7 +3,7 @@ main.main
   .pa2
     .ba.b--gray.pa2
       .main__control
-        control-panel(@report="changeReport" @page="changePage")
+        control-panel(@report="changeReport" @page="changePage" @matched-pages="updateMatchedPages")
   .main__reader
     pdf-viewer(
       v-if="report && reportPage"
@@ -11,11 +11,13 @@ main.main
       :company="report.company"
       :page="reportPage.page"
       :highlight="reportPage.highlight"
+      :matched-pages="matchedPages"
     )
 </template>
 <script setup lang="ts">
 const report = ref(null)
 const reportPage = ref(null)
+const matchedPages = ref([])
 
 function changeReport (newReport) {
   report.value = newReport
@@ -24,6 +26,10 @@ function changeReport (newReport) {
 
 function changePage (newPage) {
   reportPage.value = newPage
+}
+
+function updateMatchedPages (matched) {
+  matchedPages.value = matched
 }
 
 </script>

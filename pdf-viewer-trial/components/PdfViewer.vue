@@ -16,6 +16,7 @@
       single-pdf-page.reportViewer__page(
         v-else
         v-bind="cursor.pdf"
+        :highlight="cursor.highlight"
         :scale="pdfScale.scale"
       )
 </template>
@@ -25,7 +26,6 @@ const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-re
 const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
-const MIN_SEARCH_LEN = 12
 
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
@@ -47,6 +47,12 @@ const props = defineProps({
   highlight: {
     type: [String, Number],
     default: ''
+  },
+  matchedPages: {
+    type: Array,
+    default () {
+      return []
+    }
   }
 })
 
@@ -78,15 +84,6 @@ const pdfLinkBase = computed(() => {
 
 const normalizedHighlight = computed(() => {
   return props.highlight + ''
-})
-
-const highlightHead = computed(() => {
-  const highlight = normalizedHighlight.value
-  let head = highlight.split(/[，。！？]/)[0]
-  if (head.length < MIN_SEARCH_LEN) {
-    head = highlight.slice(0, MIN_SEARCH_LEN)
-  }
-  return head
 })
 
 function checkPdfLibReadiness () {
@@ -172,7 +169,6 @@ const pageStyle = computed(() => {
 
 async function renderMainPage () {
   const pdf = await preparePdf(1)
-  pdf.highlight = highlightHead.value
   mainPage.value = pdf
 }
 
@@ -206,9 +202,11 @@ async function loadPage (pageIndex: number) {
   }
 
   // zero index + exclude main page
-  const pdf = await preparePdf(pageIndex + 2)
+  const pdfPage = pageIndex + 2
+  const pdf = await preparePdf(pdfPage)
   tailPages.value[pageIndex] = {
-    pdf: shallowRef(pdf)
+    pdf: shallowRef(pdf),
+    highlight: props.matchedPages.includes(pdfPage) ? normalizedHighlight.value : ''
   }
 }
 
