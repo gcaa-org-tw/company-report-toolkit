@@ -2,6 +2,8 @@
 .sip.pdfViewer(ref="pageEle")
 </template>
 <script setup lang="ts">
+import _ from 'lodash'
+
 const props = defineProps({
   document: {
     type: Object,
@@ -57,7 +59,8 @@ function renderPdf () {
   viewerConfig.linkService.setViewer(pdfSinglePageViewer)
 
   eventBus.on('pagesinit', () => {
-    pdfSinglePageViewer._setScale(props.scale, props.noScroll)
+    const pdf2CssUnits = _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
+    pdfSinglePageViewer._setScale(props.scale / pdf2CssUnits, props.noScroll)
 
     if (props.highlight) {
       eventBus.dispatch('find', {

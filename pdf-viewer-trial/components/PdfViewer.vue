@@ -145,13 +145,12 @@ const pdfScale = computed(() => {
   if (!pdfSize.value || !isMounted) {
     return null
   }
-  const outputScale = 1 || window.devicePixelRatio || 1
+  const outputScale = window.devicePixelRatio || 1
   const canvasWidth = (containerWidth.value - containerPadding * 2) * outputScale
   const scale = canvasWidth / pdfSize.value.width
 
   return {
-    scale: 1 || scale,
-    // scale,
+    scale,
     width: pdfSize.value.width * scale,
     height: pdfSize.value.height * scale
   }
