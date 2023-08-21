@@ -4,6 +4,11 @@ import dotenv from 'dotenv'
 import pdf2html from 'pdf2html'
 import * as url from 'node:url'
 
+function minifyContent (content) {
+  return content
+    .replace(/[ \n]+/mg, ' ')
+}
+
 export async function buildOneIndex (argPayload) {
   const env = process.env
   const algoliaKeys = ['ALGOLIA_APP_ID', 'ALGOLIA_DATA_API_KEY', 'ALGOLIA_INDEX_NAME']
@@ -28,12 +33,17 @@ export async function buildOneIndex (argPayload) {
       page,
       company: companyId,
       year,
-      content
+      content: minifyContent(content)
     }
   })
 
   console.info(`Uploading ${agPayload.length} pages for ${companyId}[${year}]`)
-  await agIndex.saveObjects(agPayload)
+  try {
+    await agIndex.saveObjects(agPayload)
+  } catch (err) {
+    console.error(err)
+    throw err
+  }
 }
 
 const modulePath = url.fileURLToPath(import.meta.url)
@@ -44,7 +54,7 @@ if (process.argv[1] === modulePath) {
     { name: 'company-id', alias: 'i', type: String },
     { name: 'year', alias: 'y', type: String }
   ]
-    
+
   const argPayload = parseArgs(argOpts)
 
   if (argOpts.some(arg => !(arg.name in argPayload))) {

@@ -39,7 +39,7 @@ async function main (argPayload) {
     const cmd = `./split-n-minify.sh "${reportName}" ./report/${year}/${companyId}`
     const consoleOutput = await shellExec.default(cmd)
 
-    console.info(consoleOutput.stdout)
+    console.info(consoleOutput.stdout.trim())
 
     console.info('Done')
   }
