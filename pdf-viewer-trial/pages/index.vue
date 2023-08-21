@@ -46,10 +46,5 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
   }
-
-  &__reader {
-    max-height: 100vh;
-    overflow-y: auto;
-  }
 }
 </style>

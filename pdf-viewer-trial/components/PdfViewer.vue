@@ -1,24 +1,40 @@
 <template lang="pug">
-.reportViewer.relative(ref="rootEle")
-  // .pa3.ba {{ tailPages.length }} - {{ tailPages.slice(0, 5) }} - {{ pdfScale }}
-  .reportViewer__container(v-if="isMainReady" :style="containerStyle")
-    single-pdf-page.reportViewer__page(
-      v-bind="mainPage"
-      :scale="pdfScale.scale"
-      :no-scroll="false"
-    )
-    template(v-for="(cursor, index) in tailPages" :key="index")
-      empty-page.reportViewer__page(
-        v-if="!cursor"
-        :style="pageStyle"
-        @visible="loadPage(index)"
-      )
+.reportViewer
+  .reportViewer__control.pr2
+    .bb.b--gray.flex.items-center.justify-between.pv2
+      .flex.items-center
+      .flex.items-center
+        button.reportViewer__button
+          i.fa-solid.fa-plus
+          | 放大
+        button.reportViewer__button
+          i.fa-solid.fa-minus
+          | 縮小
+        button.reportViewer__button
+          i.fa-solid.fa-arrows-left-right
+          | 滿頁寬
+        button.reportViewer__button
+          i.fa-solid.fa-arrows-up-down
+          | 滿頁高
+  .reportViewer__scrollContainer.relative
+    .reportViewer__content(v-if="isMainReady" ref="contentEle" :style="containerStyle")
       single-pdf-page.reportViewer__page(
-        v-else
-        v-bind="cursor.pdf"
-        :highlight="cursor.highlight"
+        v-bind="mainPage"
         :scale="pdfScale.scale"
+        :no-scroll="false"
       )
+      template(v-for="(cursor, index) in tailPages" :key="index")
+        empty-page.reportViewer__page(
+          v-if="!cursor"
+          :style="pageStyle"
+          @visible="loadPage(index)"
+        )
+        single-pdf-page.reportViewer__page(
+          v-else
+          v-bind="cursor.pdf"
+          :highlight="cursor.highlight"
+          :scale="pdfScale.scale"
+        )
 </template>
 <script lang="ts" setup>
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
@@ -142,11 +158,11 @@ async function initPdfScaleIfNeeded (pdf) {
 
 const containerPadding = 16
 const pdfScale = computed(() => {
-  if (!pdfSize.value || !isMounted) {
+  if (!pdfSize.value || !isMounted.value) {
     return null
   }
   const outputScale = window.devicePixelRatio || 1
-  const canvasWidth = (containerWidth.value - containerPadding * 2) * outputScale
+  const canvasWidth = (contentWidth.value - containerPadding * 2) * outputScale
   const scale = canvasWidth / pdfSize.value.width
 
   return {
@@ -211,14 +227,14 @@ async function loadPage (pageIndex: number) {
 
 const isMounted = useMounted()
 const { width: pageWidth } = useWindowSize()
-const rootEle = ref(null)
+const contentEle = ref(null)
 
-const containerWidth = computed(() => {
+const contentWidth = computed(() => {
   let width = 960
   if (isMounted.value) {
     width = pageWidth.value * 0.75 // grid size
-    if (rootEle.value) {
-      width = rootEle.value.clientWidth
+    if (contentEle.value) {
+      width = contentEle.value.clientWidth
     }
   }
   return width
@@ -226,7 +242,7 @@ const containerWidth = computed(() => {
 
 const containerStyle = computed(() => {
   return {
-    width: `${containerWidth.value}px`
+    width: `${contentWidth.value}px`
   }
 })
 
@@ -246,9 +262,18 @@ watch(() => props.page, async () => {
 </script>
 <style lang="scss" scoped>
 .reportViewer {
-  padding: 2rem;
+  $controlHeight: 4rem;
 
-  &__container {
+  &__control {
+    height: $controlHeight;
+  }
+
+  &__scrollContainer {
+    height: calc(100vh - #{$controlHeight});
+    overflow-y: auto;
+    padding: 0 1rem;
+  }
+  &__content {
     position: absolute;
     padding-bottom: 2rem;
     left: 0;
@@ -256,6 +281,21 @@ watch(() => props.page, async () => {
 
   &__page + .reportViewer__page {
     margin-top: 2rem;
+  }
+
+  &__button {
+    border: #ccc 1px solid;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background: none;
+    cursor: pointer;
+
+    i { margin-right: 0.5rem; }
+
+    + .reportViewer__button {
+      margin-left: 0.5rem;
+    }
   }
 }
 </style>

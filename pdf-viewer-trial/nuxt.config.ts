@@ -11,7 +11,8 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
   css: [
-    'tachyons/css/tachyons.css'
+    'tachyons/css/tachyons.css',
+    '@fortawesome/fontawesome-free/css/all.css'
   ],
   app: {
     head: {
