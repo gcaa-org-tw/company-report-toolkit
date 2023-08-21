@@ -44,6 +44,7 @@ export async function buildOneIndex (argPayload) {
     console.error(err)
     throw err
   }
+  return agPayload.length
 }
 
 const modulePath = url.fileURLToPath(import.meta.url)
