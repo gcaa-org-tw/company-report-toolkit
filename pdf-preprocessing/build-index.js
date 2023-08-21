@@ -1,32 +1,15 @@
-const fs = require('fs')
-const path = require('path')
-const parseArgs = require('command-line-args')
-const algoliasearch = require('algoliasearch')
-const dotenv = require('dotenv')
-const pdf2html = require('pdf2html')
+import parseArgs from 'command-line-args'
+import algoliasearch from 'algoliasearch'
+import dotenv from 'dotenv'
+import pdf2html from 'pdf2html'
+import * as url from 'node:url'
 
-dotenv.config()
-
-async function main () {
-  const argOpts = [
-    { name: 'src', alias: 's', type: String },
-    { name: 'company-id', alias: 'i', type: String },
-    { name: 'year', alias: 'y', type: String }
-  ]
-    
-  const argPayload = parseArgs(argOpts)
-
-  if (argOpts.some(arg => !(arg.name in argPayload))) {
-    console.error(`usage: node ${process.argv[1]} -s <source file> -i <company ID> -y <year>`)
-    return 1
-  }
-
+export async function buildOneIndex (argPayload) {
   const env = process.env
   const algoliaKeys = ['ALGOLIA_APP_ID', 'ALGOLIA_DATA_API_KEY', 'ALGOLIA_INDEX_NAME']
 
   if (algoliaKeys.some(key => !env[key])) {
-    console.error(`Missing one of env variables: ${algoliaKeys.join(', ')}`)
-    return 2
+    throw new Error(`Missing one of env variables: ${algoliaKeys.join(', ')}`)
   }
 
   const agClient = algoliasearch(env.ALGOLIA_APP_ID, env.ALGOLIA_DATA_API_KEY)
@@ -34,7 +17,7 @@ async function main () {
   
   const textPerPages = await pdf2html.pages(argPayload.src, { text: true })
 
-  const companyId = argPayload['company-id']
+  const companyId = argPayload['company-id'] || argPayload.companyId
   const year = Number.parseInt(argPayload.year)
 
   const agPayload = textPerPages.map((content, index) => {
@@ -49,8 +32,25 @@ async function main () {
     }
   })
 
-  console.info(`Uplaoding ${agPayload.length} pages for ${companyId}[${year}]`)
+  console.info(`Uploading ${agPayload.length} pages for ${companyId}[${year}]`)
   await agIndex.saveObjects(agPayload)
 }
 
-main()
+const modulePath = url.fileURLToPath(import.meta.url)
+if (process.argv[1] === modulePath) {
+  dotenv.config()
+  const argOpts = [
+    { name: 'src', alias: 's', type: String },
+    { name: 'company-id', alias: 'i', type: String },
+    { name: 'year', alias: 'y', type: String }
+  ]
+    
+  const argPayload = parseArgs(argOpts)
+
+  if (argOpts.some(arg => !(arg.name in argPayload))) {
+    console.error(`usage: node ${process.argv[1]} -s <source file> -i <company ID> -y <year>`)
+    process.exit(1)
+  }
+  buildOneIndex(argPayload)
+}
+
