@@ -60,7 +60,9 @@ function renderPdf () {
 
   eventBus.on('pagesinit', () => {
     const pdf2CssUnits = _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
-    pdfSinglePageViewer._setScale(props.scale / pdf2CssUnits, props.noScroll)
+    const scrollEle = pdfSinglePageViewer.container.parentElement
+    const top = scrollEle.scrollTop
+    pdfSinglePageViewer.currentScale = props.scale / pdf2CssUnits
 
     if (props.highlight) {
       eventBus.dispatch('find', {
@@ -70,10 +72,10 @@ function renderPdf () {
         highlightAll: true
       })
     } else {
-      // const scrollEle = pdfSinglePageViewer.container.parentElement
-      // const top = scrollEle.scrollTop
       pdfSinglePageViewer.currentPageNumber = props.page
-      // pdfSinglePageViewer.container.parentElement.scrollTo({ top })
+      // force disable scroll T___T
+      // pdf.js v3 doesn't allow to disable scroll on scale change
+      pdfSinglePageViewer.container.parentElement.scrollTo({ top })
     }
     emit('loaded')
   })
@@ -89,7 +91,7 @@ function renderPdf () {
 
   eventBus.on('updatetextlayermatches', () => {
     if (pdfSinglePageViewer.currentPageNumber !== props.page) {
-      pdfSinglePageViewer._setCurrentPageNumber(props.page, !props.noScroll)
+      pdfSinglePageViewer._setCurrentPageNumber(props.page)
     }
   })
 
@@ -105,6 +107,7 @@ onMounted(renderPdf)
   ::v-deep() {
     .page {
       box-sizing: content-box;
+      box-shadow:0px 0px 4px 2px rgba( 0, 0, 0, 0.2 );
     }
     .textLayer .highlight {
       border-radius: 0.125rem;

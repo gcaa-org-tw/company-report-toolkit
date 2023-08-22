@@ -37,7 +37,7 @@
         )
 </template>
 <script lang="ts" setup>
-const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
+const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
 const PAGE_PER_CHUNK = 10
 
@@ -279,7 +279,8 @@ watch(() => props.page, async () => {
     left: 0;
   }
 
-  &__page + .reportViewer__page {
+  &__page + .reportViewer__page,
+  #hiddenCopyElement + .reportViewer__page {
     margin-top: 2rem;
   }
 
