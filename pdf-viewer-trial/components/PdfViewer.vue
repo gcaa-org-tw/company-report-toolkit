@@ -22,16 +22,22 @@
         empty-page.reportViewer__page(
           v-if="!cursor"
           :style="pageStyle"
-          @visible="loadPage(index + 1)"
+          :class="[`theEmpty--${index + 1}`]"
+          :page-number="index + 1"
+          @visible="loadPageSlowly(index + 1)"
         )
         single-pdf-page.reportViewer__page(
           v-else
           v-bind="cursor.pdf"
+          :class="[`thePage--${index + 1}`]"
           :highlight="cursor.highlight"
+          :page-anchor="pageAnchor"
           :scale="pdfScale.scale"
         )
 </template>
 <script lang="ts" setup>
+import _ from 'lodash'
+
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
 const PAGE_PER_CHUNK = 10
@@ -76,6 +82,8 @@ enum ScaleType {
 
 const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
+const pageLoadQueue = ref<number[]>([])
+const pageAnchor = shallowRef(0)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
 
@@ -234,40 +242,74 @@ function getPageChunkIndex (pageIndex: number) {
   return `${chunkIndex}`.padStart(3, '0')
 }
 
-async function loadPage (pageIndex: number) {
+async function loadPage (pageIndex: number, { forceLoad = false, anchor = null } = {}) {
+  if (!forceLoad && pageLoadQueue.value.length) {
+    if (!pageLoadQueue.value.includes(pageIndex)) {
+      pageLoadQueue.value.unshift(pageIndex)
+    }
+    return
+  }
+
   const zeroPageIndex = pageIndex - 1
   if (zeroPageIndex >= pages.value.length) {
     throw new Error(`Invalid page number: ${pageIndex}`)
   }
 
-  if (pages.value[zeroPageIndex]) {
-    return
+  if (!forceLoad) {
+    pageLoadQueue.value.push(pageIndex)
+    if (anchor) {
+      pageAnchor.value = anchor
+    }
   }
 
-  // TODO: remove me
-  // zero index + exclude main page
-  // const pdfPage = pageIndex + 2
-  const pdf = await preparePdf(pageIndex)
-  pages.value[zeroPageIndex] = {
-    pdf: shallowRef(pdf),
-    highlight: props.matchedPages.includes(pageIndex) ? normalizedHighlight.value : ''
+  if (!pages.value[zeroPageIndex]) {
+    const pdf = await preparePdf(pageIndex)
+    pages.value[zeroPageIndex] = {
+      pdf: shallowRef(pdf),
+      highlight: props.matchedPages.includes(pageIndex) ? normalizedHighlight.value : ''
+    }
+  }
+
+  pageLoadQueue.value.pop()
+  if (pageLoadQueue.value.length) {
+    loadPage(pageLoadQueue.value[0], { forceLoad: true })
+  } else {
+    // stick into target page for a while
+    setTimeout(() => {
+      pageAnchor.value = 0
+    }, 100)
   }
 }
+
+const loadPageSlowly = _.debounce((pageIndex: number) => {
+  loadPage(pageIndex)
+}, 100)
 
 const isMounted = useMounted()
 // const { width: pageWidth } = useWindowSize()
 const scrollerEle = ref(null)
 
+function getAnchorPageTop () {
+  const pageEleList = scrollerEle.value.querySelectorAll('.reportViewer__page')
+  const target = pageEleList[props.page - 1]
+  return target?.offsetTop
+}
+
 // TODO: watch highlight
+// TODO: page change in short period
 watch(() => props.page, async () => {
-  await loadPage(props.page)
-  await nextTick()
-  const target = document.querySelector(`.reportViewer__page:nth-of-type(${props.page})`)
-  if (target) {
-    target.scrollIntoView({
-      behavior: 'smooth'
-    })
+  const anchorTop = getAnchorPageTop()
+  const promise = loadPage(props.page, { anchor: anchorTop })
+  if (props.page > 1) {
+    loadPage(props.page - 1)
   }
+  if (props.page < props.company.totalPage) {
+    loadPage(props.page + 1)
+  }
+  if (anchorTop) {
+    scrollerEle.value.scrollTo({ top: anchorTop })
+  }
+  await promise
 })
 
 // scale

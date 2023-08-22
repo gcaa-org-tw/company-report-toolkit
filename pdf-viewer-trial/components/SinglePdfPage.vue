@@ -13,6 +13,10 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  pageAnchor: {
+    type: Number,
+    default: 0
+  },
   highlight: {
     type: String,
     default: ''
@@ -35,6 +39,24 @@ const pdfViewer = shallowRef(null)
 const pdf2CssUnits = computed(() => {
   return _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
 })
+
+function switchPage (page, top = 0) {
+  // force disable scroll T___T
+  // pdf.js v3 doesn't allow to disable scroll on scale change
+  if (pdfViewer.value) {
+    pdfViewer.value.currentPageNumber = page
+    const scroller = pdfViewer.value.container.parentElement
+    top = props.pageAnchor || top
+    if (top) {
+      scroller.scrollTo({ top })
+      // TODO: resolve the magic number
+      // we are waiting for pdf.js stop scroll..
+      setTimeout(() => {
+        scroller.scrollTo({ top })
+      }, 400)
+    }
+  }
+}
 
 function renderPdf () {
   const pdfjsViewer = window.pdfjsViewer
@@ -77,10 +99,7 @@ function renderPdf () {
         highlightAll: true
       })
     } else {
-      pdfSinglePageViewer.currentPageNumber = props.page
-      // force disable scroll T___T
-      // pdf.js v3 doesn't allow to disable scroll on scale change
-      pdfSinglePageViewer.container.parentElement.scrollTo({ top })
+      switchPage(props.page, top)
     }
     emit('loaded')
   })
@@ -89,7 +108,7 @@ function renderPdf () {
     // FindState.NOT_FOUND === 1
     if (source._offset.pageIdx !== props.page - 1) {
       setTimeout(() => {
-        pdfSinglePageViewer.currentPageNumber = props.page
+        switchPage(props.page)
       })
     }
   })
