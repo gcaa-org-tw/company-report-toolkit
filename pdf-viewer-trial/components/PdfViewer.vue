@@ -4,32 +4,30 @@
     .bb.b--gray.flex.items-center.justify-between.pv2
       .flex.items-center
       .flex.items-center
-        button.reportViewer__button
+        button.reportViewer__button(@click="zoomIn")
           i.fa-solid.fa-plus
           | 放大
-        button.reportViewer__button
+        button.reportViewer__button(@click="zoomOut")
           i.fa-solid.fa-minus
           | 縮小
-        button.reportViewer__button
+        button.reportViewer__button(@click="fitScaleWidth")
           i.fa-solid.fa-arrows-left-right
           | 滿頁寬
-        button.reportViewer__button
+        button.reportViewer__button(@click="fitScaleHeight")
           i.fa-solid.fa-arrows-up-down
           | 滿頁高
-  .reportViewer__scrollContainer.relative
-    .reportViewer__content(v-if="isMainReady" ref="contentEle" :style="containerStyle")
+  .reportViewer__scrollContainer.relative(ref="scrollerEle")
+    .reportViewer__content.w-100(v-if="isMainReady")
       template(v-for="(cursor, index) in pages" :key="index")
         empty-page.reportViewer__page(
           v-if="!cursor"
           :style="pageStyle"
-          :class="[`kerker--${index + 1}`]"
           @visible="loadPage(index + 1)"
         )
         single-pdf-page.reportViewer__page(
           v-else
           v-bind="cursor.pdf"
           :highlight="cursor.highlight"
-          :class="[`kerker--${index + 1}`]"
           :scale="pdfScale.scale"
         )
 </template>
@@ -70,10 +68,45 @@ const props = defineProps({
   }
 })
 
+enum ScaleType {
+  FitWidth = 'fit-width',
+  FitHeight = 'fit-height',
+  Custom = 'custom'
+}
+
 const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
+
+const scaleMode = ref<ScaleType>(ScaleType.FitWidth)
+const scaleMeta = ref({ pdfSize: { width: 0, height: 0 }, widthScale: 0, heightScale: 0, customScale: 0 })
+
+const pdfScale = computed(() => {
+  if (!scaleMeta.value.widthScale || !isMounted.value) {
+    return null
+  }
+
+  let scale = 1
+  switch (scaleMode.value) {
+    case ScaleType.Custom:
+      scale = scaleMeta.value.customScale
+      break
+    case ScaleType.FitHeight:
+      scale = scaleMeta.value.heightScale
+      break
+    case ScaleType.FitWidth:
+    default:
+      scale = scaleMeta.value.widthScale
+  }
+  scale = scale || 1
+
+  return {
+    scale,
+    width: scaleMeta.value.pdfSize.width * scale,
+    height: scaleMeta.value.pdfSize.height * scale
+  }
+})
 
 onMounted(() => {
   keepCheckingPdfLibReadiness()
@@ -137,41 +170,36 @@ async function preparePdf (pageIndex: number): Promise<any> {
   }
 }
 
-const pdfSize = ref(null)
-
 async function initPdfScaleIfNeeded (pdf) {
-  if (pdfSize.value) {
+  if (scaleMeta.value.widthScale) {
     return
   }
   const p1 = await pdf.getPage(1)
   const { width, height } = p1.getViewport({ scale: 1 })
 
-  pdfSize.value = { width, height }
-}
+  scaleMeta.value.pdfSize = { width, height }
 
-const containerPadding = 16
-const pdfScale = computed(() => {
-  if (!pdfSize.value || !isMounted.value) {
-    return null
-  }
+  const scroller = scrollerEle.value
+
+  const contentWidth = scroller.clientWidth
+  const contentHeight = scroller.clientHeight
+  const horizontalPadding = Number.parseInt(getComputedStyle(scroller).paddingLeft)
+
   const outputScale = window.devicePixelRatio || 1
-  const canvasWidth = (contentWidth.value - containerPadding * 2) * outputScale
-  const scale = canvasWidth / pdfSize.value.width
 
-  return {
-    scale,
-    width: pdfSize.value.width * scale,
-    height: pdfSize.value.height * scale
-  }
-})
+  const canvasWidth = (contentWidth - horizontalPadding * 2) * outputScale
+  scaleMeta.value.widthScale = canvasWidth / width
+
+  scaleMeta.value.heightScale = contentHeight / height
+}
 
 const pageStyle = computed(() => {
   if (!pdfScale.value) {
     return {}
   }
   return {
-    width: `${pdfScale.value.width}px`,
-    height: `${pdfScale.value.height}px`
+    width: `${pdfScale.value?.width}px`,
+    height: `${pdfScale.value?.height}px`
   }
 })
 
@@ -182,13 +210,18 @@ async function renderMainPage () {
   }
 }
 
-watchEffect(() => {
-  if (!pdfLinkBase.value || !props.company || !isLibLoaded.value) {
-    return
-  }
-  pdfSize.value = null
+function resetViewer () {
   pageChunk.value = {}
   pages.value = Array(props.company.totalPage).fill(null)
+  scaleMode.value = ScaleType.FitWidth
+  scaleMeta.value.widthScale = 0
+}
+
+watchEffect(() => {
+  if (!pdfLinkBase.value || !props.company || !isLibLoaded.value || !isMounted.value) {
+    return
+  }
+  resetViewer()
 
   renderMainPage()
 })
@@ -222,25 +255,8 @@ async function loadPage (pageIndex: number) {
 }
 
 const isMounted = useMounted()
-const { width: pageWidth } = useWindowSize()
-const contentEle = ref(null)
-
-const contentWidth = computed(() => {
-  let width = 960
-  if (isMounted.value) {
-    width = pageWidth.value * 0.75 // grid size
-    if (contentEle.value) {
-      width = contentEle.value.clientWidth
-    }
-  }
-  return width
-})
-
-const containerStyle = computed(() => {
-  return {
-    width: `${contentWidth.value}px`
-  }
-})
+// const { width: pageWidth } = useWindowSize()
+const scrollerEle = ref(null)
 
 // TODO: watch highlight
 watch(() => props.page, async () => {
@@ -253,6 +269,27 @@ watch(() => props.page, async () => {
     })
   }
 })
+
+// scale
+const SCALE_STEP = 0.25
+
+function zoomIn () {
+  scaleMeta.value.customScale = (pdfScale.value?.scale || 1) * (1 + SCALE_STEP)
+  scaleMode.value = ScaleType.Custom
+}
+
+function zoomOut () {
+  scaleMeta.value.customScale = (pdfScale.value?.scale || 1) * (1 - SCALE_STEP)
+  scaleMode.value = ScaleType.Custom
+}
+
+function fitScaleWidth () {
+  scaleMode.value = ScaleType.FitWidth
+}
+
+function fitScaleHeight () {
+  scaleMode.value = ScaleType.FitHeight
+}
 
 </script>
 <style lang="scss" scoped>

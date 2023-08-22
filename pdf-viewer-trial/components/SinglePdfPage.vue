@@ -30,6 +30,11 @@ const props = defineProps({
 const emit = defineEmits(['loaded'])
 
 const pageEle = ref(null)
+const pdfViewer = shallowRef(null)
+
+const pdf2CssUnits = computed(() => {
+  return _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
+})
 
 function renderPdf () {
   const pdfjsViewer = window.pdfjsViewer
@@ -45,7 +50,8 @@ function renderPdf () {
     viewer: pageEle.value,
     eventBus,
     linkService: new pdfjsViewer.PDFLinkService({ eventBus }),
-    findController: null
+    findController: null,
+    removePageBorders: true
   }
 
   if (props.highlight) {
@@ -59,10 +65,9 @@ function renderPdf () {
   viewerConfig.linkService.setViewer(pdfSinglePageViewer)
 
   eventBus.on('pagesinit', () => {
-    const pdf2CssUnits = _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
     const scrollEle = pdfSinglePageViewer.container.parentElement
     const top = scrollEle.scrollTop
-    pdfSinglePageViewer.currentScale = props.scale / pdf2CssUnits
+    pdfSinglePageViewer.currentScale = props.scale / pdf2CssUnits.value
 
     if (props.highlight) {
       eventBus.dispatch('find', {
@@ -97,9 +102,17 @@ function renderPdf () {
 
   pdfSinglePageViewer.setDocument(props.document)
   viewerConfig.linkService.setDocument(props.document, null)
+
+  pdfViewer.value = pdfSinglePageViewer
 }
 
 onMounted(renderPdf)
+
+watch(() => props.scale, (newScale) => {
+  if (pdfViewer.value) {
+    pdfViewer.value.currentScale = newScale / pdf2CssUnits.value
+  }
+})
 
 </script>
 <style lang="scss" scoped>
