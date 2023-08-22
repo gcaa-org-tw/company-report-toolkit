@@ -33,7 +33,7 @@
             :class="{'b': hit === curSearchHit}"
             @click="gotoSelectedPage(hit)"
           )
-            .flex-none.dark-gray 頁{{ hit.page - 1 }}
+            .flex-none.dark-gray 頁{{ humanPageNumber(hit.page) }}
             // eslint-disable-next-line vue/no-v-html
             .pl2(v-html="extractMatchSegment(hit.content)")
     .flex.justify-between.items-center
@@ -120,6 +120,10 @@ function gotoPrevField () {
   } else {
     curFieldIndex.value = flatFieldMap.length - 1
   }
+}
+
+function humanPageNumber (page: number) {
+  return page + (curCompany.value.pageOffset || 0)
 }
 
 watch([curField], () => {

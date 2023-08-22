@@ -15,27 +15,34 @@
     - id: '86522210'
       name: 台塑化
       totalPage: 142
+      pageOffset: -2
     - id: '28518076'
       name: 台灣美光記憶體
       totalPage: 85
     - id: '11914002'
       name: 台玻
       totalPage: 124
+      pageOffset: -2
     - id: '22099131'
       name: 台積電
       totalPage: 235
     - id: '34202841'
       name: 榮成
       totalPage: 147
+      pageOffset: -4
     - id: '85066002'
       name: 永豐餘
       totalPage: 74
+      pageOffset: -2
     - id: '12800225'
       name: 群創
       totalPage: 179
+      pageOffset: -1
     - id: '55389357'
       name: 豐興
       totalPage: 104
+      pageOffset: -2
     - id: '11384806'
       name: 長春石化
       totalPage: 161
+      pageOffset: -1

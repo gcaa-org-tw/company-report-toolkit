@@ -18,21 +18,18 @@
           | 滿頁高
   .reportViewer__scrollContainer.relative
     .reportViewer__content(v-if="isMainReady" ref="contentEle" :style="containerStyle")
-      single-pdf-page.reportViewer__page(
-        v-bind="mainPage"
-        :scale="pdfScale.scale"
-        :no-scroll="false"
-      )
-      template(v-for="(cursor, index) in tailPages" :key="index")
+      template(v-for="(cursor, index) in pages" :key="index")
         empty-page.reportViewer__page(
           v-if="!cursor"
           :style="pageStyle"
-          @visible="loadPage(index)"
+          :class="[`kerker--${index + 1}`]"
+          @visible="loadPage(index + 1)"
         )
         single-pdf-page.reportViewer__page(
           v-else
           v-bind="cursor.pdf"
           :highlight="cursor.highlight"
+          :class="[`kerker--${index + 1}`]"
           :scale="pdfScale.scale"
         )
 </template>
@@ -48,6 +45,7 @@ useHead({
 })
 
 const props = defineProps({
+  // 1 based, not 0 based
   page: {
     type: Number,
     default: 1
@@ -75,8 +73,7 @@ const props = defineProps({
 const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageChunk = shallowRef<any>({})
-const mainPage = shallowRef(null)
-const tailPages = ref([])
+const pages = ref<any>([null])
 
 onMounted(() => {
   keepCheckingPdfLibReadiness()
@@ -86,12 +83,8 @@ onBeforeUnmount(() => {
   clearTimeout(pdfLibTimer.value)
 })
 
-watch(isLibLoaded, () => {
-  renderMainPage()
-})
-
 const isMainReady = computed(() => {
-  return mainPage.value && pdfScale.value
+  return pages.value[0] && pdfScale.value
 })
 
 const pdfLinkBase = computed(() => {
@@ -184,17 +177,18 @@ const pageStyle = computed(() => {
 
 async function renderMainPage () {
   const pdf = await preparePdf(1)
-  mainPage.value = pdf
+  pages.value[0] = {
+    pdf: shallowRef(pdf)
+  }
 }
 
 watchEffect(() => {
-  if (!pdfLinkBase.value || !props.company) {
+  if (!pdfLinkBase.value || !props.company || !isLibLoaded.value) {
     return
   }
-  mainPage.value = null
   pdfSize.value = null
   pageChunk.value = {}
-  tailPages.value = Array(props.company.totalPage).fill(null)
+  pages.value = Array(props.company.totalPage).fill(null)
 
   renderMainPage()
 })
@@ -208,20 +202,22 @@ function getPageChunkIndex (pageIndex: number) {
 }
 
 async function loadPage (pageIndex: number) {
-  if (pageIndex >= tailPages.value.length) {
+  const zeroPageIndex = pageIndex - 1
+  if (zeroPageIndex >= pages.value.length) {
     throw new Error(`Invalid page number: ${pageIndex}`)
   }
 
-  if (tailPages.value[pageIndex]) {
+  if (pages.value[zeroPageIndex]) {
     return
   }
 
+  // TODO: remove me
   // zero index + exclude main page
-  const pdfPage = pageIndex + 2
-  const pdf = await preparePdf(pdfPage)
-  tailPages.value[pageIndex] = {
+  // const pdfPage = pageIndex + 2
+  const pdf = await preparePdf(pageIndex)
+  pages.value[zeroPageIndex] = {
     pdf: shallowRef(pdf),
-    highlight: props.matchedPages.includes(pdfPage) ? normalizedHighlight.value : ''
+    highlight: props.matchedPages.includes(pageIndex) ? normalizedHighlight.value : ''
   }
 }
 
@@ -248,8 +244,7 @@ const containerStyle = computed(() => {
 
 // TODO: watch highlight
 watch(() => props.page, async () => {
-  const tailIndex = props.page - 2
-  await loadPage(tailIndex)
+  await loadPage(props.page)
   await nextTick()
   const target = document.querySelector(`.reportViewer__page:nth-of-type(${props.page})`)
   if (target) {
