@@ -2,9 +2,9 @@
 .controlPanel
   h1.f4.b 企業永續報告書閱讀器-測試版
   .b--gray.f6
-    .mt3.flex.items-center(v-for="report in reportMap" :key="report.year")
+    .mt3.flex.flex-wrap.items-center(v-for="report in reportMap" :key="report.year")
       .pv1.mr2 {{ report.year }}
-      button.controlPanel__company.pv1.ph3.ba.b--black.mr1.pointer(
+      button.controlPanel__company.pv1.ph3.ba.b--black.mr1.mb1.pointer(
         v-for="company in report.reports"
         :key="company.id"
         :class="{'controlPanel__company--active': isSelected(report.year, company)}"
@@ -33,7 +33,7 @@
             :class="{'b': hit === curSearchHit}"
             @click="gotoSelectedPage(hit)"
           )
-            .flex-none.dark-gray 頁{{ hit.page - 1 }}
+            .flex-none.dark-gray 頁{{ humanPageNumber(hit.page) }}
             // eslint-disable-next-line vue/no-v-html
             .pl2(v-html="extractMatchSegment(hit.content)")
     .flex.justify-between.items-center
@@ -46,17 +46,17 @@
 import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 import fieldMap from '~/assets/field-map.yml'
-
-const reportMap = [
-  {
-    year: 2021,
-    reports: [
-      { id: '11913502', name: '台泥', totalPage: 121 },
-      { id: '07838854', name: '中鴻', totalPage: 115 },
-      { id: '89406518', name: '台塑', totalPage: 177 }
-    ]
-  }
-]
+import reportMap from '~/assets/report-list.yml'
+// const reportMap = [
+//   {
+//     year: 2021,
+//     reports: [
+//       { id: '11913502', name: '台泥', totalPage: 121 },
+//       { id: '07838854', name: '中鴻', totalPage: 115 },
+//       { id: '89406518', name: '台塑', totalPage: 177 }
+//     ]
+//   }
+// ]
 
 const emit = defineEmits(['report', 'page', 'matched-pages'])
 
@@ -120,6 +120,10 @@ function gotoPrevField () {
   } else {
     curFieldIndex.value = flatFieldMap.length - 1
   }
+}
+
+function humanPageNumber (page: number) {
+  return page + (curCompany.value.pageOffset || 0)
 }
 
 watch([curField], () => {

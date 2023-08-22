@@ -1,5 +1,6 @@
 <template lang="pug">
-.emptyPage(ref="page")
+.emptyPage.flex.items-center.justify-center.ba.b--light-gray.center(ref="page")
+  i.fa-solid.fa-book.fa-beat-fade.fa-xl
 </template>
 <script setup lang="ts">
 
@@ -8,21 +9,9 @@ const emit = defineEmits(['visible'])
 
 const isVisible = useElementVisibility(page)
 
-let visibleTimer = null
-const VISIBLE_AFTER = 300
-
-function mayBeVisible () {
-  clearTimeout(visibleTimer)
-  visibleTimer = setTimeout(() => {
-    emit('visible', true)
-  }, VISIBLE_AFTER)
-}
-
 watch(isVisible, (newVal) => {
   if (newVal) {
-    mayBeVisible()
-  } else {
-    clearTimeout(visibleTimer)
+    emit('visible', true)
   }
 })
 

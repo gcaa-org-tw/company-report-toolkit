@@ -1,27 +1,44 @@
 <template lang="pug">
-.reportViewer.relative(ref="rootEle")
-  // .pa3.ba {{ tailPages.length }} - {{ tailPages.slice(0, 5) }} - {{ pdfScale }}
-  .reportViewer__container(v-if="isMainReady" :style="containerStyle")
-    single-pdf-page.reportViewer__page(
-      v-bind="mainPage"
-      :scale="pdfScale.scale"
-      :no-scroll="false"
-    )
-    template(v-for="(cursor, index) in tailPages" :key="index")
-      empty-page.reportViewer__page(
-        v-if="!cursor"
-        :style="pageStyle"
-        @visible="loadPage(index)"
-      )
-      single-pdf-page.reportViewer__page(
-        v-else
-        v-bind="cursor.pdf"
-        :highlight="cursor.highlight"
-        :scale="pdfScale.scale"
-      )
+.reportViewer
+  .reportViewer__control.pr2
+    .bb.b--gray.flex.items-center.justify-between.pv2
+      .flex.items-center
+      .flex.items-center
+        button.reportViewer__button(@click="zoomIn")
+          i.fa-solid.fa-plus
+          | 放大
+        button.reportViewer__button(@click="zoomOut")
+          i.fa-solid.fa-minus
+          | 縮小
+        button.reportViewer__button(@click="fitScaleWidth")
+          i.fa-solid.fa-arrows-left-right
+          | 滿頁寬
+        button.reportViewer__button(@click="fitScaleHeight")
+          i.fa-solid.fa-arrows-up-down
+          | 滿頁高
+  .reportViewer__scrollContainer.relative(ref="scrollerEle")
+    .reportViewer__content.w-100(v-if="isMainReady")
+      template(v-for="(cursor, index) in pages" :key="index")
+        empty-page.reportViewer__page(
+          v-if="!cursor"
+          :style="pageStyle"
+          :class="[`theEmpty--${index + 1}`]"
+          :page-number="index + 1"
+          @visible="loadPageSlowly(index + 1)"
+        )
+        single-pdf-page.reportViewer__page(
+          v-else
+          v-bind="cursor.pdf"
+          :class="[`thePage--${index + 1}`]"
+          :highlight="cursor.highlight"
+          :page-anchor="pageAnchor"
+          :scale="pdfScale.scale"
+        )
 </template>
 <script lang="ts" setup>
-const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305'
+import _ from 'lodash'
+
+const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
 const PAGE_PER_CHUNK = 10
 
@@ -32,6 +49,7 @@ useHead({
 })
 
 const props = defineProps({
+  // 1 based, not 0 based
   page: {
     type: Number,
     default: 1
@@ -56,11 +74,47 @@ const props = defineProps({
   }
 })
 
+enum ScaleType {
+  FitWidth = 'fit-width',
+  FitHeight = 'fit-height',
+  Custom = 'custom'
+}
+
 const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
+const pageLoadQueue = ref<number[]>([])
+const pageAnchor = shallowRef(0)
 const pageChunk = shallowRef<any>({})
-const mainPage = shallowRef(null)
-const tailPages = ref([])
+const pages = ref<any>([null])
+
+const scaleMode = ref<ScaleType>(ScaleType.FitWidth)
+const scaleMeta = ref({ pdfSize: { width: 0, height: 0 }, widthScale: 0, heightScale: 0, customScale: 0 })
+
+const pdfScale = computed(() => {
+  if (!scaleMeta.value.widthScale || !isMounted.value) {
+    return null
+  }
+
+  let scale = 1
+  switch (scaleMode.value) {
+    case ScaleType.Custom:
+      scale = scaleMeta.value.customScale
+      break
+    case ScaleType.FitHeight:
+      scale = scaleMeta.value.heightScale
+      break
+    case ScaleType.FitWidth:
+    default:
+      scale = scaleMeta.value.widthScale
+  }
+  scale = scale || 1
+
+  return {
+    scale,
+    width: scaleMeta.value.pdfSize.width * scale,
+    height: scaleMeta.value.pdfSize.height * scale
+  }
+})
 
 onMounted(() => {
   keepCheckingPdfLibReadiness()
@@ -70,12 +124,8 @@ onBeforeUnmount(() => {
   clearTimeout(pdfLibTimer.value)
 })
 
-watch(isLibLoaded, () => {
-  renderMainPage()
-})
-
 const isMainReady = computed(() => {
-  return mainPage.value && pdfScale.value
+  return pages.value[0] && pdfScale.value
 })
 
 const pdfLinkBase = computed(() => {
@@ -128,57 +178,58 @@ async function preparePdf (pageIndex: number): Promise<any> {
   }
 }
 
-const pdfSize = ref(null)
-
 async function initPdfScaleIfNeeded (pdf) {
-  if (pdfSize.value) {
+  if (scaleMeta.value.widthScale) {
     return
   }
   const p1 = await pdf.getPage(1)
   const { width, height } = p1.getViewport({ scale: 1 })
 
-  pdfSize.value = { width, height }
-}
+  scaleMeta.value.pdfSize = { width, height }
 
-const containerPadding = 16
-const pdfScale = computed(() => {
-  if (!pdfSize.value || !isMounted) {
-    return null
-  }
+  const scroller = scrollerEle.value
+
+  const contentWidth = scroller.clientWidth
+  const contentHeight = scroller.clientHeight
+  const horizontalPadding = Number.parseInt(getComputedStyle(scroller).paddingLeft)
+
   const outputScale = window.devicePixelRatio || 1
-  const canvasWidth = (containerWidth.value - containerPadding * 2) * outputScale
-  const scale = canvasWidth / pdfSize.value.width
 
-  return {
-    scale,
-    width: pdfSize.value.width * scale,
-    height: pdfSize.value.height * scale
-  }
-})
+  const canvasWidth = (contentWidth - horizontalPadding * 2) * outputScale
+  scaleMeta.value.widthScale = canvasWidth / width
+
+  scaleMeta.value.heightScale = contentHeight / height
+}
 
 const pageStyle = computed(() => {
   if (!pdfScale.value) {
     return {}
   }
   return {
-    width: `${pdfScale.value.width}px`,
-    height: `${pdfScale.value.height}px`
+    width: `${pdfScale.value?.width}px`,
+    height: `${pdfScale.value?.height}px`
   }
 })
 
 async function renderMainPage () {
   const pdf = await preparePdf(1)
-  mainPage.value = pdf
+  pages.value[0] = {
+    pdf: shallowRef(pdf)
+  }
+}
+
+function resetViewer () {
+  pageChunk.value = {}
+  pages.value = Array(props.company.totalPage).fill(null)
+  scaleMode.value = ScaleType.FitWidth
+  scaleMeta.value.widthScale = 0
 }
 
 watchEffect(() => {
-  if (!pdfLinkBase.value || !props.company) {
+  if (!pdfLinkBase.value || !props.company || !isLibLoaded.value || !isMounted.value) {
     return
   }
-  mainPage.value = null
-  pdfSize.value = null
-  pageChunk.value = {}
-  tailPages.value = Array(props.company.totalPage).fill(null)
+  resetViewer()
 
   renderMainPage()
 })
@@ -191,71 +242,135 @@ function getPageChunkIndex (pageIndex: number) {
   return `${chunkIndex}`.padStart(3, '0')
 }
 
-async function loadPage (pageIndex: number) {
-  if (pageIndex >= tailPages.value.length) {
-    throw new Error(`Invalid page number: ${pageIndex}`)
-  }
-
-  if (tailPages.value[pageIndex]) {
+async function loadPage (pageIndex: number, { forceLoad = false, anchor = null } = {}) {
+  if (!forceLoad && pageLoadQueue.value.length) {
+    if (!pageLoadQueue.value.includes(pageIndex)) {
+      pageLoadQueue.value.unshift(pageIndex)
+    }
     return
   }
 
-  // zero index + exclude main page
-  const pdfPage = pageIndex + 2
-  const pdf = await preparePdf(pdfPage)
-  tailPages.value[pageIndex] = {
-    pdf: shallowRef(pdf),
-    highlight: props.matchedPages.includes(pdfPage) ? normalizedHighlight.value : ''
+  const zeroPageIndex = pageIndex - 1
+  if (zeroPageIndex >= pages.value.length) {
+    throw new Error(`Invalid page number: ${pageIndex}`)
+  }
+
+  if (!forceLoad) {
+    pageLoadQueue.value.push(pageIndex)
+    if (anchor) {
+      pageAnchor.value = anchor
+    }
+  }
+
+  if (!pages.value[zeroPageIndex]) {
+    const pdf = await preparePdf(pageIndex)
+    pages.value[zeroPageIndex] = {
+      pdf: shallowRef(pdf),
+      highlight: props.matchedPages.includes(pageIndex) ? normalizedHighlight.value : ''
+    }
+  }
+
+  pageLoadQueue.value.pop()
+  if (pageLoadQueue.value.length) {
+    loadPage(pageLoadQueue.value[0], { forceLoad: true })
+  } else {
+    // stick into target page for a while
+    setTimeout(() => {
+      pageAnchor.value = 0
+    }, 100)
   }
 }
 
+const loadPageSlowly = _.debounce((pageIndex: number) => {
+  loadPage(pageIndex)
+}, 100)
+
 const isMounted = useMounted()
-const { width: pageWidth } = useWindowSize()
-const rootEle = ref(null)
+// const { width: pageWidth } = useWindowSize()
+const scrollerEle = ref(null)
 
-const containerWidth = computed(() => {
-  let width = 960
-  if (isMounted.value) {
-    width = pageWidth.value * 0.75 // grid size
-    if (rootEle.value) {
-      width = rootEle.value.clientWidth
-    }
-  }
-  return width
-})
-
-const containerStyle = computed(() => {
-  return {
-    width: `${containerWidth.value}px`
-  }
-})
+function getAnchorPageTop () {
+  const pageEleList = scrollerEle.value.querySelectorAll('.reportViewer__page')
+  const target = pageEleList[props.page - 1]
+  return target?.offsetTop
+}
 
 // TODO: watch highlight
+// TODO: page change in short period
 watch(() => props.page, async () => {
-  const tailIndex = props.page - 2
-  await loadPage(tailIndex)
-  await nextTick()
-  const target = document.querySelector(`.reportViewer__page:nth-of-type(${props.page})`)
-  if (target) {
-    target.scrollIntoView({
-      behavior: 'smooth'
-    })
+  const anchorTop = getAnchorPageTop()
+  const promise = loadPage(props.page, { anchor: anchorTop })
+  if (props.page > 1) {
+    loadPage(props.page - 1)
   }
+  if (props.page < props.company.totalPage) {
+    loadPage(props.page + 1)
+  }
+  if (anchorTop) {
+    scrollerEle.value.scrollTo({ top: anchorTop })
+  }
+  await promise
 })
+
+// scale
+const SCALE_STEP = 0.25
+
+function zoomIn () {
+  scaleMeta.value.customScale = (pdfScale.value?.scale || 1) * (1 + SCALE_STEP)
+  scaleMode.value = ScaleType.Custom
+}
+
+function zoomOut () {
+  scaleMeta.value.customScale = (pdfScale.value?.scale || 1) * (1 - SCALE_STEP)
+  scaleMode.value = ScaleType.Custom
+}
+
+function fitScaleWidth () {
+  scaleMode.value = ScaleType.FitWidth
+}
+
+function fitScaleHeight () {
+  scaleMode.value = ScaleType.FitHeight
+}
 
 </script>
 <style lang="scss" scoped>
 .reportViewer {
-  padding: 2rem;
+  $controlHeight: 4rem;
 
-  &__container {
+  &__control {
+    height: $controlHeight;
+  }
+
+  &__scrollContainer {
+    height: calc(100vh - #{$controlHeight});
+    overflow-y: auto;
+    padding: 0 1rem;
+  }
+  &__content {
     position: absolute;
     padding-bottom: 2rem;
     left: 0;
   }
 
-  &__page + .reportViewer__page {
+  &__page + .reportViewer__page,
+  #hiddenCopyElement + .reportViewer__page {
     margin-top: 2rem;
+  }
+
+  &__button {
+    border: #ccc 1px solid;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background: none;
+    cursor: pointer;
+
+    i { margin-right: 0.5rem; }
+
+    + .reportViewer__button {
+      margin-left: 0.5rem;
+    }
   }
 }
 </style>

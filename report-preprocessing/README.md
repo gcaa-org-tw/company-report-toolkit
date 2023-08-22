@@ -14,31 +14,32 @@ Madiran will be the major language of this project.
 
 ## 準備工作
 
-### 分割 PDF
-
-```
-# 分割 PDF，假設 PDF 少於 9,999 頁
-cpdf ./path/to/interpellation/data.pdf -split -chunk 10 -o 'path/to/csr/report/%%%.pdf'
-
-# 壓縮 PDF
-mkdir compressed
-./minify-pdf.sh ./path/to/csr/report/ ./compressed
-```
-
-並將 PDF 上傳到合適的線上空間
-
-### 準備 Algolia
+### 一鍵完成
 
 1. 建立好空白的 index
 2. 新增以下環境變數，可以放在系統中，或放在 `.env`
    - ALGOLIA_APP_ID
    - ALGOLIA_DATA_API_KEY # 有寫入權限的 API Key
    - ALGOLIA_INDEX_NAME
+3. 將企業報告以 `<公司名或簡稱>-<資料年度>.pdf` 命名，注意年度必須是資料年度，而不是出版年度
 
-### 建立搜尋索引
+```
+node ./process-reports.js -s <list of pdf>
+```
 
+### 建立搜尋索引（已包含在一鍵完成中）
 ```
 node ./build-index.js -s <source pdf>  -i 統編 -y 資料年度
 ```
+
+
+### 將 PDF 切成小塊（已包含在一鍵完成中）
+
+```
+# 假設 PDF 少於 9,999 頁
+./minify-pdf.sh ./path/to/csr/report.pdf ./path/to/output/dir
+```
+
+並將 PDF 上傳到合適的線上空間
 
 
