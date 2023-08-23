@@ -172,7 +172,8 @@ async function searchKeyword () {
     facetFilters: [
       `company:${curCompany.value.id}`,
       `year:${curYear.value}`
-    ]
+    ],
+    hitsPerPage: 100
   })
 
   keywordResults.value = hits
@@ -184,12 +185,12 @@ watch(keywordResults, (newResults) => {
   emit('matched-pages', matchedPages)
 })
 
-const MATCH_SEGMENT_LEN = 7
+const MATCH_SEGMENT_LEN = 15
 
 function extractMatchSegment (haystack: string) {
   // TODO: better detection, handle tail
   haystack = haystack.replace(/\n/g, '')
-  const keywordStr = `${predefinedKeyword.value || ''}`
+  const keywordStr = `${curKeyword.value || ''}`
   const index = haystack.indexOf(keywordStr)
   const minMatchLen = keywordStr.length + MATCH_SEGMENT_LEN
 
@@ -211,9 +212,15 @@ function extractMatchSegment (haystack: string) {
 
 const curSearchHit = ref(null)
 
-function gotoSelectedPage (hit) {
+async function gotoSelectedPage (hit) {
   // TODO better keyword detection
-  curSearchHit.value = hit
+  if (curSearchHit.value === hit) {
+    // force page change
+    emit('page', { highlight: '', page: 1 })
+  } else {
+    curSearchHit.value = hit
+  }
+  await nextTick()
   emit('page', { highlight: curKeyword.value, page: hit.page })
 }
 
