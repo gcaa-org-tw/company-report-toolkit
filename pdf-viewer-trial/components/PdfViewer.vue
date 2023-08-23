@@ -83,7 +83,7 @@ enum ScaleType {
 const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageLoadQueue = ref<number[]>([])
-const pageAnchor = shallowRef(0)
+const pageAnchor = ref(0)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
 
@@ -242,7 +242,7 @@ function getPageChunkIndex (pageIndex: number) {
   return `${chunkIndex}`.padStart(3, '0')
 }
 
-async function loadPage (pageIndex: number, { forceLoad = false, anchor = null } = {}) {
+async function loadPage (pageIndex: number, { forceLoad = false, anchor = 0 } = {}) {
   if (!forceLoad && pageLoadQueue.value.length) {
     if (!pageLoadQueue.value.includes(pageIndex)) {
       pageLoadQueue.value.unshift(pageIndex)
@@ -277,7 +277,7 @@ async function loadPage (pageIndex: number, { forceLoad = false, anchor = null }
     // stick into target page for a while
     setTimeout(() => {
       pageAnchor.value = 0
-    }, 100)
+    }, STICKY_FOR_A_WHILE)
   }
 }
 
@@ -313,7 +313,8 @@ watch(() => props.page, async () => {
 })
 
 // scale
-const SCALE_STEP = 0.25
+const SCALE_STEP = 0.1
+const STICKY_FOR_A_WHILE = 100
 
 function zoomIn () {
   scaleMeta.value.customScale = (pdfScale.value?.scale || 1) * (1 + SCALE_STEP)
@@ -332,6 +333,21 @@ function fitScaleWidth () {
 function fitScaleHeight () {
   scaleMode.value = ScaleType.FitHeight
 }
+
+watch(pdfScale, async (newValue, prevValue) => {
+  if (!newValue || !prevValue || !scrollerEle.value) {
+    return
+  }
+  const scroller = scrollerEle.value
+  const halfScreenHeight = scroller.clientHeight / 2
+  const origTopRatio = (scroller.scrollTop + halfScreenHeight) / scroller.scrollHeight
+  await nextTick()
+  const newTop = scroller.scrollHeight * origTopRatio - halfScreenHeight
+  pageAnchor.value = newTop
+  setTimeout(() => {
+    pageAnchor.value = 0
+  }, STICKY_FOR_A_WHILE)
+})
 
 </script>
 <style lang="scss" scoped>
