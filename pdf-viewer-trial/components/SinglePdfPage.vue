@@ -37,6 +37,9 @@ const pageEle = ref(null)
 const pdfViewer = shallowRef(null)
 
 const pdf2CssUnits = computed(() => {
+  if (!props.document) {
+    return 1
+  }
   return _.get(window, 'pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS', 1)
 })
 
@@ -44,9 +47,9 @@ function switchPage (page, top = 0) {
   // force disable scroll T___T
   // pdf.js v3 doesn't allow to disable scroll on scale change
   if (pdfViewer.value) {
-    pdfViewer.value.currentPageNumber = page
     const scroller = pdfViewer.value.container.parentElement
-    top = props.pageAnchor || top
+    top = props.pageAnchor || top || scroller.scrollTop
+    pdfViewer.value.currentPageNumber = page
     if (top) {
       scroller.scrollTo({ top })
       // TODO: resolve the magic number
@@ -54,6 +57,17 @@ function switchPage (page, top = 0) {
       setTimeout(() => {
         scroller.scrollTo({ top })
       }, 400)
+    }
+  }
+}
+
+function setScale (scale, top = 0) {
+  if (pdfViewer.value) {
+    const scroller = pdfViewer.value.container.parentElement
+    top = props.pageAnchor || top || scroller.scrollTop
+    pdfViewer.value.currentScale = scale / pdf2CssUnits.value
+    if (top) {
+      scroller.scrollTo({ top })
     }
   }
 }
@@ -87,9 +101,7 @@ function renderPdf () {
   viewerConfig.linkService.setViewer(pdfSinglePageViewer)
 
   eventBus.on('pagesinit', () => {
-    const scrollEle = pdfSinglePageViewer.container.parentElement
-    const top = scrollEle.scrollTop
-    pdfSinglePageViewer.currentScale = props.scale / pdf2CssUnits.value
+    setScale(props.scale)
 
     if (props.highlight) {
       eventBus.dispatch('find', {
@@ -99,7 +111,7 @@ function renderPdf () {
         highlightAll: true
       })
     } else {
-      switchPage(props.page, top)
+      switchPage(props.page)
     }
     emit('loaded')
   })
@@ -129,7 +141,7 @@ onMounted(renderPdf)
 
 watch(() => props.scale, (newScale) => {
   if (pdfViewer.value) {
-    pdfViewer.value.currentScale = newScale / pdf2CssUnits.value
+    setScale(newScale)
   }
 })
 
