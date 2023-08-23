@@ -1,106 +1,146 @@
 - category: 環境
   fields:
-    - label: ISO 14064
+    - label: 是否根據 ISO 14064
       type: boolean
+      level: 1
       keywords:
-        - 14064
-    - label: 範疇一直接排放
+        - "14064"
+    - label: 範疇一（值）
       type: number
       keywords:
         - 範疇一
+        - 類別一
+        - 溫室氣體
+        - 二氧化碳當量
+      level: 3
       notes: 要抓的是台灣全場的，可能會有各工廠、或是全世界
-    - label: 範疇二間接排放
+    - label: 範疇二（值）
       type: number
+      level: 3
       keywords:
         - 範疇二
-        - 範疇 2
-        - 範疇2
+        - 類別二
+        - 溫室氣體
+        - 二氧化碳當量
       notes: 要抓的是台灣全場的，可能會有各工廠、或是全世界
-    - label: 碳密集度
-      type: string
-      keywords:
-        - 密集度
-      notes: 可能會分不同場、不同產線，如果有的話，分開寫，須註記單位
-    - label: 碳定價
+    - label: 年度總用電量
       type: number
+      level: 8
       keywords:
-        - 碳定價
-    - label: 總用電量
-      type: number
-      keywords:
-        - 電力
-        - 用電
+        - 外購電力
+        - 用電量
         - 能源
       notes: 單位：千度，電力只看電力欄位，因為可能會有其他石化燃料等
-    - label: 再生能源設置量
+    - label: 再生能源裝置容量
       type: number
+      level: 3
       keywords:
+        - 裝置容量
         - 再生能源
       notes: 單位：KW ，可能是寫「沒有使用」
-    - label: 再生能源發電量
+    - label: 總取水量
       type: number
+      level: 3
       keywords:
-        - 再生能源
-      notes: 單位：千度，可能是寫「沒有使用」
+        - 取水量
+        - 水資源
+    - label: 耗用水量
+      type: number
+      level: 3
+      keywords:
+        - 耗用水
+        - 耗水量
+        - 水資源
+    - label: 一般事業廢棄物
+      type: number
+      level: 1
+      keywords:
+        - 事業廢棄物
+        - 廢棄物
+      notes: 單位：噸
 - category: 社會
   fields:
-    - label: 正式員工數
+    - label: 正式人員
       type: number
+      level: 1
       keywords:
-        - 正式員工
-        - 全職
-        - 定期員工
-      notes: 單位：人
-    - label: 非正式員工數
-      type: number
-      keywords:
-        - 非正式員工
+        - 正式
+        - 正職
         - 不定期
-        - 協力
-        - 派遣
-      notes: 單位：人
-    - label: 性別比
+        - 人力
+        - 勞動
+    - label: 男性正式員工
       type: number
+      level: 1
       keywords:
-        - 性別
-      notes: 男/女
-    - label: 是否聘用移工
-      type: boolean
-      keywords:
-        - 外籍
-        - 移工
-    - label: 是否聘用身障人士
-      type: boolean
-      keywords:
-        - 身心障礙
-    - label: 新進率
+        - 男性員工
+        - 人力
+        - 勞動
+    - label: 女性正式員工
       type: number
+      level: 1
+      keywords:
+        - 女性員工
+        - 人力
+        - 勞動
+    - label: 新進人數
+      type: number
+      level: 1
       keywords:
         - 新進
-    - label: 離職率
+    - label: 離職人數
       type: number
+      level: 1
       keywords:
         - 離職
+    - label: 職災事件數
+      type: number
+      level: 1
+      keywords:
+        - 職災
+        - 受傷
+        - 死亡
+      notes: 單位：件數
+    - label: 工安意外細節
+      type: string
+      level: 8
+      keywords:
+        - 火災
+        - 事故
+      notes: 文字質性描述，例如「揭露南極工廠火災事件」
 - category: 治理
   fields:
-    - label: ISO 9001
-      type: boolean
-      keywords:
-        - 9001
-    - label: ISO 14001
+    - label: 營利事業所得稅繳納金額
       type: number
+      level: 8
       keywords:
-        - 14001
-    - label: 營利事業所得稅稅額
-      type: number
-      keywords:
+        - 所得稅
         - 繳納
-        - 營所稅
-        - 所得
+        - 營收
+        - 支付政府款項
       notes: 單位：元
-    - label: 政府補助、補貼金額
-      type: number
+    - label: 是否揭露政府補助（GRI-201-4）
+      type: boolean
+      level: 5
       keywords:
-        - 201-4
-        - 抵減稅額
+        - GRI 201
+        - 補貼
+        - 補助
+    - label: 研發經費投入金額
+      type: number
+      level: 3
+      keywords:
+        - 研發
+        - 研發費用
       notes: 單位：元
+    - label: ISO 14001（環境管理系統）
+      type: boolean
+      level: 1
+      keywords:
+        - "14001"
+    - label: ISO 45001（職業安全衛生管理系統）
+      type: boolean
+      level: 1
+      keywords:
+        - "45001"
+
