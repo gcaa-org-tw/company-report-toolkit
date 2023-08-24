@@ -2,12 +2,12 @@ name: ui-pull-request
 
 defaults:
   run:
-    working-directory: pdf-viewer-trial
+    working-directory: toolkit-ui
 
 on:
   pull_request:
     paths:
-      - 'pdf-viewer-trial/**'
+      - 'toolkit-ui/**'
     branches:
       - main
 
