@@ -32,7 +32,9 @@ export default defineNuxtConfig({
     public: {
       algoliaAppId: '',
       algoliaSearchApiKey: '',
-      algoliaIndexName: ''
+      algoliaIndexName: '',
+      airtableBase: '',
+      airtableKey: ''
     }
   }
 })
