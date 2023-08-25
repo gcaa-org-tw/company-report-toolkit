@@ -3,7 +3,7 @@
   onboard-crowd(
     v-if="!canStartTest"
     @user-id="userId = $event"
-    @fields-to-submit="fieldsToSubmit = $event"
+    @tasks="handleTaskDeliver"
   )
   crowd-field-submitter(
     v-else-if="!isAllCompleted"
@@ -16,7 +16,13 @@
 <script setup lang="ts">
 const userId = ref('')
 const fieldsToSubmit = ref([])
+const fieldsToVerify = ref([])
 const isAllCompleted = ref(false)
+
+function handleTaskDeliver ({ submissions, verifications }) {
+  fieldsToSubmit.value = submissions
+  fieldsToVerify.value = verifications
+}
 
 const canStartTest = computed(() => {
   return userId.value && fieldsToSubmit.value.length

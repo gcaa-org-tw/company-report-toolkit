@@ -31,6 +31,26 @@ export const useAirtable = () => {
     })
   }
 
+  const getPendingVerifications = (userId: string) => {
+    return new Promise((resolve, reject) => {
+      atBase(SUBMISSION_TABLE).select({
+        view: '待驗證紀錄'
+      }).firstPage((err, records) => {
+        // 100 records is enough for now
+        if (err) {
+          reject(err)
+          return
+        }
+        const pendingVerification = records?.filter((record) => {
+          const reporter = record.get('填答者暱稱') as string || ''
+          return reporter !== userId
+        })
+
+        resolve(pendingVerification)
+      })
+    })
+  }
+
   const submitField = ({ userId, companyId, year, field, value, unit = '', notes = '', page = 0, keyword = '' }) => {
     const fields: any = {
       填答者暱稱: userId,
@@ -60,6 +80,7 @@ export const useAirtable = () => {
   return {
     base: atBase,
     getPendingFields,
+    getPendingVerifications,
     submitField
   }
 }
