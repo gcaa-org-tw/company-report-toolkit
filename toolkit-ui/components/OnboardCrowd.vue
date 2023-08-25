@@ -43,7 +43,8 @@ const isOnIntro = ref(true)
 const isOnLoadingRecords = ref(false)
 const hasNoPendingRecords = ref(false)
 
-const userId = ref('')
+// TODO: reset me
+const userId = ref('user00')
 const fieldsToSubmit = ref([])
 
 const canStartPrepare = computed(() => {
@@ -82,6 +83,7 @@ async function prepareQuestions () {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function findSomeTasks (pendingRecords, nSubmit = 2, nVerify = 6) {
   const reportedCompanies = _.shuffle(_.uniq(pendingRecords.map(r => r.get('公司統編'))))
+  const year = reportMap[0].year
   const allCompanies = reportMap[0].reports.map(r => r.id)
   const nonReportedCompanies = _.shuffle(_.difference(allCompanies, reportedCompanies))
 
@@ -94,7 +96,12 @@ function findSomeTasks (pendingRecords, nSubmit = 2, nVerify = 6) {
     .map(r => r.get('欄位標籤'))
 
   const allFields = fieldMap.flatMap((category) => {
-    return category.fields.map(field => field)
+    return category.fields.map((field) => {
+      return {
+        category: category.category,
+        ...field
+      }
+    })
   })
 
   const nonReportedFields = _.shuffle(_.difference(allFields, reportedFields))
@@ -105,6 +112,7 @@ function findSomeTasks (pendingRecords, nSubmit = 2, nVerify = 6) {
     .map((field) => {
       return {
         company: companyInfo,
+        year,
         ...field
       }
     })
