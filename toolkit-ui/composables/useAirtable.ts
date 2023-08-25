@@ -8,23 +8,25 @@ export const useAirtable = () => {
   const atBase = new Airtable({ apiKey: airtableKey }).base(airtableBase)
 
   const getPendingFields = (userId: string) => {
-    console.log('???', userId)
-    atBase(STATS_TABLE).select({
-      filterByFormula: `AND({相關填答者} is '${userId}')`,
-      view: '尚待驗證'
-    }).firstPage((err, records) => {
-      // TODO: handle error
-      if (err) {
-        console.error(err)
-        return
-      }
-      records.forEach((record) => {
-        console.log(userId, record.get('相關填答者'), record)
-      })
+    return new Promise((resolve, reject) => {
+      atBase(STATS_TABLE).select({
+        // TODO: find a way to filter by array
+        // filterByFormula: `AND({相關填答者} is '${userId}')`,
+        view: '尚待驗證'
+      }).firstPage((err, records) => {
+        // 100 records is enough for now
+        if (err) {
+          // TODO: handle rate limit XD
+          reject(err)
+          return
+        }
+        const pendingRecords = records?.filter((record) => {
+          const reporters = record.get('相關填答者') as string[]
+          return !reporters || !reporters.every(reporter => reporter === userId)
+        })
 
-      if (!records?.length) {
-        console.log('no pending fields')
-      }
+        resolve(pendingRecords)
+      })
     })
   }
 
