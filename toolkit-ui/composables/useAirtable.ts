@@ -31,7 +31,7 @@ export const useAirtable = () => {
     })
   }
 
-  const submitField = ({ userId, companyId, year, field, value, unit = '', notes = '', page = 0 }) => {
+  const submitField = ({ userId, companyId, year, field, value, unit = '', notes = '', page = 0, keyword = '' }) => {
     const fields: any = {
       填答者暱稱: userId,
       公司統編: companyId,
@@ -39,9 +39,10 @@ export const useAirtable = () => {
       欄位標籤: field,
       數值: value
     }
-    if (unit) { fields['單位'] = unit }
-    if (notes) { fields['補充資訊'] = notes }
-    if (page) { fields['答案頁次'] = page }
+    if (unit) { fields.單位 = unit }
+    if (notes) { fields.補充資訊 = notes }
+    if (page) { fields.答案頁次 = page }
+    if (keyword) { fields.答案關鍵字 = keyword }
 
     return new Promise((resolve, reject) => {
       atBase(SUBMISSION_TABLE).create([{

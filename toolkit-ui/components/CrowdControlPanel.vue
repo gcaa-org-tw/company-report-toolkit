@@ -1,9 +1,9 @@
 <template lang="pug">
 .controlPanel(v-if="curField")
   .f6.mb1.gray 欄位標注
-  h2.mt0.f4.1b {{ curField.company.name }} | {{ curField.category }} | {{ curField.label }}
+  h2.mt0.f4.1b {{ curField.year }} 年 | {{ curField.company.name }} | {{ curField.label }}
   p(v-if="curField.notes") {{ curField.notes }}
-  .bt.bb.b--gray.mv3.pv2
+  .bt.bb.b--moon-gray.mv3.pv2
     form.submission.mt3.mb4.pb2.bb.b--moon-gray(@submit.prevent="submitFieldData")
       .fw5.mb1 填寫判讀結果
       .flex.items-center.mb2
@@ -24,8 +24,9 @@
           v-model.trim="submissionData.notes"
           placeholder="備註"
         )
-      .mt3.tr
-        button.pv2.ph4(type="submit" :disabled="!canSubmitFieldData") 送出標注結果
+      .mt3.flex.items-center.justify-between
+        button.pa2.bg-white.ba.b--light-gray.gray.pointer(@click.stop="skipField") 找不到答案，放棄 🥺
+        button.pv2.ph4.pointer(type="submit" :disabled="!canSubmitFieldData || isOnSubmit") 送出標注結果
     .controlPanel__keywordSection.mv3.pb2.bb
       .fw5.mb1 相關關鍵字
       .f6.gray 點選以下關鍵字，或是自行輸入，就能列出相關頁面
@@ -72,6 +73,10 @@ const props = defineProps({
   fieldsToSubmit: {
     type: Array,
     required: true
+  },
+  focusedPage: {
+    type: Number,
+    default: 1
   }
 })
 
@@ -148,8 +153,24 @@ const canSubmitFieldData = computed(() => {
   return !!submissionData.value.value
 })
 
+const isOnSubmit = ref(false)
+
+function skipField () {
+  // TODO: send tracking event
+  submittedDataList.value.push({
+    field: curField.value
+  })
+  resetSubmitionData()
+  gotoNextField()
+}
+
 async function submitFieldData () {
   // TODO: update if exists
+  // TODO: send tracking event
+  if (!canSubmitFieldData.value) {
+    return
+  }
+  isOnSubmit.value = true
   const { value, unit, notes } = submissionData.value
   const { year, company, category, label } = curField.value
   const data = {
@@ -160,7 +181,11 @@ async function submitFieldData () {
     field: label,
     value,
     unit,
-    notes
+    notes,
+    page: props.focusedPage
+  }
+  if (curKeyword.value) {
+    data.keyword = curKeyword.value
   }
   const atRow = await submitField(data)
   submittedDataList.value.push({
@@ -171,6 +196,7 @@ async function submitFieldData () {
 
   resetSubmitionData()
   gotoNextField()
+  isOnSubmit.value = false
 }
 
 function humanPageNumber (page: number) {

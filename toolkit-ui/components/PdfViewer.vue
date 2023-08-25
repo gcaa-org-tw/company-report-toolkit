@@ -1,7 +1,7 @@
 <template lang="pug">
 .reportViewer
   .reportViewer__control.pr2
-    .bb.b--gray.flex.items-center.justify-between.pv2
+    .bb.b--moon-gray.flex.items-center.justify-between.pv2
       .flex.items-center
       .flex.items-center
         button.reportViewer__button(@click="zoomIn")
@@ -33,6 +33,7 @@
           :highlight="cursor.highlight"
           :page-anchor="pageAnchor"
           :scale="pdfScale.scale"
+          @visible="handlePageVisible(index + 1)"
         )
 </template>
 <script lang="ts" setup>
@@ -44,9 +45,13 @@ const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
 
+const TIME_TO_VIEW_PAGE = 2000
+
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
 })
+
+const emit = defineEmits(['view-page'])
 
 const props = defineProps({
   // 1 based, not 0 based
@@ -199,6 +204,8 @@ async function initPdfScaleIfNeeded (pdf) {
   scaleMeta.value.widthScale = canvasWidth / width
 
   scaleMeta.value.heightScale = contentHeight / height
+
+  // console.log('scaleMeta', canvasWidth, width, contentWidth, contentHeight, height, outputScale)
 }
 
 const pageStyle = computed(() => {
@@ -349,6 +356,12 @@ watch(pdfScale, async (newValue, prevValue) => {
   }, STICKY_FOR_A_WHILE)
 })
 
+// page view
+
+const handlePageVisible = _.debounce((pageIndex: number) => {
+  emit('view-page', pageIndex)
+}, TIME_TO_VIEW_PAGE)
+
 </script>
 <style lang="scss" scoped>
 .reportViewer {
@@ -359,7 +372,7 @@ watch(pdfScale, async (newValue, prevValue) => {
   }
 
   &__scrollContainer {
-    height: calc(100vh - #{$controlHeight});
+    height: calc(100vh - #{$controlHeight} - #{$bannerHeight});
     overflow-y: auto;
     padding: 0 1rem;
   }

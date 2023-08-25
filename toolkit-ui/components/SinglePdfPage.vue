@@ -31,10 +31,18 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['loaded'])
+const emit = defineEmits(['loaded', 'visible'])
 
 const pageEle = ref(null)
 const pdfViewer = shallowRef(null)
+
+const isVisible = useElementVisibility(pageEle)
+
+watch(isVisible, (newVal) => {
+  if (newVal) {
+    emit('visible')
+  }
+})
 
 const pdf2CssUnits = computed(() => {
   if (!props.document) {
