@@ -1,32 +1,42 @@
 <template lang="pug">
 .controlPanel(v-if="curField")
-  .f6.mb1.gray 欄位標注
+  .f6.mb1.gray {{ isSubmission ? '標注欄位' : '驗證欄位' }}
   h2.mt0.f4.1b {{ curField.year }} 年 | {{ curField.company.name }} | {{ curField.label }}
   p(v-if="curField.notes") {{ curField.notes }}
   .bt.bb.b--moon-gray.mv3.pv2
-    form.submission.mt3.mb4.pb2.bb.b--moon-gray(@submit.prevent="submitFieldData")
-      .fw5.mb1 填寫判讀結果
+    form.fieldForm.mt3.mb4.pb2.bb.b--moon-gray(@submit.prevent="submitFieldData")
+      .fw5.mb1 {{ isSubmission ? '填寫判讀結果' : '驗證欄位數值' }}
       .flex.items-center.mb2
-        label.submission__value.flex-auto.mr3 數值
-          input.submission__input(
-            v-model.trim="submissionData.value"
+        label.fieldForm__value.flex-auto.mr3 數值
+          input.fieldForm__input(
+            v-model.trim="fieldData.value"
             type="text"
             placeholder="數值"
+            :readonly="!isSubmission"
           )
-        label.submission__unit.flex-none 單位
-          input.submission__input(
-            v-model.trim="submissionData.unit"
+        label.fieldForm__unit.flex-none 單位
+          input.fieldForm__input(
+            v-model.trim="fieldData.unit"
             type="text"
             placeholder="單位"
+            :readonly="!isSubmission"
           )
       label 備註
-        textarea.submission__input(
-          v-model.trim="submissionData.notes"
+        textarea.fieldForm__input(
+          v-model.trim="fieldData.notes"
           placeholder="備註"
+          :readonly="!isSubmission"
         )
-      .mt3.flex.items-center.justify-between
-        button.pa2.bg-white.ba.b--light-gray.gray.pointer(@click.stop="skipField") 找不到答案，放棄 🥺
-        button.pv2.ph4.pointer(type="submit" :disabled="!canSubmitFieldData || isOnSubmit") 送出標注結果
+      .mt3
+        .flex.items-center.justify-between(v-if="isSubmission")
+          button.pa2.bg-white.ba.b--light-gray.gray.pointer(@click.stop="skipField") 找不到答案，放棄 🥺
+          button.pv2.ph4.pointer(type="submit" :disabled="!canSubmitFieldData || isOnSubmit") 送出標注結果
+        .flex.items-center.justify-end(v-else)
+          button.pv1.ph3.pointer.ml2(
+            v-for="theType in VERIFY_TYPES"
+            :key="theType"
+            @click.stop="verifyField(theType)"
+          ) 標為{{ theType }}
     .controlPanel__keywordSection.mv3.pb2.bb
       .fw5.mb1 相關關鍵字
       .f6.gray 點選以下關鍵字，或是自行輸入，就能列出相關頁面
@@ -63,54 +73,58 @@ import algoliasearch from 'algoliasearch'
 
 const { submitField } = useAirtable()
 
-const emit = defineEmits(['report', 'page', 'matched-pages', 'complete-all-submission'])
+const emit = defineEmits(['report', 'page', 'matched-pages', 'complete'])
 
 const props = defineProps({
   userId: {
     type: String,
     required: true
   },
-  fieldsToSubmit: {
+  fields: {
     type: Array,
     required: true
   },
   focusedPage: {
     type: Number,
     default: 1
+  },
+  isSubmission: {
+    type: Boolean,
+    default: true
   }
 })
 
 const curFieldIndex = ref(0)
 const curField = computed(() => {
-  return props.fieldsToSubmit[curFieldIndex.value]
+  return props.fields[curFieldIndex.value]
 })
 
-watchEffect(() => {
-  if (!curField.value) {
-    return
-  }
-  emit('report', {
-    year: curField.value.year,
-    company: curField.value.company
-  })
+const defaultFieldData = {
+  value: '',
+  unit: '',
+  notes: ''
+}
+
+const fieldData = ref({
+  ...defaultFieldData
 })
 
 const nextField = computed(() => {
-  if (curFieldIndex.value < props.fieldsToSubmit.length - 1) {
-    return props.fieldsToSubmit[curFieldIndex.value + 1]
+  if (curFieldIndex.value < props.fields.length - 1) {
+    return props.fields[curFieldIndex.value + 1]
   }
-  return props.fieldsToSubmit[0]
+  return props.fields[0]
 })
 
 const prevField = computed(() => {
   if (curFieldIndex.value > 0) {
-    return props.fieldsToSubmit[curFieldIndex.value - 1]
+    return props.fields[curFieldIndex.value - 1]
   }
-  return props.fieldsToSubmit[props.fieldsToSubmit.length - 1]
+  return props.fields[props.fields.length - 1]
 })
 
 function gotoNextField () {
-  if (curFieldIndex.value < props.fieldsToSubmit.length - 1) {
+  if (curFieldIndex.value < props.fields.length - 1) {
     curFieldIndex.value += 1
   } else {
     curFieldIndex.value = 0
@@ -121,46 +135,46 @@ function gotoPrevField () {
   if (curFieldIndex.value > 0) {
     curFieldIndex.value -= 1
   } else {
-    curFieldIndex.value = props.fieldsToSubmit.length - 1
+    curFieldIndex.value = props.fields.length - 1
   }
 }
 
-const defaultSubmitData = {
-  value: '',
-  unit: '',
-  notes: ''
-}
+const doneFieldList = ref<any>([])
 
-const submissionData = ref({
-  ...defaultSubmitData
-})
-
-const submittedDataList = ref<any>([])
-
-watch(submittedDataList, (newList) => {
-  if (newList.length === props.fieldsToSubmit.length) {
-    emit('complete-all-submission')
+watch(doneFieldList, (newList) => {
+  if (newList.length === props.fields.length) {
+    emit('complete')
   }
 }, { deep: true })
 
-function resetSubmitionData () {
-  submissionData.value = {
-    ...defaultSubmitData
+function resetFieldData () {
+  fieldData.value = {
+    ...defaultFieldData
   }
 }
 
 const canSubmitFieldData = computed(() => {
-  return !!submissionData.value.value
+  return !!fieldData.value.value
 })
 
 const isOnSubmit = ref(false)
 
+const VERIFY_TYPES = ['不正確', '不確定', '正確']
+
+function verifyField (type: string) {
+  // TODO: airtable table
+  doneFieldList.value.push({
+    field: curField.value,
+    type
+  })
+}
+
 function skipField () {
   // TODO: send tracking event
-  submittedDataList.value.push({
+  doneFieldList.value.push({
     field: curField.value
   })
-  resetSubmitionData()
+  resetFieldData()
   gotoNextField()
 }
 
@@ -171,7 +185,7 @@ async function submitFieldData () {
     return
   }
   isOnSubmit.value = true
-  const { value, unit, notes } = submissionData.value
+  const { value, unit, notes } = fieldData.value
   const { year, company, category, label } = curField.value
   const data = {
     userId: props.userId,
@@ -188,13 +202,13 @@ async function submitFieldData () {
     data.keyword = curKeyword.value
   }
   const atRow = await submitField(data)
-  submittedDataList.value.push({
+  doneFieldList.value.push({
     field: curField.value,
     data,
     atRow
   })
 
-  resetSubmitionData()
+  resetFieldData()
   gotoNextField()
   isOnSubmit.value = false
 }
@@ -202,6 +216,8 @@ async function submitFieldData () {
 function humanPageNumber (page: number) {
   return page + (curField.value.company.pageOffset || 0)
 }
+
+// handle search logic
 
 const runtimeConfig = useRuntimeConfig()
 const agClient = algoliasearch(
@@ -212,12 +228,7 @@ const agIndex = agClient.initIndex(runtimeConfig.public.algoliaIndexName)
 const predefinedKeyword = ref('')
 const customizedKeyword = ref('')
 const keywordResults = ref([])
-
-watch(curField, () => {
-  keywordResults.value = []
-  customizedKeyword.value = ''
-  predefinedKeyword.value = ''
-})
+const pendingHitPage = ref(0)
 
 const curKeyword = computed(() => {
   return customizedKeyword.value || predefinedKeyword.value || ''
@@ -255,6 +266,16 @@ async function searchKeyword () {
 
   keywordResults.value = hits
   curSearchHit.value = null
+
+  if (pendingHitPage.value) {
+    const hit = hits.find(hit => hit.page === pendingHitPage.value)
+    if (hit) {
+      gotoSelectedPage(hit)
+    } else {
+      emit('page', { highlight: curKeyword.value, page: pendingHitPage.value })
+    }
+    pendingHitPage.value = 0
+  }
 }
 
 watch(keywordResults, (newResults) => {
@@ -300,6 +321,62 @@ async function gotoSelectedPage (hit) {
   await nextTick()
   emit('page', { highlight: curKeyword.value, page: hit.page })
 }
+
+function resetSearchState () {
+  keywordResults.value = []
+  predefinedKeyword.value = ''
+  customizedKeyword.value = ''
+}
+
+// handle verification init
+
+function initVerification () {
+  const curData = curField.value.data
+
+  fieldData.value = {
+    value: curData.get('數值'),
+    unit: curData.get('單位'),
+    notes: curData.get('補充資訊')
+  }
+
+  const pageIndex = curData.get('答案頁次')
+  const keyword = curData.get('答案關鍵字')
+
+  if (keyword) {
+    const isPredefined = curField.value.keywords.includes(keyword)
+    if (isPredefined) {
+      predefinedKeyword.value = keyword
+    } else {
+      customizedKeyword.value = keyword
+    }
+  } else {
+    resetSearchState()
+  }
+  if (pageIndex) {
+    if (keyword) {
+      pendingHitPage.value = pageIndex
+    } else {
+      emit('page', { highlight: '', page: pageIndex })
+    }
+  }
+}
+
+watchEffect(() => {
+  if (!curField.value) {
+    return
+  }
+
+  emit('report', {
+    year: curField.value.year,
+    company: curField.value.company
+  })
+
+  if (props.isSubmission) {
+    resetSearchState()
+  } else {
+    initVerification()
+  }
+})
 
 </script>
 <style lang="scss" scoped>
@@ -348,7 +425,7 @@ async function gotoSelectedPage (hit) {
     }
   }
 }
-.submission {
+.fieldForm {
   &__unit {
     width: 10rem;
   }

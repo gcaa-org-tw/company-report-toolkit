@@ -137,6 +137,7 @@ function findSomeVerificationTasks (pendingRecords, nVerify = 6) {
       return {
         company,
         year: record.get('報告書年份'),
+        data: record,
         ...targetField
       }
     })
