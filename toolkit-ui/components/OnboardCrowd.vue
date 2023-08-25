@@ -60,7 +60,7 @@ async function prepareQuestions () {
 
   isOnIntro.value = false
 
-  if (!pendingRecords || !pendingRecords.length) {
+  if (!pendingRecords) {
     hasNoPendingRecords.value = true
     isOnLoadingRecords.value = false
     return
