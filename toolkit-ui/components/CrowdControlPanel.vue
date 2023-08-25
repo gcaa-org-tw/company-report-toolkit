@@ -1,10 +1,31 @@
 <template lang="pug">
-.controlPanel
+.controlPanel(v-if="curField")
   .f6.mb1.gray 欄位標注
   h2.mt0.f4.1b {{ curField.company.name }} | {{ curField.category }} | {{ curField.label }}
+  p(v-if="curField.notes") {{ curField.notes }}
   .bt.bb.b--gray.mv3.pv2
-    form.controlPanel__submission.mv3.pb2.bb
+    form.submission.mt3.mb4.pb2.bb.b--moon-gray(@submit.prevent="submitFieldData")
       .fw5.mb1 填寫判讀結果
+      .flex.items-center.mb2
+        label.submission__value.flex-auto.mr3 數值
+          input.submission__input(
+            v-model.trim="submissionData.value"
+            type="text"
+            placeholder="數值"
+          )
+        label.submission__unit.flex-none 單位
+          input.submission__input(
+            v-model.trim="submissionData.unit"
+            type="text"
+            placeholder="單位"
+          )
+      label 備註
+        textarea.submission__input(
+          v-model.trim="submissionData.notes"
+          placeholder="備註"
+        )
+      .mt3.tr
+        button.pv2.ph4(type="submit" :disabled="!canSubmitFieldData") 送出標注結果
     .controlPanel__keywordSection.mv3.pb2.bb
       .fw5.mb1 相關關鍵字
       .f6.gray 點選以下關鍵字，或是自行輸入，就能列出相關頁面
@@ -39,9 +60,15 @@
 import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 
-const emit = defineEmits(['report', 'page', 'matched-pages'])
+const { submitField } = useAirtable()
+
+const emit = defineEmits(['report', 'page', 'matched-pages', 'complete-all-submission'])
 
 const props = defineProps({
+  userId: {
+    type: String,
+    required: true
+  },
   fieldsToSubmit: {
     type: Array,
     required: true
@@ -91,6 +118,59 @@ function gotoPrevField () {
   } else {
     curFieldIndex.value = props.fieldsToSubmit.length - 1
   }
+}
+
+const defaultSubmitData = {
+  value: '',
+  unit: '',
+  notes: ''
+}
+
+const submissionData = ref({
+  ...defaultSubmitData
+})
+
+const submittedDataList = ref<any>([])
+
+watch(submittedDataList, (newList) => {
+  if (newList.length === props.fieldsToSubmit.length) {
+    emit('complete-all-submission')
+  }
+}, { deep: true })
+
+function resetSubmitionData () {
+  submissionData.value = {
+    ...defaultSubmitData
+  }
+}
+
+const canSubmitFieldData = computed(() => {
+  return !!submissionData.value.value
+})
+
+async function submitFieldData () {
+  // TODO: update if exists
+  const { value, unit, notes } = submissionData.value
+  const { year, company, category, label } = curField.value
+  const data = {
+    userId: props.userId,
+    year: `${year}`,
+    companyId: company.id,
+    category,
+    field: label,
+    value,
+    unit,
+    notes
+  }
+  const atRow = await submitField(data)
+  submittedDataList.value.push({
+    field: curField.value,
+    data,
+    atRow
+  })
+
+  resetSubmitionData()
+  gotoNextField()
 }
 
 function humanPageNumber (page: number) {
@@ -240,6 +320,17 @@ async function gotoSelectedPage (hit) {
       color: black;
       font-weight: bold;
     }
+  }
+}
+.submission {
+  &__unit {
+    width: 10rem;
+  }
+  &__input {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    width: 100%;
   }
 }
 </style>

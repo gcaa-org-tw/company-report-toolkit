@@ -1,6 +1,7 @@
 import Airtable from 'airtable'
 
 const STATS_TABLE = '欄位填答統計'
+const SUBMISSION_TABLE = '填答紀錄'
 
 export const useAirtable = () => {
   const { public: { airtableBase, airtableKey } } = useRuntimeConfig()
@@ -30,8 +31,34 @@ export const useAirtable = () => {
     })
   }
 
+  const submitField = ({ userId, companyId, year, field, value, unit = '', notes = '', page = 0 }) => {
+    const fields: any = {
+      填答者暱稱: userId,
+      公司統編: companyId,
+      報告書年份: year,
+      欄位標籤: field,
+      數值: value
+    }
+    if (unit) { fields['單位'] = unit }
+    if (notes) { fields['補充資訊'] = notes }
+    if (page) { fields['答案頁次'] = page }
+
+    return new Promise((resolve, reject) => {
+      atBase(SUBMISSION_TABLE).create([{
+        fields
+      }], (err, records) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(records[0])
+        }
+      })
+    })
+  }
+
   return {
     base: atBase,
-    getPendingFields
+    getPendingFields,
+    submitField
   }
 }

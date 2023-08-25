@@ -44,6 +44,7 @@
       keywords:
         - 取水量
         - 水資源
+      notes: 單位：噸
     - label: 耗用水量
       type: number
       level: 3
