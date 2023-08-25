@@ -3,6 +3,7 @@ import Airtable from 'airtable'
 const STATS_TABLE = '欄位填答統計'
 const SUBMISSION_TABLE = '填答紀錄'
 const VERIFICATION_TABLE = '驗證紀錄'
+const TRACK_USAGE_TABLE = '行為追蹤'
 
 export const useAirtable = () => {
   const { public: { airtableBase, airtableKey } } = useRuntimeConfig()
@@ -98,11 +99,52 @@ export const useAirtable = () => {
     })
   }
 
+  const sendTrackUsage = ({
+    userId,
+    companyId,
+    year,
+    field,
+    isOnVerify,
+    searchKeyword,
+    isPredefined = undefined,
+    clickPages,
+    viewPages,
+    answerPage
+  }) => {
+    const fields: any = {
+      填答者暱稱: userId,
+      公司統編: companyId,
+      報告書年份: year,
+      欄位標籤: field,
+      是否為驗證時: isOnVerify
+    }
+
+    if (searchKeyword) { fields.關鍵字 = searchKeyword }
+    if (isPredefined !== undefined) { fields.是否自訂關鍵字 = !isPredefined }
+    if (clickPages.length) { fields.點選過的頁次 = clickPages.join(',') }
+    if (viewPages.length) { fields.瀏覽過的頁次 = viewPages.join(',') }
+    if (answerPage) { fields.答案頁次 = answerPage }
+
+    return new Promise((resolve, reject) => {
+      atBase(TRACK_USAGE_TABLE).create([{
+        fields
+      }], (err, records) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(records[0])
+        }
+      })
+    })
+  }
+
   return {
     base: atBase,
     getPendingFields,
     getPendingVerifications,
     submitField,
-    verifyField
+    verifyField,
+
+    sendTrackUsage
   }
 }

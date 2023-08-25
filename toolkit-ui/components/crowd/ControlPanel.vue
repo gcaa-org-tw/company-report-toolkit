@@ -71,7 +71,7 @@
 import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 
-const { submitField, verifyField } = useAirtable()
+const { submitField, verifyField, sendTrackUsage } = useAirtable()
 
 const emit = defineEmits(['report', 'page', 'matched-pages', 'complete'])
 
@@ -217,6 +217,8 @@ async function submitFieldData () {
     atRow
   })
 
+  trackingHistory.value.answerPage = `${props.focusedPage}`
+
   resetFieldData()
   gotoNextField()
   isOnSubmit.value = false
@@ -328,6 +330,7 @@ async function gotoSelectedPage (hit) {
     curSearchHit.value = hit
   }
   await nextTick()
+  trackingHistory.value.clickPages.push(hit.page)
   emit('page', { highlight: curKeyword.value, page: hit.page })
 }
 
@@ -337,7 +340,7 @@ function resetSearchState () {
   customizedKeyword.value = ''
 }
 
-// handle verification init
+// handle field init
 
 function initVerification () {
   const curData = curField.value.data
@@ -385,6 +388,64 @@ watchEffect(() => {
   } else {
     initVerification()
   }
+})
+
+// tracking
+
+// const trackingId = ref('')
+function genEmptyTrackHistory () {
+  return {
+    searchKeyword: curKeyword.value,
+    isPredefined: true,
+    clickPages: [],
+    viewPages: [],
+    answerPage: ''
+  }
+}
+const trackingHistory = ref(genEmptyTrackHistory())
+
+async function initTracking () {
+  // const { year, company, label } = curField.value
+  // const data = {
+  //   userId: props.userId,
+  //   year: `${year}`,
+  //   companyId: company.id,
+  //   field: label,
+  //   isOnVerify: !props.isSubmission 
+  // }
+  // const { id } = await initTrackUsage(data)
+  trackingHistory.value = genEmptyTrackHistory()
+  // trackingId.value = id
+}
+
+// simple workaround for IME
+const submitTracking = _.throttle(() => {
+  const { year, company, label } = curField.value
+  const data = {
+    userId: props.userId,
+    year: `${year}`,
+    companyId: company.id,
+    field: label,
+    isOnVerify: !props.isSubmission,
+    ...trackingHistory.value
+  }
+
+  return sendTrackUsage(data)
+}, 100)
+
+watch(() => props.focusedPage, (pageIndex) => {
+  // page 1 is always loaded, ignore it
+  if (!pageIndex || pageIndex === 1) {
+    return
+  }
+  trackingHistory.value.viewPages.push(pageIndex)
+})
+
+watch(curKeyword, async (newKeyword, oldKeyword) => {
+  submitTracking()
+  await initTracking()
+  trackingHistory.value.isPredefined = newKeyword !== customizedKeyword.value
+  trackingHistory.value.searchKeyword = newKeyword
 })
 
 </script>
