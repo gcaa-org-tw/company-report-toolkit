@@ -2,6 +2,7 @@ import Airtable from 'airtable'
 
 const STATS_TABLE = '欄位填答統計'
 const SUBMISSION_TABLE = '填答紀錄'
+const VERIFICATION_TABLE = '驗證紀錄'
 
 export const useAirtable = () => {
   const { public: { airtableBase, airtableKey } } = useRuntimeConfig()
@@ -51,6 +52,26 @@ export const useAirtable = () => {
     })
   }
 
+  const verifyField = ({ userId, submissionId, result }) => {
+    const fields: any = {
+      驗證者暱稱: userId,
+      填答紀錄: [submissionId],
+      驗證結果: result
+    }
+
+    return new Promise((resolve, reject) => {
+      atBase(VERIFICATION_TABLE).create([{
+        fields
+      }], (err, records) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(records[0])
+        }
+      })
+    })
+  }
+
   const submitField = ({ userId, companyId, year, field, value, unit = '', notes = '', page = 0, keyword = '' }) => {
     const fields: any = {
       填答者暱稱: userId,
@@ -81,6 +102,7 @@ export const useAirtable = () => {
     base: atBase,
     getPendingFields,
     getPendingVerifications,
-    submitField
+    submitField,
+    verifyField
   }
 }

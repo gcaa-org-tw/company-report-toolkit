@@ -41,8 +41,7 @@ function handleTaskDeliver ({ submissions, verifications }) {
     isSubmissionDone.value = true
     canStartVerify.value = true
   }
-  // TODO: reset me
-  isSubmissionDone.value = true
+
   if (!verifications.length) {
     canStartVerify.value = true
     isVerificationDone.value = true

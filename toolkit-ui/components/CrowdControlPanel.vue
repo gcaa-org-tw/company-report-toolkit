@@ -1,6 +1,6 @@
 <template lang="pug">
 .controlPanel(v-if="curField")
-  .f6.mb1.gray {{ isSubmission ? '標注欄位' : '驗證欄位' }}
+  .f6.mb1.gray {{ isSubmission ? '標注欄位' : '驗證欄位' }} {{ doneFieldList.length }} / {{ props.fields.length }}
   h2.mt0.f4.1b {{ curField.year }} 年 | {{ curField.company.name }} | {{ curField.label }}
   p(v-if="curField.notes") {{ curField.notes }}
   .bt.bb.b--moon-gray.mv3.pv2
@@ -29,13 +29,13 @@
         )
       .mt3
         .flex.items-center.justify-between(v-if="isSubmission")
-          button.pa2.bg-white.ba.b--light-gray.gray.pointer(@click.stop="skipField") 找不到答案，放棄 🥺
+          button.pa2.bg-white.ba.b--light-gray.gray.pointer(@click.stop.prevent="skipField") 找不到答案，放棄 🥺
           button.pv2.ph4.pointer(type="submit" :disabled="!canSubmitFieldData || isOnSubmit") 送出標注結果
         .flex.items-center.justify-end(v-else)
           button.pv1.ph3.pointer.ml2(
             v-for="theType in VERIFY_TYPES"
             :key="theType"
-            @click.stop="verifyField(theType)"
+            @click.stop.prevent="verifyFieldData(theType)"
           ) 標為{{ theType }}
     .controlPanel__keywordSection.mv3.pb2.bb
       .fw5.mb1 相關關鍵字
@@ -71,7 +71,7 @@
 import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 
-const { submitField } = useAirtable()
+const { submitField, verifyField } = useAirtable()
 
 const emit = defineEmits(['report', 'page', 'matched-pages', 'complete'])
 
@@ -161,12 +161,21 @@ const isOnSubmit = ref(false)
 
 const VERIFY_TYPES = ['不正確', '不確定', '正確']
 
-function verifyField (type: string) {
-  // TODO: airtable table
+async function verifyFieldData (type: string) {
+  // TODO: avoid duplicate verification
+  const data = {
+    userId: props.userId,
+    submissionId: curField.value.data.id,
+    result: type
+  }
+  const atRow = await verifyField(data)
+
   doneFieldList.value.push({
     field: curField.value,
-    type
+    atRow
   })
+
+  gotoNextField()
 }
 
 function skipField () {
