@@ -3,29 +3,63 @@
   onboard-crowd(
     v-if="!canStartTest"
     @user-id="userId = $event"
-    @fields-to-submit="fieldsToSubmit = $event"
+    @tasks="handleTaskDeliver"
   )
-  crowd-field-submitter(
-    v-else-if="!isAllCompleted"
+  crowd-field-editor(
+    v-else-if="!isSubmissionDone"
     :user-id="userId"
-    :fields-to-submit="fieldsToSubmit"
-    @complete-all-submission="isAllCompleted = true"
+    :fields="fieldsToSubmit"
+    @complete="isSubmissionDone = true"
+  )
+  crowd-goto-verify(
+    v-else-if="!canStartVerify"
+    @continue="canStartVerify = true"
+  )
+  crowd-field-editor(
+    v-else-if="!isVerificationDone"
+    :user-id="userId"
+    :fields="fieldsToVerify"
+    :is-submission="false"
+    @complete="isVerificationDone = true"
   )
   crowd-thanks(v-else @start-over="startOver")
 </template>
 <script setup lang="ts">
 const userId = ref('')
 const fieldsToSubmit = ref([])
-const isAllCompleted = ref(false)
+const isSubmissionDone = ref(false)
+
+const canStartVerify = ref(false)
+const fieldsToVerify = ref([])
+const isVerificationDone = ref(false)
+
+function handleTaskDeliver ({ submissions, verifications }) {
+  fieldsToSubmit.value = submissions
+  fieldsToVerify.value = verifications
+
+  if (!submissions.length) {
+    isSubmissionDone.value = true
+    canStartVerify.value = true
+  }
+
+  if (!verifications.length) {
+    canStartVerify.value = true
+    isVerificationDone.value = true
+  }
+}
 
 const canStartTest = computed(() => {
-  return userId.value && fieldsToSubmit.value.length
+  return userId.value && (fieldsToSubmit.value.length || isSubmissionDone.value)
 })
 
 function startOver () {
   userId.value = ''
   fieldsToSubmit.value = []
-  isAllCompleted.value = false
+  isSubmissionDone.value = false
+
+  fieldsToVerify.value = []
+  isVerificationDone.value = false
+  canStartVerify.value = false
 }
 
 </script>

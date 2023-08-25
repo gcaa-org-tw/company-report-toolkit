@@ -1,15 +1,16 @@
 <template lang="pug">
-.crowdSubmit
+.crowdEditor
   .br.b--moon-gray
-    .crowdSubmit__control.pv3.ph2
+    .crowdEditor__control.pv3.ph2
       crowd-control-panel(
         :user-id="userId"
-        :fields-to-submit="fieldsToSubmit"
+        :fields="fields"
         :focused-page="lastFocusPageIndex"
+        :is-submission="isSubmission"
         @report="changeReport"
         @page="changePage"
         @matched-pages="updateMatchedPages"
-        @complete-all-submission="allCompleted"
+        @complete="allCompleted"
       )
   .main__reader
     pdf-viewer(
@@ -23,16 +24,20 @@
     )
 </template>
 <script setup lang="ts">
-const emit = defineEmits(['complete-all-submission'])
+const emit = defineEmits(['complete'])
 
 defineProps({
   userId: {
     type: String,
     required: true
   },
-  fieldsToSubmit: {
+  fields: {
     type: Array,
     required: true
+  },
+  isSubmission: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -47,7 +52,7 @@ function handleViewPage (pageIndex) {
 }
 
 function allCompleted () {
-  emit('complete-all-submission')
+  emit('complete')
 }
 
 function changeReport (newReport) {
@@ -64,7 +69,7 @@ function updateMatchedPages (matched) {
 }
 </script>
 <style lang="scss" scoped>
-.crowdSubmit {
+.crowdEditor {
   display: grid;
   grid-template-columns: 30rem 1fr;
 

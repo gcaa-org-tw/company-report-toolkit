@@ -2,6 +2,7 @@ import Airtable from 'airtable'
 
 const STATS_TABLE = '欄位填答統計'
 const SUBMISSION_TABLE = '填答紀錄'
+const VERIFICATION_TABLE = '驗證紀錄'
 
 export const useAirtable = () => {
   const { public: { airtableBase, airtableKey } } = useRuntimeConfig()
@@ -27,6 +28,46 @@ export const useAirtable = () => {
         })
 
         resolve(pendingRecords)
+      })
+    })
+  }
+
+  const getPendingVerifications = (userId: string) => {
+    return new Promise((resolve, reject) => {
+      atBase(SUBMISSION_TABLE).select({
+        view: '待驗證紀錄'
+      }).firstPage((err, records) => {
+        // 100 records is enough for now
+        if (err) {
+          reject(err)
+          return
+        }
+        const pendingVerification = records?.filter((record) => {
+          const reporter = record.get('填答者暱稱') as string || ''
+          return reporter !== userId
+        })
+
+        resolve(pendingVerification)
+      })
+    })
+  }
+
+  const verifyField = ({ userId, submissionId, result }) => {
+    const fields: any = {
+      驗證者暱稱: userId,
+      填答紀錄: [submissionId],
+      驗證結果: result
+    }
+
+    return new Promise((resolve, reject) => {
+      atBase(VERIFICATION_TABLE).create([{
+        fields
+      }], (err, records) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(records[0])
+        }
       })
     })
   }
@@ -60,6 +101,8 @@ export const useAirtable = () => {
   return {
     base: atBase,
     getPendingFields,
-    submitField
+    getPendingVerifications,
+    submitField,
+    verifyField
   }
 }

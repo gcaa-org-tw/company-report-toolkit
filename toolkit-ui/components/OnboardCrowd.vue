@@ -18,32 +18,53 @@
       label.db.mb3(for="userId")
         .dark-gray.f6.mb1 請輸入你的暱稱，作為統計積分計算使用
         input(v-model.trim="userId" type="text")
-      button.pv2.ph4(type="submit" :disabled="!canStartPrepare || isOnLoadingRecords") 載入題庫
-  .onboardCrowd__empty(v-else-if="hasNoPendingRecords")
+      button.pv2.ph4(type="submit" :disabled="!canStartPrepare || isOnLoadingRecords")
+        | {{ loadingLabel }}
+  .onboardCrowd__empty(v-else-if="hasNoPendingJobs")
     h1.mt0.f4.f3-ns 所有題目都已經被標記完成！
     p 請期待本日的成果報告，或來找我們聊聊你的使用心得。
   .onboardCrowd__ready(v-else)
     h1.mt0.f4.f3-ns 抽籤完成！以下是想請你協助標記的題目：
-    .mv3.flex.items-center.f6(v-for="field in fieldsToSubmit" :key="field.label")
-      .flex-none.mr2.fw5 {{ field.company.name }}
-      .flex-auto.b {{ field.category }} | {{ field.label }}
-    button.pv2.ph4(@click="kickoff") 開始標記
+    .mv3(v-if="fieldsToSubmit.length")
+      .mb2.f4 要
+        strong 標記
+        | 的報告書與欄位
+      .flex.items-center.f6.gray(v-for="field in fieldsToSubmit" :key="field.label")
+        .flex-none.mr2.fw5 {{ field.company.name }}
+        .flex-auto.b {{ field.category }} | {{ field.label }}
+    .mv4(v-if="fieldsToVerify.length")
+      .mb2.f4 要
+        strong 驗證
+        | 的報告書與欄位
+      .flex.items-center.f6.gray(v-for="field in fieldsToVerify" :key="field.label")
+        .flex-none.mr2.fw5 {{ field.company.name }}
+        .flex-auto.b {{ field.category }} | {{ field.label }}
+    button.pv2.ph4(@click="kickoff") 開始標記與驗證
 </template>
 <script setup lang="ts">
 import _ from 'lodash'
 import fieldMap from '~/assets/field-map.yml'
 import reportMap from '~/assets/report-list.yml'
 
-const emit = defineEmits(['userId', 'fieldsToSubmit'])
+const emit = defineEmits(['userId', 'tasks'])
 
 const airtable = useAirtable()
 
 const isOnIntro = ref(true)
 const isOnLoadingRecords = ref(false)
-const hasNoPendingRecords = ref(false)
+const hasNoPendingJobs = ref(false)
 
 const userId = ref('')
 const fieldsToSubmit = ref([])
+const fieldsToVerify = ref([])
+
+const loadingLabel = computed(() => {
+  if (!isOnLoadingRecords.value) {
+    return '載入題庫'
+  } else {
+    return '機器人正在幫忙抽籤中... 🤖'
+  }
+})
 
 const canStartPrepare = computed(() => {
   return userId.value.length > 0
@@ -58,49 +79,85 @@ async function prepareQuestions () {
     alert(err)
   }
 
+  await new Promise((resolve) => {
+    // do simple random backoff, so to avoid Airtable rate limit
+    setTimeout(resolve, 300 + Math.random() * 2000)
+  })
+
+  let pendingVerifications = []
+  try {
+    pendingVerifications = await airtable.getPendingVerifications(userId.value)
+  } catch (err) {
+    alert(err)
+  }
+
+  const submissionTasks = findSomeSubmissionTasks(pendingRecords)
+  const verificationTasks = findSomeVerificationTasks(pendingVerifications)
+
   isOnIntro.value = false
 
-  if (!pendingRecords) {
-    hasNoPendingRecords.value = true
-    isOnLoadingRecords.value = false
-    return
+  if (!submissionTasks.length && !verificationTasks.length) {
+    hasNoPendingJobs.value = true
+  } else {
+    fieldsToSubmit.value = submissionTasks
+    fieldsToVerify.value = verificationTasks
   }
-
-  const { taskFields } = findSomeTasks(pendingRecords)
-
-  if (!taskFields.length) {
-    hasNoPendingRecords.value = true
-    isOnLoadingRecords.value = false
-    return
-  }
-
-  fieldsToSubmit.value = taskFields
   isOnLoadingRecords.value = false
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function findSomeTasks (pendingRecords, nSubmit = 2, nVerify = 6) {
+const allFields = fieldMap.flatMap((category) => {
+  return category.fields.map((field) => {
+    return {
+      category: category.category,
+      ...field
+    }
+  })
+})
+
+function findSomeVerificationTasks (pendingRecords, nVerify = 6) {
+  // 決定驗證的欄位，以同公司為優先
+  const topRecordPool = _.shuffle(pendingRecords.slice(0, nVerify * 3))
+  const topCompanies = _.uniq(topRecordPool.map(r => r.get('公司統編')))
+  const companyWeight = topCompanies.reduce((acc, id, weight) => {
+    acc[id] = weight
+    return acc
+  }, {})
+
+  topRecordPool.sort((a, b) => {
+    return companyWeight[a.get('公司統編')] - companyWeight[b.get('公司統編')]
+  })
+
+  const normalizedRecords = topRecordPool
+    .slice(0, nVerify)
+    .map((record) => {
+      const company = reportMap[0].reports.find(r => r.id === record.get('公司統編'))
+      const targetField = allFields.find((field) => {
+        return field.label === record.get('欄位標籤')
+      })
+      return {
+        company,
+        year: record.get('報告書年份'),
+        data: record,
+        ...targetField
+      }
+    })
+
+  return normalizedRecords
+}
+
+function findSomeSubmissionTasks (pendingRecords, nSubmit = 2) {
   const reportedCompanies = _.shuffle(_.uniq(pendingRecords.map(r => r.get('公司統編'))))
   const year = reportMap[0].year
   const allCompanies = reportMap[0].reports.map(r => r.id)
   const nonReportedCompanies = _.shuffle(_.difference(allCompanies, reportedCompanies))
 
-  // ## 決定判讀的公司與欄位，先以沒人做過的公司為優先
+  // 決定判讀的公司與欄位，先以沒人做過的公司為優先
   const potentialCompanies = nonReportedCompanies.length ? nonReportedCompanies : reportedCompanies
   const company = potentialCompanies[0]
 
   const reportedFields = pendingRecords
     .filter(r => r.get('公司統編') === company)
     .map(r => r.get('欄位標籤'))
-
-  const allFields = fieldMap.flatMap((category) => {
-    return category.fields.map((field) => {
-      return {
-        category: category.category,
-        ...field
-      }
-    })
-  })
 
   const nonReportedFields = _.shuffle(_.difference(allFields, reportedFields))
 
@@ -115,15 +172,15 @@ function findSomeTasks (pendingRecords, nSubmit = 2, nVerify = 6) {
       }
     })
 
-  // ## 決定驗證的欄位，先以和判讀相同的公司為優先
-  // TODO: 好像沒時間做 XD
-
-  return { taskFields }
+  return taskFields
 }
 
 function kickoff () {
   emit('userId', userId.value)
-  emit('fieldsToSubmit', fieldsToSubmit.value)
+  emit('tasks', {
+    submissions: fieldsToSubmit.value,
+    verifications: fieldsToVerify.value
+  })
 }
 
 </script>
