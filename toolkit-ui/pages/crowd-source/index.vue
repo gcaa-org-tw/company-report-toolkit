@@ -1,6 +1,6 @@
 <template lang="pug">
 .crowdLanding
-  onboard-crowd(
+  crowd-onboard-user(
     v-if="!canStartTest"
     @user-id="userId = $event"
     @tasks="handleTaskDeliver"
@@ -22,7 +22,7 @@
     :is-submission="false"
     @complete="isVerificationDone = true"
   )
-  crowd-thanks(v-else :user-id="userId" @start-over="startOver")
+  crowd-say-thanks(v-else :user-id="userId" @start-over="startOver")
 </template>
 <script setup lang="ts">
 const userId = ref('')
