@@ -1,8 +1,6 @@
 <template lang="pug">
 .crowdLanding
-  .ma5(v-if="false")
-    input(v-model="userId" placeholder="User ID")
-    button(@click="getPendingFields") Test
+  onboard-crowd(v-if="!canStartTest")
   .crowdInit(v-else)
     .pa2
       .ba.b--gray.pa2
@@ -19,19 +17,27 @@
       )
 </template>
 <script setup lang="ts">
-const airtable = useAirtable()
+// const airtable = useAirtable()
+
+const userId = ref('ddio')
+const pendingRecords = ref([])
+
+const canStartTest = computed(() => {
+  return userId.value && pendingRecords.value.length
+})
 
 const report = ref(null)
 const reportPage = ref(null)
 const matchedPages = ref([])
 
-const userId = ref('ddio')
-
-async function getPendingFields () {
-  if (userId.value) {
-    await airtable.getPendingFields(userId.value)
-  }
-}
+// async function getPendingFields () {
+//   if (userId.value) {
+//     const pendingRecords = await airtable.getPendingFields(userId.value)
+//     pendingRecords.forEach((record) => {
+//       console.log(['公司統編', '報告書年份', '欄位標籤', '相關填答者'].map(f => record.get(f)))
+//     })
+//   }
+// }
 
 function changeReport (newReport) {
   report.value = newReport
