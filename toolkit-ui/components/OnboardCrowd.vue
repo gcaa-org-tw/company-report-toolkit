@@ -24,10 +24,9 @@
     p 請期待本日的成果報告，或來找我們聊聊你的使用心得。
   .onboardCrowd__ready(v-else)
     h1.mt0.f4.f3-ns 抽籤完成！以下是想請你協助標記的題目：
-    .mv3.flex.items-center(v-for="field in fieldsToSubmit" :key="field.label")
+    .mv3.flex.items-center.f6(v-for="field in fieldsToSubmit" :key="field.label")
       .flex-none.mr2.fw5 {{ field.company.name }}
-      .flex-auto
-        .f6.b {{ field.category }} | {{ field.label }}
+      .flex-auto.b {{ field.category }} | {{ field.label }}
     button.pv2.ph4(@click="kickoff") 開始標記
 </template>
 <script setup lang="ts">
@@ -43,8 +42,7 @@ const isOnIntro = ref(true)
 const isOnLoadingRecords = ref(false)
 const hasNoPendingRecords = ref(false)
 
-// TODO: reset me
-const userId = ref('user00')
+const userId = ref('')
 const fieldsToSubmit = ref([])
 
 const canStartPrepare = computed(() => {

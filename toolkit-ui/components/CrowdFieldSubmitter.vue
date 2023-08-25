@@ -1,14 +1,15 @@
 <template lang="pug">
 .crowdSubmit
-  .pa2
-    .ba.b--gray.pa2
-      .main__control
-        crowd-control-panel(
-          :fields-to-submit="fieldsToSubmit"
-          @report="changeReport"
-          @page="changePage"
-          @matched-pages="updateMatchedPages"
-        )
+  .br.b--moon-gray.pv3.ph2
+    .main__control
+      crowd-control-panel(
+        :user-id="userId"
+        :fields-to-submit="fieldsToSubmit"
+        @report="changeReport"
+        @page="changePage"
+        @matched-pages="updateMatchedPages"
+        @complete-all-submission="allCompleted"
+      )
   .main__reader
     pdf-viewer(
       v-if="report && reportPage"
@@ -20,6 +21,8 @@
     )
 </template>
 <script setup lang="ts">
+const emits = defineEmits(['complete-all-submission'])
+
 defineProps({
   userId: {
     type: String,
@@ -34,6 +37,10 @@ defineProps({
 const report = ref(null)
 const reportPage = ref(null)
 const matchedPages = ref([])
+
+function allCompleted () {
+  emits('complete-all-submission')
+}
 
 function changeReport (newReport) {
   report.value = newReport
