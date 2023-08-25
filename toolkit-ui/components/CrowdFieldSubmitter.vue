@@ -5,6 +5,7 @@
       crowd-control-panel(
         :user-id="userId"
         :fields-to-submit="fieldsToSubmit"
+        :focused-page="lastFocusPageIndex"
         @report="changeReport"
         @page="changePage"
         @matched-pages="updateMatchedPages"
@@ -18,10 +19,11 @@
       :page="reportPage.page"
       :highlight="reportPage.highlight"
       :matched-pages="matchedPages"
+      @view-page="handleViewPage"
     )
 </template>
 <script setup lang="ts">
-const emits = defineEmits(['complete-all-submission'])
+const emit = defineEmits(['complete-all-submission'])
 
 defineProps({
   userId: {
@@ -38,8 +40,14 @@ const report = ref(null)
 const reportPage = ref(null)
 const matchedPages = ref([])
 
+const lastFocusPageIndex = ref(0)
+
+function handleViewPage (pageIndex) {
+  lastFocusPageIndex.value = pageIndex
+}
+
 function allCompleted () {
-  emits('complete-all-submission')
+  emit('complete-all-submission')
 }
 
 function changeReport (newReport) {

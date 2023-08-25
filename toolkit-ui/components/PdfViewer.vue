@@ -33,6 +33,7 @@
           :highlight="cursor.highlight"
           :page-anchor="pageAnchor"
           :scale="pdfScale.scale"
+          @visible="handlePageVisible(index + 1)"
         )
 </template>
 <script lang="ts" setup>
@@ -44,9 +45,13 @@ const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
 
+const TIME_TO_VIEW_PAGE = 2000
+
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
 })
+
+const emit = defineEmits(['view-page'])
 
 const props = defineProps({
   // 1 based, not 0 based
@@ -350,6 +355,12 @@ watch(pdfScale, async (newValue, prevValue) => {
     pageAnchor.value = 0
   }, STICKY_FOR_A_WHILE)
 })
+
+// page view
+
+const handlePageVisible = _.debounce((pageIndex: number) => {
+  emit('view-page', pageIndex)
+}, TIME_TO_VIEW_PAGE)
 
 </script>
 <style lang="scss" scoped>
