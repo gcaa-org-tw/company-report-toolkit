@@ -404,14 +404,14 @@ function genEmptyTrackHistory () {
 }
 const trackingHistory = ref(genEmptyTrackHistory())
 
-async function initTracking () {
+function initTracking () {
   // const { year, company, label } = curField.value
   // const data = {
   //   userId: props.userId,
   //   year: `${year}`,
   //   companyId: company.id,
   //   field: label,
-  //   isOnVerify: !props.isSubmission 
+  //   isOnVerify: !props.isSubmission
   // }
   // const { id } = await initTrackUsage(data)
   trackingHistory.value = genEmptyTrackHistory()
@@ -441,7 +441,7 @@ watch(() => props.focusedPage, (pageIndex) => {
   trackingHistory.value.viewPages.push(pageIndex)
 })
 
-watch(curKeyword, async (newKeyword, oldKeyword) => {
+watch(curKeyword, async (newKeyword) => {
   submitTracking()
   await initTracking()
   trackingHistory.value.isPredefined = newKeyword !== customizedKeyword.value
