@@ -22,7 +22,7 @@
     :is-submission="false"
     @complete="isVerificationDone = true"
   )
-  crowd-thanks(v-else @start-over="startOver")
+  crowd-thanks(v-else :user-id="userId" @start-over="startOver")
 </template>
 <script setup lang="ts">
 const userId = ref('')
