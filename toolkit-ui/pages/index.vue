@@ -1,5 +1,5 @@
 <template lang="pug">
-.landingWrapper.flex.items-center.ph3.mt6
+.landingWrapper.flex.items-center.ph3.mv5.mv6-l
   .landing.center.mw8.lh-copy
     h1.tc.f3.f1-ns 開放企業永續資料庫 - 人工智慧補完計畫
     p.f4.tc.mw7.center

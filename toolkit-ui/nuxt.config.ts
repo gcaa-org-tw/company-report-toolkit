@@ -26,7 +26,14 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       ViteYaml()
-    ]
+    ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@import "@/assets/variables.scss";'
+        }
+      }
+    }
   },
   runtimeConfig: {
     public: {

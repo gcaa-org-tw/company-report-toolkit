@@ -3,7 +3,7 @@
   .f6.mb1.gray 欄位標注
   h2.mt0.f4.1b {{ curField.company.name }} | {{ curField.category }} | {{ curField.label }}
   p(v-if="curField.notes") {{ curField.notes }}
-  .bt.bb.b--gray.mv3.pv2
+  .bt.bb.b--moon-gray.mv3.pv2
     form.submission.mt3.mb4.pb2.bb.b--moon-gray(@submit.prevent="submitFieldData")
       .fw5.mb1 填寫判讀結果
       .flex.items-center.mb2
