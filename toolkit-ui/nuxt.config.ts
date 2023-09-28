@@ -16,6 +16,7 @@ export default defineNuxtConfig({
   ],
   app: {
     head: {
+      title: '工人智慧補完計畫 | 透明足跡',
       script: [
         // load in global scope to avoid pdf.js init error
         { hid: 'pdf-js', src: `${PDFJS_BASE}/build/pdf.js` },

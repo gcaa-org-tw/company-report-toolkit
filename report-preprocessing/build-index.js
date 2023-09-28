@@ -4,9 +4,33 @@ import dotenv from 'dotenv'
 import pdf2html from 'pdf2html'
 import * as url from 'node:url'
 
+// 10KB for each record, 0.5KB for meta
+const MAX_RECORD_LEN = 10 * 1000 - 512
+
 function minifyContent (content) {
   return content
     .replace(/[ \n]+/mg, ' ')
+}
+
+function chunkContent (content) {
+  const totalBytes = Buffer.byteLength(content, 'utf8')
+  if (totalBytes < MAX_RECORD_LEN) {
+    return [content]
+  } else {
+    const chunkCount = Math.ceil(totalBytes / MAX_RECORD_LEN)
+    // utf8 is variable length encoding, do simple solution
+    const chunkSize = Math.ceil(content.length / chunkCount)
+    const chunks = []
+    for (let i = 0; i < chunkCount; i++) {
+      chunks.push(content.substr(i * chunkSize, chunkSize))
+    }
+    return chunks
+  }
+}
+
+const pdfOptions = {
+  maxBuffer: 1024 * 1024 * 50,
+  text: true
 }
 
 export async function buildOneIndex (argPayload) {
@@ -20,20 +44,36 @@ export async function buildOneIndex (argPayload) {
   const agClient = algoliasearch(env.ALGOLIA_APP_ID, env.ALGOLIA_DATA_API_KEY)
   const agIndex = agClient.initIndex(env.ALGOLIA_INDEX_NAME)
   
-  const textPerPages = await pdf2html.pages(argPayload.src, { text: true })
+  console.info(`Converting ${argPayload.src} to HTML`)
+  const textPerPages = await pdf2html.pages(argPayload.src, pdfOptions)
+  console.info(`Got ${textPerPages.length} pages`)
 
   const companyId = argPayload['company-id'] || argPayload.companyId
   const year = Number.parseInt(argPayload.year)
 
-  const agPayload = textPerPages.map((content, index) => {
+  const agPayload = textPerPages.flatMap((content, index) => {
     const page = index + 1
     const id = `${companyId}-${argPayload.year}-${page}`
-    return {
-      objectID: id,
+    const contentList = chunkContent(minifyContent(content))
+    const commonMeta = {
       page,
       company: companyId,
-      year,
-      content: minifyContent(content)
+      year
+    }
+    if (contentList.length === 1) {
+      return {
+        objectID: id,
+        content: contentList[0],
+        ...commonMeta
+      }
+    } else {
+      return contentList.map((content, index) => {
+        return {
+          objectID: `${id}-${index}`,
+          content,
+          ...commonMeta
+        }
+      })
     }
   })
 

@@ -40,7 +40,7 @@
 import _ from 'lodash'
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
-const PDF_SRC_BASE = 'https://ddio-public.s3.us-west-2.amazonaws.com/gcaa-csr-report/demo'
+const PDF_SRC_BASE = 'https://gcaa-static.s3.ap-northeast-3.amazonaws.com/company-report-toolkit'
 const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
