@@ -30,6 +30,16 @@ Start the development server on `http://localhost:8000/docs`
 uvicorn main:app --reload
 ```
 
+## Login
+
+1. Click `Authorize` to enter `client_id` or `Bearer token`
+![image](./images/fastapi-auth.jpg)
+
+2. SignUp/Login with your Google Account
+3. Try out `/login` API
+![image](./images/fastapi-login.jpg)
+
+
 ## Environment variable
 
 
