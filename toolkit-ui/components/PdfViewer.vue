@@ -198,14 +198,15 @@ async function initPdfScaleIfNeeded (pdf) {
   const contentHeight = scroller.clientHeight
   const horizontalPadding = Number.parseInt(getComputedStyle(scroller).paddingLeft)
 
-  const outputScale = window.devicePixelRatio || 1
+  // somehow we don't need it, but keep it here for future reference
+  // const outputScale = window.devicePixelRatio || 1
 
-  const canvasWidth = (contentWidth - horizontalPadding * 2) * outputScale
+  const canvasWidth = (contentWidth - horizontalPadding * 2) // * outputScale
   scaleMeta.value.widthScale = canvasWidth / width
 
   scaleMeta.value.heightScale = contentHeight / height
 
-  // console.log('scaleMeta', canvasWidth, width, contentWidth, contentHeight, height, outputScale)
+  // console.log('scaleMeta', canvasWidth, width, contentWidth, contentHeight, height)
 }
 
 const pageStyle = computed(() => {
