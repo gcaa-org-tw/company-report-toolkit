@@ -37,7 +37,7 @@ const matchedPages = ref([])
 const samplePageIndex = [10, 30, 70, 88, 89, 90, 100]
 
 function gotoPage (page) {
-  page = page + company.pageOffset
+  page = page + (company.pageOffset || 0)
   reportPage.value = { page, highlight: '' }
 }
 
