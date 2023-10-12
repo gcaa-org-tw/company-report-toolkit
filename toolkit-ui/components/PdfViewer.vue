@@ -3,6 +3,7 @@
   .reportViewer__control.pr2
     .bb.b--moon-gray.flex.items-center.justify-between.pv2
       .flex.items-center
+        .ba3 page {{ readablePageIndex }}
       .flex.items-center
         button.reportViewer__button(@click="zoomIn")
           i.fa-solid.fa-plus
@@ -45,6 +46,7 @@ const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
 
+const TIME_TO_GLANCE_PAGE = 100
 const TIME_TO_VIEW_PAGE = 2000
 
 useHead({
@@ -91,6 +93,16 @@ const pageLoadQueue = ref<number[]>([])
 const pageAnchor = ref(0)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
+
+// 1 index
+const curPageIndex = ref(1)
+const readablePageIndex = computed(() => {
+  const index = curPageIndex.value + (props.company.pageOffset || 0)
+  if (index < 1) {
+    return '-'
+  }
+  return index
+})
 
 const scaleMode = ref<ScaleType>(ScaleType.FitWidth)
 const scaleMeta = ref({ pdfSize: { width: 0, height: 0 }, widthScale: 0, heightScale: 0, customScale: 0 })
@@ -198,14 +210,15 @@ async function initPdfScaleIfNeeded (pdf) {
   const contentHeight = scroller.clientHeight
   const horizontalPadding = Number.parseInt(getComputedStyle(scroller).paddingLeft)
 
-  const outputScale = window.devicePixelRatio || 1
+  // somehow we don't need it, but keep it here for future reference
+  // const outputScale = window.devicePixelRatio || 1
 
-  const canvasWidth = (contentWidth - horizontalPadding * 2) * outputScale
+  const canvasWidth = (contentWidth - horizontalPadding * 2) // * outputScale
   scaleMeta.value.widthScale = canvasWidth / width
 
   scaleMeta.value.heightScale = contentHeight / height
 
-  // console.log('scaleMeta', canvasWidth, width, contentWidth, contentHeight, height, outputScale)
+  // console.log('scaleMeta', canvasWidth, width, contentWidth, contentHeight, height)
 }
 
 const pageStyle = computed(() => {
@@ -296,27 +309,32 @@ const isMounted = useMounted()
 // const { width: pageWidth } = useWindowSize()
 const scrollerEle = ref(null)
 
-function getAnchorPageTop () {
+function getAnchorPageTop (page: number) {
   const pageEleList = scrollerEle.value.querySelectorAll('.reportViewer__page')
-  const target = pageEleList[props.page - 1]
+  const target = pageEleList[page - 1]
   return target?.offsetTop
 }
 
-// TODO: watch highlight
-// TODO: page change in short period
-watch(() => props.page, async () => {
-  const anchorTop = getAnchorPageTop()
-  const promise = loadPage(props.page, { anchor: anchorTop })
-  if (props.page > 1) {
-    loadPage(props.page - 1)
+async function gotoPage (page: number) {
+  const anchorTop = getAnchorPageTop(page)
+  const promise = loadPage(page, { anchor: anchorTop })
+  if (page > 1) {
+    loadPage(page - 1)
   }
-  if (props.page < props.company.totalPage) {
-    loadPage(props.page + 1)
+  if (page < props.company.totalPage) {
+    loadPage(page + 1)
   }
   if (anchorTop) {
     scrollerEle.value.scrollTo({ top: anchorTop })
   }
   await promise
+  curPageIndex.value = page
+}
+
+// TODO: watch highlight
+// TODO: page change in short period
+watch(() => props.page, async () => {
+  await gotoPage(props.page)
 })
 
 // scale
@@ -359,7 +377,12 @@ watch(pdfScale, async (newValue, prevValue) => {
 // page view
 
 const handlePageVisible = _.debounce((pageIndex: number) => {
-  emit('view-page', pageIndex)
+  curPageIndex.value = pageIndex
+  emitLastVisiblePage()
+}, TIME_TO_GLANCE_PAGE)
+
+const emitLastVisiblePage = _.debounce(() => {
+  emit('view-page', curPageIndex.value)
 }, TIME_TO_VIEW_PAGE)
 
 </script>
