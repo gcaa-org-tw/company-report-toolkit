@@ -526,6 +526,16 @@
   - id: '04243562'
     name: 聚和
     totalPage: 69
+  - id: '03707901'
+    name: 中油
+    totalPage: 182
+  - id: '86757124'
+    name: 康普
+    totalPage: 117
+  - id: '80170651'
+    name: 三福化
+    year: 2021
+    totalPage: 107
 - year: 2022
   reports:
   - id: '11913502'
