@@ -16,6 +16,7 @@
   - id: '07568009'
     name: 環泥
     totalPage: 75
+    pageOffset: -1
   - id: '40601248'
     name: 幸福
     totalPage: 71
