@@ -3,7 +3,7 @@
     "__name": "PORT",
     "__format": "number"
   },
-  "host": "HOSTNAME",
+  "host": "API_DOMAIN",
   "authentication": {
     "secret": "AUTH0_RS256_PUBLIC_KEY",
     "oauth": {

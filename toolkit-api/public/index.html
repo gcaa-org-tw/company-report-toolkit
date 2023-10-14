@@ -35,16 +35,18 @@
   <body>
     <img class="logo" src="/logo.png" />
     <script>
-      const host = window.location.host
-      const hash = window.location.hash
-      if (!hash) {
-        return
-      }
-      if (host.startsWith('localhost')) {
-        window.location.href = `http://localhost:3000/auth/handler/${hash}`
-      } else {
-        window.location.href = `https://gcaa-org-tw.github.io/company-report-toolkit/auth/handler/${hash}`
-      }
+      (function () {
+        const host = window.location.host
+        const hash = window.location.hash
+        if (!hash) {
+          return
+        }
+        if (host.startsWith('localhost')) {
+          window.location.href = `http://localhost:3000/auth/handler/${hash}`
+        } else {
+          window.location.href = `https://gcaa-org-tw.github.io/company-report-toolkit/auth/handler/${hash}`
+        }
+      })()
     </script>
   </body>
 </html>
