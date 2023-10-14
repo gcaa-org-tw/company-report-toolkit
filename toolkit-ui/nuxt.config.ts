@@ -38,11 +38,19 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      // for pdf search
       algoliaAppId: '',
       algoliaSearchApiKey: '',
       algoliaIndexName: '',
+
+      // for crowd source
       airtableBase: '',
-      airtableKey: ''
+      airtableKey: '',
+
+      // for profession login
+      auth0Domain: '',
+      auth0ClientId: '',
+      apiEndpoint: ''
     }
   }
 })
