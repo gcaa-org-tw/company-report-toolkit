@@ -3,6 +3,7 @@
   "port": 3030,
   "public": "./public/",
   "origins": [
+    "http://localhost:3030",
     "http://localhost:3030"
   ],
   "paginate": {
@@ -13,5 +14,29 @@
     "client": "sqlite3",
     "connection": "toolkit-api.sqlite",
     "useNullAsDefault": true
+  },
+  "authentication": {
+    "entity": "user",
+    "service": "users",
+    "secret": "AUTH0_RS256_PUBLIC_KEY",
+    "authStrategies": [
+      "jwt"
+    ],
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://crt.gcaa.org.tw",
+      "algorithm": "RS256",
+      "expiresIn": "1d"
+    },
+    "oauth": {
+      "auth0": {
+        "key": "AUTH0_CLIENT_ID",
+        "secret": "AUTH0_SECRET",
+        "subdomain": "AUTH0_SUBDOMAIN",
+        "scope": ["openid", "profile", "email"]
+      }
+    }
   }
 }
