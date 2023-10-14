@@ -1,71 +1,33 @@
-# Nuxt 3 Minimal Starter
+  # 企業永續報告書 - UI
+
+## Nuxt howoto
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+### Setup
 
 Make sure to install the dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
 ```
 
-## Development Server
+### Development Server
 
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
 ```
 
-## Production
+### Environment variable
 
-Build the application for production:
+在本地端開發時，可以直接 `cp env.example .env`。
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
-
-## Environment variable
-
-1. required
+1. 必要
    - NUXT_PUBLIC_ALGOLIA_APP_ID, for PDF search
    - NUXT_PUBLIC_ALGOLIA_SEARCH_API_KEY, for PDF search
    - NUXT_PUBLIC_ALGOLIA_INDEX_NAME, for PDF search
+   - NUXT_PUBLIC_AUTH0_DOMAIN, auth0 domain
+   - NUXT_PUBLIC_AUTH0_CLIENT_ID, auth0 client ID
+
