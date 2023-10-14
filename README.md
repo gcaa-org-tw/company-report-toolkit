@@ -25,6 +25,27 @@
    - 使用 Feathers.js / node / TS 
    - 使用 dotenv 管理環境變數，詳見 [README](./toolkit-api/README.md)
 
+### 我想快快開始開發！
+
+請找其他專案參與者，要一份開發用的後端 `.env` ，或是參閱 [API README](./toolkit-api/README.md)，
+自己建立 auth0 ，做一份設定檔。
+
+```
+# 先把後端跑起來
+cd toolkit-api
+npm run install
+npm run migrate
+
+npm run dev
+
+# 再把前端跑起來
+cd toolkit-ui
+cp env.example .env #如果後端使用自建的設定檔，請修改 auth0 相關變數
+npm run install
+
+npm run dev
+```
+
 ### 徵求中
 
 1. TS 熟手
