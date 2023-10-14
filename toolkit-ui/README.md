@@ -1,6 +1,6 @@
   # 企業永續報告書 - UI
 
-## Nuxt howoto
+## Nuxt how-to
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
