@@ -13,5 +13,8 @@
         "subdomain": "AUTH0_SUBDOMAIN"
       }
     }
+  },
+  "rdbClient": {
+    "connection": "PROD_DB_CONNECTION_STRING"
   }
 }

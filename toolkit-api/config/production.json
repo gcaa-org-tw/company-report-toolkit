@@ -1,0 +1,12 @@
+{
+  "origins": [
+    "/",
+    "http://localhost:3000",
+    "https://gcaa-org-tw.github.io"
+  ],
+  "rdbClient": {
+    "client": "pg",
+    "connection": "postgres://the.connection:5432/string",
+    "useNullAsDefault": true
+  }
+}

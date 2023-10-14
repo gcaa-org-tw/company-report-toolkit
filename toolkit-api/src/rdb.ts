@@ -5,13 +5,13 @@ import type { Application } from './declarations'
 
 declare module './declarations' {
   interface Configuration {
-    sqliteClient: Knex
+    rdbClient: Knex
   }
 }
 
-export const sqlite = (app: Application) => {
-  const config = app.get('sqlite')
+export const rdb = (app: Application) => {
+  const config = app.get('rdbClient')
   const db = knex(config!)
 
-  app.set('sqliteClient', db)
+  app.set('rdbClient', db)
 }
