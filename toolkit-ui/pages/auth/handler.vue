@@ -1,0 +1,40 @@
+<template>
+  <div class="loader">
+    <img class="loader__logo" src="/logo.png" alt="Project Logo" />
+  </div>
+</template>
+<script lang="ts" setup>
+useProfessionApi()
+</script>
+<style lang="scss" scoped>
+.loader {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.loader__logo {
+  width: 16rem;
+  border-radius: 100%;
+  animation: loader 3s ease-in-out infinite;
+}
+@keyframes loader {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.03125);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+</style>

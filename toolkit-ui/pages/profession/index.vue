@@ -2,6 +2,7 @@
 .profession.flex.items-center.ph3.mv5.mv6-l
   .center.mw8.lh-copy
     h1 先擺個測試頁
+    p(v-if="user") hi {{ user }}!
     .mv3.bt.b--light-gray.pv3.flex.flex-wrap
       nuxt-link.pv2.ph4.ba.b--moon-gray.br2.mr3.mb3.black.no-underline.dim(
         v-for="report in reportList"
@@ -11,6 +12,8 @@
 </template>
 <script lang="ts" setup>
 import reportMap from '~/assets/report-list.yml'
+
+const { user } = useProfessionApi()
 
 const reportList = reportMap[0].reports.map((report) => {
   return {
