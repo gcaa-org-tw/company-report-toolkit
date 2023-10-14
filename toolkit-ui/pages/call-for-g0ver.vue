@@ -3,7 +3,17 @@
   h1.f3.f1-ns.lh-copy.mt0 那個，我們還來不及做這頁，你願意幫幫我們ㄇ 🥹
   p 我們正在徵求：
   ul
-    li 前端工程師 - 打造順順的 PDF 閱讀器以及各種酷酷 UI
+    li
+      | 前端工程師 - 打造順順的 PDF 閱讀器以及各種酷酷 UI
+      br
+      a.f6(href="https://github.com/gcaa-org-tw/company-report-toolkit/labels/UI")
+        i.fa-brands.fa-github.mr1
+        | Github
+    li 後端工程師 - 讓報告書判讀的專業志工，能夠線上協作
+      br
+      a.f6(href="https://github.com/gcaa-org-tw/company-report-toolkit/labels/API")
+        i.fa-brands.fa-github.mr1
+        | Github
     li UX 設計師 - 理出順順的工人智慧、群眾外包流程
     li UI 設計師 - 幫 PDF 閱讀器找到最棒的排版
     li AI 專家 - 訓練出能夠幫忙讀懂永續報告書的機器人
