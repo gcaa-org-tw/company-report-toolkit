@@ -6,11 +6,12 @@ import type { Application } from './declarations'
 declare module './declarations' {
   interface Configuration {
     rdbClient: Knex
+    rdb: Knex.Config
   }
 }
 
 export const rdb = (app: Application) => {
-  const config = app.get('rdbClient')
+  const config = app.get('rdb')
   const db = knex(config!)
 
   app.set('rdbClient', db)

@@ -14,7 +14,7 @@
       }
     }
   },
-  "rdbClient": {
+  "rdb": {
     "connection": "PROD_DB_CONNECTION_STRING"
   }
 }
