@@ -22,7 +22,7 @@
    - 使用 dotenv 管理環境變數，詳見 [README](./toolkit-ui/README.md)
 3. 網頁後端 `/toolkit-api`
    - 專業志工模式相關 API，只認前端來，而且是 Auth0 signed 的 JWT 
-   - 使用 Feathers.js / node / TS 
+   - 使用 Feathers.js / koa / node / TS 
    - 使用 dotenv 管理環境變數，詳見 [README](./toolkit-api/README.md)
 
 ### 我想快快開始開發！
