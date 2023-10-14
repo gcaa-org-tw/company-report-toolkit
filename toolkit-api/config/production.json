@@ -1,9 +1,9 @@
 {
   "origins": [
     "/",
-    "http://localhost:3000",
     "https://gcaa-org-tw.github.io"
   ],
+  "host": "API_DOMAIN",
   "rdb": {
     "client": "pg",
     "connection": "postgres://the.connection:5432/string",
