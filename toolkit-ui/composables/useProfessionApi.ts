@@ -30,11 +30,14 @@ export function startLogin (auth0: any = undefined, route: any = undefined) {
 
 export function useLogout () {
   const auth0 = useAuth0()
+  const config = useRuntimeConfig()
+  const baseUrl = config.app.baseUrl || ''
+  const redirectUrl = `${window.location.origin}${baseUrl}`
   return () => {
     if (auth0) {
       auth0.logout({
         logoutParams: {
-          returnTo: window.location.origin
+          returnTo: redirectUrl
         }
       })
     }
