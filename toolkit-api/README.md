@@ -25,6 +25,8 @@ This project uses [Feathers](http://feathersjs.com). An open source framework fo
 
 ### Environment variable
 
+你可以使用範例環境變數 `env.example` ，將他複製一份並命名為 `.env` ，並填入以下變數，就可以在本地端開發。
+
 A valid auth0 application is required to run this project. Create a `.env` file in the root directory of this project and fill in the following variables:
 
 ```
