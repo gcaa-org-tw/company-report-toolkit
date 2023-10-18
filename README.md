@@ -33,7 +33,8 @@
 ```
 # 先把後端跑起來
 cd toolkit-api
-npm run install
+cp env.example .env
+npm install
 npm run migrate
 
 npm run dev
@@ -41,7 +42,7 @@ npm run dev
 # 再把前端跑起來
 cd toolkit-ui
 cp env.example .env #如果後端使用自建的設定檔，請修改 auth0 相關變數
-npm run install
+npm install
 
 npm run dev
 ```
