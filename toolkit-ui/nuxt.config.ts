@@ -8,8 +8,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/eslint-module',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@nuxtjs/i18n'
   ],
+  i18n: {
+    vueI18n: './i18n.config.ts'
+  },
   css: [
     'tachyons/css/tachyons.css',
     '@fortawesome/fontawesome-free/css/all.css'
