@@ -44,11 +44,7 @@ export function useLogout () {
   }
 }
 
-async function initFeathersClient (
-  accessToken: string,
-  endpoint: string,
-  router: any
-) {
+async function initFeathersClient (endpoint: string) {
   const socket = socketio(endpoint)
   const socketClient = feathersSocketioClient(socket)
   const feathersApp = feathers()
@@ -56,6 +52,18 @@ async function initFeathersClient (
   // Setup the transport (Rest, Socket, etc.) here
   feathersApp.configure(socketClient)
 
+  try {
+    await feathersApp.service('health').find()
+
+    return feathersApp
+  } catch (err) {
+    console.log('issue to init api', err)
+
+    return undefined
+  }
+}
+
+async function authApp (accessToken: string, router: any, feathersApp: Application) {
   // Available options are listed in the "Options" section
   feathersApp.configure(authentication({}))
 
@@ -78,13 +86,19 @@ export class FeathersApp {
   private ready = ref(false)
 
   public isReady = computed(() => this.ready.value)
+  public isAPIReady = ref(false)
   public jwtToken = ref('')
   public apiEndpoint = ref('')
 
   public async init (token: string, config: RuntimeConfig, router: any) {
     if (!this.application) {
       const endpoint = config.public.apiEndpoint || DEFAULT_SOCKET_URL
-      const ret = await initFeathersClient(token, endpoint, router)
+      const feathersApp = await initFeathersClient(endpoint)
+      this.isAPIReady.value = true
+      let ret
+      if (feathersApp) {
+        ret = await authApp(token, router, feathersApp)
+      }
       if (ret) {
         this.application = ret
         this.jwtToken.value = token
