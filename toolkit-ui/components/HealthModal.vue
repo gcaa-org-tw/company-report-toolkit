@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 const { feathers } = useProfessionApi()
-const showModal = computed(() => !feathers.isReady.value)
+const showModal = computed(() => !feathers.isAPIReady.value)
 </script>
 <style lang="scss">
 .modal-overlay {
