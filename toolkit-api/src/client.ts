@@ -25,6 +25,8 @@ export type { Report, ReportData, ReportQuery, ReportPatch } from './services/re
 
 import { companyClient } from './services/company/company.shared'
 export type { Company, CompanyData, CompanyQuery, CompanyPatch } from './services/company/company.shared'
+import { healthClient } from './services/health/health.shared'
+export type { Health, HealthData, HealthQuery, HealthPatch } from './services/health/health.shared'
 
 import { userClient } from './services/users/users.shared'
 export type { User, UserData, UserQuery, UserPatch } from './services/users/users.shared'
@@ -60,5 +62,6 @@ export const createClient = <Configuration = any,>(
   client.configure(reportClient)
   client.configure(fieldMetaClient)
   client.configure(reportFieldClient)
+  client.configure(healthClient)
   return client
 }
