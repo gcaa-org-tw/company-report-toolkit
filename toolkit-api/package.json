@@ -81,6 +81,7 @@
     "csv-reader": "^1.0.12",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.1",
-    "prettier": "^3.0.3"
+    "prettier": "^3.0.3",
+    "yaml": "^2.3.3"
   }
 }
