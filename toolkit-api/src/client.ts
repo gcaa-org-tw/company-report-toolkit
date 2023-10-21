@@ -2,6 +2,7 @@
 import { feathers } from '@feathersjs/feathers'
 import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
+import { healthClient } from './services/health'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
 import { reportFieldClient } from './services/report-field/report-field.shared'
@@ -25,8 +26,6 @@ export type { Report, ReportData, ReportQuery, ReportPatch } from './services/re
 
 import { companyClient } from './services/company/company.shared'
 export type { Company, CompanyData, CompanyQuery, CompanyPatch } from './services/company/company.shared'
-import { healthClient } from './services/health/health.shared'
-export type { Health, HealthData, HealthQuery, HealthPatch } from './services/health/health.shared'
 
 import { userClient } from './services/users/users.shared'
 export type { User, UserData, UserQuery, UserPatch } from './services/users/users.shared'
