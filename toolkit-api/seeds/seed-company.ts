@@ -3,9 +3,10 @@ import path from 'path'
 import CsvReadableStream from 'csv-reader'
 import AutoDetectDecoderStream from 'autodetect-decoder-stream'
 import { app } from '../src/app'
+import { companyPath } from '../src/services/company/company.shared'
 
 function seed () {
-  const companyService = app.service('company')
+  const companyService = app.service(companyPath)
   const jobPromise = new Promise((resolve) => {
     const tasks: Array<Promise<any>> = []
     fs

@@ -2,9 +2,10 @@ import fs from 'fs'
 import path from 'path'
 import { parse } from 'yaml'
 import { app } from '../src/app'
+import { reportPath } from '../src/services/report/report.shared'
 
 async function seed () {
-  const reportService = app.service('report')
+  const reportService = app.service(reportPath)
   const seedPath = path.join(__dirname, './report-list.yml')
   const reportList = parse(fs.readFileSync(seedPath, 'utf8')) as any[]
   const tasks = reportList.flatMap(({ year, reports }: { year: number, reports: any[] }) => {

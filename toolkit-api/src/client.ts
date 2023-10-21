@@ -4,6 +4,14 @@ import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { fieldMetaClient } from './services/field-meta/field-meta.shared'
+export type {
+  FieldMeta,
+  FieldMetaData,
+  FieldMetaQuery,
+  FieldMetaPatch
+} from './services/field-meta/field-meta.shared'
+
 import { reportClient } from './services/report/report.shared'
 export type { Report, ReportData, ReportQuery, ReportPatch } from './services/report/report.shared'
 
@@ -42,5 +50,6 @@ export const createClient = <Configuration = any,>(
   client.configure(userClient)
   client.configure(companyClient)
   client.configure(reportClient)
+  client.configure(fieldMetaClient)
   return client
 }

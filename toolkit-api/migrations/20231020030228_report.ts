@@ -16,6 +16,7 @@ export async function up(knex: Knex): Promise<void> {
     table.boolean('isVerified')
     table.timestamp('updatedAt')
     table.timestamp('createdAt')
+    table.primary(['id'])
   })
 }
 
