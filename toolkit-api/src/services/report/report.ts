@@ -14,7 +14,7 @@ import {
   reportQueryResolver
 } from './report.schema'
 
-import type { Application } from '../../declarations'
+import type { Application, HookContext, NextFunction } from '../../declarations'
 import { ReportService, getOptions } from './report.class'
 import { reportPath, reportMethods } from './report.shared'
 
