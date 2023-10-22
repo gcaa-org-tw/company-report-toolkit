@@ -1,5 +1,5 @@
 # company-report-toolkit
-協助工人、人工智慧，將企業永續報告書，轉為結構化資料 / A collection of toolkits to asist people &amp; AI to transfrorm ESG report into mathcine readable data.
+協助工人、人工智慧，將企業永續報告書，轉為結構化資料 / A collection of toolkits to assist people &amp; AI to transfrorm ESG report into machine readable data.
 
 - [專案共筆](https://g0v.hackmd.io/@ddio-io/open-csr-report)
 - 專案聊天頻道: g0v slack#thaubing-esg
@@ -30,18 +30,25 @@
 請找其他專案參與者，要一份開發用的後端 `.env` ，或是參閱 [API README](./toolkit-api/README.md)，
 自己建立 auth0 ，做一份設定檔。
 
+### Environment setup
+
+This project builds on NodeJS (https://nodejs.org/en/download) and npm using the current LTS (node v18.18.2 and npm 9 as of Oct 22).
+
+
 ```
-# 先把後端跑起來
+# 先把後端跑起來 (run the development version of the API backend)
 cd toolkit-api
-npm run install
+# copy sample configuration to enable development authentication with auth0
+cp env.example .env
+npm install
 npm run migrate
 
 npm run dev
 
-# 再把前端跑起來
+# 再把前端跑起來 (run the development version of the UI frontend)
 cd toolkit-ui
 cp env.example .env #如果後端使用自建的設定檔，請修改 auth0 相關變數
-npm run install
+npm install
 
 npm run dev
 ```
