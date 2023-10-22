@@ -1,4 +1,4 @@
-# project wide ignore file
+# repository-wide ignore file
 
 # ignore OS-generated files
 .DS_Store
