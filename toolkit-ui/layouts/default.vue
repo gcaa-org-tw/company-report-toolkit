@@ -5,8 +5,10 @@
     nuxt-link.gray.no-underline(to="/call-for-g0ver") 登入後台
   main
     slot
+    HealthModal
 </template>
 <script setup lang="ts">
+import HealthModal from '@/components/HealthModal.vue'
 </script>
 <style lang="scss">
 .gcaa {
