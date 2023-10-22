@@ -11,7 +11,8 @@
   "contributors": [],
   "bugs": {},
   "engines": {
-    "node": ">= 16.18.1"
+    "node": "^18.18.2",
+    "npm": "^9.0.0"
   },
   "feathers": {
     "language": "ts",
@@ -67,7 +68,7 @@
     "winston": "^3.11.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
-    "@types/node": "^20.8.6",
+    "@types/node": "^18.18.2",
     "axios": "^1.5.1",
     "cross-env": "^7.0.3",
     "shx": "^0.3.4"
