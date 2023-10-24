@@ -1,7 +1,7 @@
 <template lang="pug">
 .industry.pa4.lh-copy(v-if="reportList.length")
   .pb3
-    h1.tc.f2.fw6.mb2 {{ industryName }}產業
+    h1.tc.f2.fw6.mb2 {{ industryName }}
     p.tc.f3.mv2 {{ industryStats.total }} 本
     .w5.center
       profession-field-progress(:progress="industryStats")
@@ -22,7 +22,7 @@
       nuxt-link.industry__report.black.dim.no-underline(
         v-for="report in visibleReportList"
         :key="report.id"
-        :to="`/profession/editor/${report.id}`"
+        :to="`/profession/report/${report.id}`"
       )
         .industry__cell {{ report.company.name }}
         .industry__cell {{ report.year }}

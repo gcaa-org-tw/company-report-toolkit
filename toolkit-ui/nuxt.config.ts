@@ -5,6 +5,7 @@ import ViteYaml from '@modyfi/vite-plugin-yaml'
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 
 export default defineNuxtConfig({
+  ssr: false,
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/eslint-module',

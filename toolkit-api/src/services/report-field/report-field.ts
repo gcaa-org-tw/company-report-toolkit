@@ -17,9 +17,28 @@ import {
 import type { Application } from '../../declarations'
 import { ReportFieldService, getOptions } from './report-field.class'
 import { reportFieldPath, reportFieldMethods } from './report-field.shared'
+import { HookContext } from '@feathersjs/feathers'
+import { reportPath } from '../report/report.shared'
 
 export * from './report-field.class'
 export * from './report-field.schema'
+
+const updateReportStats = async (context: HookContext) => {
+  const { app, result } = context
+  const { reportId } = result
+  const reportService = app.service(reportPath)
+  const reportFieldService = app.service(reportFieldPath)
+
+  const answeredFields = await reportFieldService.find({
+    query: {
+      reportId,
+      value: { $ne: null }
+    }
+  })
+  reportService.patch(reportId, {
+    answeredFields: answeredFields.total
+  })
+}
 
 // A configure function that registers the service and its hooks via `app.configure`
 export const reportField = (app: Application) => {
@@ -57,7 +76,8 @@ export const reportField = (app: Application) => {
       remove: []
     },
     after: {
-      all: []
+      all: [],
+      patch: [updateReportStats]
     },
     error: {
       all: []
