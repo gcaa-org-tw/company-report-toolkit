@@ -2,7 +2,7 @@
 .profession.pa4.lh-copy
   .profession__header.mb5.pb3.bb.b--moon-gray.tc
     h1.f2.fw6 企業永續報告書列表
-    p 快速查找近兩年產業報告書，個別報告書驗證進度
+    p.f4 快速查找近兩年產業報告書，個別報告書驗證進度
   .profession__industryList.justify-center
     profession-industry-card(
       v-for="industry in industryList"

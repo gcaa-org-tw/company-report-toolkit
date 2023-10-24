@@ -5,6 +5,7 @@
 .cache
 dist
 
+todo.md
 # Node dependencies
 node_modules
 
