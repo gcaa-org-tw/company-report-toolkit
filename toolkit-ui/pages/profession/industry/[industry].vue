@@ -1,5 +1,5 @@
 <template lang="pug">
-.industry.pa4.lh-copy(v-if="industryStats")
+.industry.pa4.lh-copy(v-if="reportList.length")
   .pb3
     h1.tc.f2.fw6.mb2 {{ industryName }}產業
     p.tc.f3.mv2 {{ industryStats.total }} 本
@@ -19,9 +19,10 @@
       .industry__cell 進度
       .industry__cell 更新時間
     template(v-if="visibleReportList.length")
-      .industry__report(
+      nuxt-link.industry__report.black.dim.no-underline(
         v-for="report in visibleReportList"
         :key="report.id"
+        :to="`/profession/editor/${report.id}`"
       )
         .industry__cell {{ report.company.name }}
         .industry__cell {{ report.year }}
@@ -37,6 +38,7 @@ import type { IndustryStatsMap } from '~/utils/industryStats'
 
 const route = useRoute()
 const industryName = route.params.industry as string
+const { feathers } = useProfessionApi()
 
 enum filterType {
   all = '全部',
@@ -44,8 +46,6 @@ enum filterType {
   isAnswered = '判讀完成',
   pending = '待判讀'
 }
-
-const { feathers } = useProfessionApi()
 
 const reportList = ref([])
 const filter = ref(filterType.all)
