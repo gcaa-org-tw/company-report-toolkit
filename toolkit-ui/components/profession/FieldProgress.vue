@@ -5,8 +5,9 @@
       v-for="item in progressItems"
       :key="item.title"
       :style="{width: item.width}"
+      :title="item.title"
     )
-      .f6.gray {{ item.title }}
+      .f6.gray {{ item.abbr }}
   .fieldProgress__bar.br-pill.overflow-hidden.flex
     .filedProgress__cell.flex.items-center(
       v-for="item in progressItems"
@@ -19,26 +20,29 @@
 <script lang="ts" setup>
 export interface FieldProgress {
   total: number
+  totalFields?: number
   answered: number
+  answeredFields?: number
   isVerified?: number
 }
 const props = withDefaults(defineProps<{
   progress: FieldProgress,
-  showVerified?: boolean
+  isIndustry?: boolean
 }>(), {
-  showVerified: true
+  isIndustry: true
 })
 
 const progressItems = computed(() => {
   const ret = []
-  const total = props.progress.total || 1
-  const isVerified = props.showVerified ? props.progress.isVerified || 0 : 0
-  const answered = (props.progress.answered || 0) - isVerified
+  const total = props.progress.total || props.progress.totalFields || 1
+  const isVerified = props.isIndustry ? props.progress.isVerified || 0 : 0
+  const answered = (props.progress.answered || props.progress.answeredFields || 0) - isVerified
   const remaining = total - answered - isVerified
 
   if (isVerified) {
     ret.push({
-      title: '驗',
+      abbr: '驗',
+      title: '已驗證',
       value: isVerified,
       width: `${isVerified / total * 100}%`,
       bg: 'bg-green'
@@ -46,7 +50,8 @@ const progressItems = computed(() => {
   }
   if (answered) {
     ret.push({
-      title: '判',
+      abbr: '判',
+      title: '判讀完成',
       value: answered,
       width: `${answered / total * 100}%`,
       bg: 'bg-gold'
@@ -54,7 +59,8 @@ const progressItems = computed(() => {
   }
   if (remaining) {
     ret.push({
-      title: '待',
+      abbr: '待',
+      title: '待判讀',
       value: remaining,
       width: `${remaining / total * 100}%`,
       bg: 'bg-moon-gray'

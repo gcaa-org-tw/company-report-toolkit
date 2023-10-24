@@ -35,6 +35,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "airtable": "^0.12.2",
     "algoliasearch": "^4.19.1",
+    "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
     "sass": "^1.64.0",
     "socket.io-client": "^4.7.2",
