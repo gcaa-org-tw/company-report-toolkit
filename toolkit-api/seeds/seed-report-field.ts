@@ -47,6 +47,16 @@ async function seed () {
     }))
   }
 
+  // init report stats
+  const nFields = metaList.length
+  await Promise.all(reports.map((report) => {
+    return reportService.patch(report.id, {
+      totalFields: nFields,
+      answeredFields: 0,
+      isVerified: false
+    })
+  }))
+
   console.log(`Seeded ${tasks.length} report fields`)
   // shutdown app as knex.destroy print error XD
   process.exit(0)

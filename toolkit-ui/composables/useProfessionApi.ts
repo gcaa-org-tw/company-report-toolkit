@@ -99,6 +99,8 @@ export class FeathersApp {
   }
 }
 
+let _feathersApp: FeathersApp | undefined
+
 export function useProfessionApi () {
   const auth0 = useAuth0()
   const config = useRuntimeConfig()
@@ -109,9 +111,15 @@ export function useProfessionApi () {
   const user = ref<any>(undefined)
 
   const registerState = getRegisterState()
-  const feathersApp = new FeathersApp()
+  if (!_feathersApp) {
+    _feathersApp = new FeathersApp()
+  }
+  const feathersApp = _feathersApp
 
   async function initApi () {
+    if (feathersApp.isReady.value) {
+      return
+    }
     if (auth0) {
       await startLogin(auth0, route)
       user.value = auth0.user

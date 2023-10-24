@@ -26,5 +26,6 @@ module.exports = {
         'vue/multi-word-component-names': 'off'
       }
     }
-  ]
+  ],
+  ignorePatterns: ['libs/feathers']
 }
