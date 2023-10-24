@@ -1,11 +1,13 @@
 <template lang="pug">
 .editor(v-if="isDataReady")
-  profession-editor-control.br.b--moon-gray(
+  profession-editor-control.editor__control.br.b--moon-gray(
     :report="report"
     :report-field="reportField"
     :field-meta="fieldMeta"
     @page="changePage"
     @matched-pages="updateMatchedPages"
+    @next="gotoNextField"
+    @prev="gotoPrevField"
   )
   // .mv3
     .f4.mb3 最後瀏覽頁次
@@ -24,9 +26,6 @@
 <script lang="ts" setup>
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 
-// import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
-
-// const { feathers } = useProfessionApi()
 const route = useRoute()
 const reportId = computed(() => {
   return Number.parseInt(route.params.reportId as string)
@@ -40,7 +39,7 @@ const reportFieldId = computed(() => {
 
 const reportField = computed(() => {
   const target = reportFieldList.value.find((field: typeof reportFieldSchema) => {
-    return field.id === reportFieldId
+    return field.id === reportFieldId.value
   })
 
   return target || reportFieldList.value[0]
@@ -68,10 +67,52 @@ function updateMatchedPages (matched) {
   matchedPages.value = matched
 }
 
+const router = useRouter()
+const curFieldIndex = computed(() => {
+  return reportFieldList.value.findIndex((field: typeof reportFieldSchema) => {
+    return field.id === reportFieldId.value
+  })
+})
+
+function gotoNextField () {
+  let nextIndex = curFieldIndex.value + 1
+  if (nextIndex === reportFieldList.value.length) {
+    nextIndex = 0
+  }
+
+  router.push({
+    name: 'profession-editor-reportId-fieldId',
+    params: {
+      reportId: reportId.value,
+      fieldId: reportFieldList.value[nextIndex].id
+    }
+  })
+}
+
+function gotoPrevField () {
+  let prevIndex = curFieldIndex.value - 1
+  if (prevIndex < 0) {
+    prevIndex = reportFieldList.value.length - 1
+  }
+
+  router.push({
+    name: 'profession-editor-reportId-fieldId',
+    params: {
+      reportId: reportId.value,
+      fieldId: reportFieldList.value[prevIndex].id
+    }
+  })
+}
+
 </script>
 <style lang="scss">
 .editor {
   display: grid;
   grid-template-columns: 20rem 1fr;
+
+  &__control {
+    height: calc(100vh - #{$bannerHeight});
+    overflow-y: auto;
+  }
 }
 </style>

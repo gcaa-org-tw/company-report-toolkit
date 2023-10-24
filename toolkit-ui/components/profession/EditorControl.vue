@@ -1,10 +1,14 @@
 <template lang="pug">
 .editorControl.pa3
-  .f6.gray {{ report.company.abbreviation }} {{ report.year }} 報告書
-  .flex.mb3.mt2.pb3.bb.b--moon-gray
-    .flex-auto
-      h1.fw6.f4.mt0.mb2.black {{ fieldMeta.name }}
-      p.gray.f6.mv0.lh-copy {{ fieldMeta.description }}
+  nuxt-link.flex.f6.gray.items-center.no-underline.dim(:to="reportPageLink")
+    i.fa-solid.fa-arrow-left.mr1
+    | {{ report.company.abbreviation }} {{ report.year }} 報告書
+  .mb3.mt2.pb3.bb.b--moon-gray
+    h1.fw6.f4.mt0.mb2.black {{ fieldMeta.name }}
+    p.gray.f6.mv0.lh-copy {{ fieldMeta.description }}
+  .flex.justify-between.items-center.mb3.mt2.pb3.bb.b--moon-gray
+    button.editorControl__nav(@click="gotoPrevField") 往上個欄位
+    button.editorControl__nav(@click="gotoNextField") 往下個欄位
   .editorControl__keywordSection.pb2.mb3.bb.b--moon-gray
     .fw5.mb1 相關關鍵字
     .f6.gray 點選以下關鍵字，或是自行輸入，就能搜出相關頁面
@@ -46,7 +50,16 @@ const props = defineProps<{
   fieldMeta: typeof fieldMetaSchema
 }>()
 
-const emit = defineEmits(['page', 'matched-pages', 'complete'])
+const emit = defineEmits(['page', 'matched-pages', 'next', 'prev'])
+
+const reportPageLink = computed(() => {
+  return {
+    name: 'profession-report-reportId',
+    params: {
+      reportId: props.report.id
+    }
+  }
+})
 
 function updateMatchedPages (matchedPages: number[]): void {
   emit('matched-pages', matchedPages)
@@ -74,12 +87,27 @@ async function submitFieldData () {
     value: fieldData.value.value,
     unit: fieldData.value.unit
   })
+  emit('next')
 }
 
+// navigation
+function gotoNextField () {
+  emit('next')
+}
+
+function gotoPrevField () {
+  emit('prev')
+}
 </script>
 <style lang="scss" scoped>
 .editorControl {
-
+  &__nav {
+    border: 1px solid #ccc;
+    border-radius: 0.125rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #fff;
+    cursor: pointer;
+  }
 }
 
 .fieldForm {

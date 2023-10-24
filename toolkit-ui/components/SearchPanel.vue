@@ -148,7 +148,7 @@ function humanPageNumber (page: number) {
     }
 
     + .searchPanel__keyword {
-      margin-right: 0.125rem;
+      margin-left: 0.25rem;
     }
 
     &--active {

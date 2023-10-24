@@ -9,7 +9,7 @@
     nuxt-link.report__field.pv3.ph2.bb.b--moon-gray.no-underline.black.dim(
       v-for="field in reportFieldList"
       :key="field.id"
-      :to="`/profession/editor/${report.id}`"
+      :to="`/profession/editor/${report.id}/${field.id}`"
     )
       div
         .fw5.mb1 {{ meta(field).name }}
