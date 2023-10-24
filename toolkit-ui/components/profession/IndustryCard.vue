@@ -15,4 +15,7 @@ defineProps<{
 
 </script>
 <style lang="scss">
+.industryCard {
+  color: black;
+}
 </style>

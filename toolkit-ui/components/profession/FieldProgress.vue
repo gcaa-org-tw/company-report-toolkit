@@ -20,21 +20,23 @@
 <script lang="ts" setup>
 export interface FieldProgress {
   total: number
+  totalFields?: number
   answered: number
+  answeredFields?: number
   isVerified?: number
 }
 const props = withDefaults(defineProps<{
   progress: FieldProgress,
-  showVerified?: boolean
+  isIndustry?: boolean
 }>(), {
-  showVerified: true
+  isIndustry: true
 })
 
 const progressItems = computed(() => {
   const ret = []
-  const total = props.progress.total || 1
-  const isVerified = props.showVerified ? props.progress.isVerified || 0 : 0
-  const answered = (props.progress.answered || 0) - isVerified
+  const total = props.progress.total || props.progress.totalFields || 1
+  const isVerified = props.isIndustry ? props.progress.isVerified || 0 : 0
+  const answered = (props.progress.answered || props.progress.answeredFields || 0) - isVerified
   const remaining = total - answered - isVerified
 
   if (isVerified) {

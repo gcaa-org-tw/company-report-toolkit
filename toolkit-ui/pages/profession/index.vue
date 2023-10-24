@@ -4,11 +4,14 @@
     h1.f2.fw6 企業永續報告書列表
     p.f4 快速查找近兩年產業報告書，個別報告書驗證進度
   .profession__industryList.justify-center
-    profession-industry-card(
+    nuxt-link.no-underline.dim(
       v-for="industry in industryList"
       :key="industry.name"
-      :industry-stats="industry"
+      :to="`/profession/industry/${industry.name}`"
     )
+      profession-industry-card(
+        :industry-stats="industry"
+      )
 </template>
 <script lang="ts" setup>
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
@@ -50,7 +53,7 @@ watchEffect(() => {
 </script>
 <style lang="scss">
 .profession {
-  width: 74rem;
+  width: $professionWidth;
   max-width: 100vw;
   margin: 0 auto;
 
