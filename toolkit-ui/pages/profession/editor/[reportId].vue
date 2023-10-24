@@ -16,7 +16,7 @@
     pdf-viewer(
       v-if="reportPage"
       :year="report.year"
-      :company="report.company"
+      :report="report"
       :page="reportPage.page"
       :highlight="reportPage.highlight"
       :matched-pages="matchedPages"

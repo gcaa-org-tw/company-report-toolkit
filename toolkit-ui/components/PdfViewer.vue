@@ -39,6 +39,7 @@
 </template>
 <script lang="ts" setup>
 import _ from 'lodash'
+import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 const PDF_SRC_BASE = 'https://gcaa-static.s3.ap-northeast-3.amazonaws.com/company-report-toolkit'
@@ -55,30 +56,17 @@ useHead({
 
 const emit = defineEmits(['view-page'])
 
-const props = defineProps({
-  // 1 based, not 0 based
-  page: {
-    type: Number,
-    default: 1
-  },
-  year: {
-    type: [Number, String],
-    default: 2019
-  },
-  company: {
-    type: Object,
-    required: true
-  },
-  highlight: {
-    type: [String, Number],
-    default: ''
-  },
-  matchedPages: {
-    type: Array,
-    default () {
-      return []
-    }
-  }
+const props = withDefaults(defineProps<{
+  page?: number,
+  year?: number | string,
+  report: typeof reportSchema,
+  highlight?: string | number,
+  matchedPages?: number[]
+}>(), {
+  page: 1,
+  year: 2019,
+  highlight: '',
+  matchedPages () { return [] }
 })
 
 enum ScaleType {
@@ -97,7 +85,7 @@ const pages = ref<any>([null])
 // 1 index
 const curPageIndex = ref(1)
 const readablePageIndex = computed(() => {
-  const index = curPageIndex.value + (props.company.pageOffset || 0)
+  const index = curPageIndex.value + (props.report.pageOffset || 0)
   if (index < 1) {
     return '-'
   }
@@ -146,7 +134,7 @@ const isMainReady = computed(() => {
 })
 
 const pdfLinkBase = computed(() => {
-  return `${PDF_SRC_BASE}/${props.year}/${props.company.id}`
+  return `${PDF_SRC_BASE}/${props.year}/${props.report.company.id}`
 })
 
 const normalizedHighlight = computed(() => {
@@ -240,13 +228,13 @@ async function renderMainPage () {
 
 function resetViewer () {
   pageChunk.value = {}
-  pages.value = Array(props.company.totalPage).fill(null)
+  pages.value = Array(props.report.totalPages).fill(null)
   scaleMode.value = ScaleType.FitWidth
   scaleMeta.value.widthScale = 0
 }
 
 watchEffect(() => {
-  if (!pdfLinkBase.value || !props.company || !isLibLoaded.value || !isMounted.value) {
+  if (!pdfLinkBase.value || !isLibLoaded.value || !isMounted.value) {
     return
   }
   resetViewer()
@@ -321,7 +309,7 @@ async function gotoPage (page: number) {
   if (page > 1) {
     loadPage(page - 1)
   }
-  if (page < props.company.totalPage) {
+  if (page < props.report.totalPages) {
     loadPage(page + 1)
   }
   if (anchorTop) {
