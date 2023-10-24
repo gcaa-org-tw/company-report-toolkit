@@ -2,8 +2,12 @@
 .reportViewer
   .reportViewer__control.pr2
     .bb.b--moon-gray.flex.items-center.justify-between.pv2
-      .flex.items-center
-        .ba3 page {{ readablePageIndex }}
+      .flex.items-center.pl3
+        input.reportViewer__pageInput.b--moon-gray.ba.ph1.mr1(
+          v-model.lazy="readablePageIndex"
+          @keyup.enter="$event.target.blur()"
+        )
+        | 頁 / 共 {{ report.totalPages }} 頁
       .flex.items-center
         button.reportViewer__button(@click="zoomIn")
           i.fa-solid.fa-plus
@@ -54,7 +58,7 @@ useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
 })
 
-const emit = defineEmits(['view-page'])
+const emit = defineEmits(['view-page', 'page'])
 
 const props = withDefaults(defineProps<{
   page?: number,
@@ -84,12 +88,18 @@ const pages = ref<any>([null])
 
 // 1 index
 const curPageIndex = ref(1)
-const readablePageIndex = computed(() => {
-  const index = curPageIndex.value + (props.report.pageOffset || 0)
-  if (index < 1) {
-    return '-'
+const readablePageIndex = computed({
+  get () {
+    const index = curPageIndex.value + (props.report.pageOffset || 0)
+    if (index < 1) {
+      return '-'
+    }
+    return index
+  },
+  set (valStr: string) {
+    const val = Number.parseInt(valStr, 10) - (props.report.pageOffset || 0)
+    manualSetPage(val)
   }
-  return index
 })
 
 const scaleMode = ref<ScaleType>(ScaleType.FitWidth)
@@ -303,6 +313,15 @@ function getAnchorPageTop (page: number) {
   return target?.offsetTop
 }
 
+function manualSetPage (page: number) {
+  if (page < 1 || page > props.report.totalPages || Number.isNaN(page)) {
+    return
+  }
+
+  gotoPage(page)
+  emit('page', page)
+}
+
 async function gotoPage (page: number) {
   const anchorTop = getAnchorPageTop(page)
   const promise = loadPage(page, { anchor: anchorTop })
@@ -411,6 +430,10 @@ const emitLastVisiblePage = _.debounce(() => {
     + .reportViewer__button {
       margin-left: 0.5rem;
     }
+  }
+
+  &__pageInput {
+    width: 3rem;
   }
 }
 </style>
