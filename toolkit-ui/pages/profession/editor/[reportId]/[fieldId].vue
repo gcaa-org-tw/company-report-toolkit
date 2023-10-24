@@ -50,9 +50,7 @@ const fieldMeta = computed(() => {
   return meta(reportField.value)
 })
 
-// const { params: { year, companyId } } = useRoute()
-// const company = reportMap[0].reports.find(report => report.id === companyId)
-// const report = { year, company }
+// navigation & search
 
 const reportPage = ref({ page: 1, highlight: '' })
 const matchedPages = ref([])
@@ -69,6 +67,7 @@ function changePage (newPage) {
 function updateMatchedPages (matched) {
   matchedPages.value = matched
 }
+
 </script>
 <style lang="scss">
 .editor {
