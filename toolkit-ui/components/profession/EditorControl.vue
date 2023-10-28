@@ -94,9 +94,11 @@ function toggleBottomSection () {
   isBottomFolded.value = !isBottomFolded.value
 }
 
-watch(() => props.reportField, (newField) => {
-  fieldData.value.value = newField.value
-  fieldData.value.unit = newField.unit
+watchEffect(() => {
+  if (props.reportField) {
+    fieldData.value.value = props.reportField.value || ''
+    fieldData.value.unit = props.reportField.unit || ''
+  }
 })
 
 async function submitFieldData () {
