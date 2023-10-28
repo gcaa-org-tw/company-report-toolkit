@@ -29,17 +29,28 @@ function seed () {
 
         const existing = await metaService.find({ query: { id, $limit: 0 }})
         resolve(null)
-        if (existing.total) return
-        tasks.push(
-          metaService.create({
-            id,
-            name,
-            keywords,
-            description,
-            dataType,
-            units
-          })
-        )
+        if (existing.total) {
+          tasks.push(
+            metaService.patch(id, {
+              name,
+              keywords,
+              description,
+              dataType,
+              units
+            })
+          )
+        } else {
+          tasks.push(
+            metaService.create({
+              id,
+              name,
+              keywords,
+              description,
+              dataType,
+              units
+            })
+          )
+        }
       })
       .on('end', async () => {
         await jobPromise

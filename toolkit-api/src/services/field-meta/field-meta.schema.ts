@@ -68,7 +68,10 @@ export const fieldMetaPatchSchema = Type.Partial(fieldMetaSchema, {
 })
 export type FieldMetaPatch = Static<typeof fieldMetaPatchSchema>
 export const fieldMetaPatchValidator = getValidator(fieldMetaPatchSchema, dataValidator)
-export const fieldMetaPatchResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({})
+export const fieldMetaPatchResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({
+  keywords: async (value: any) => JSON.stringify(value),
+  units: async (value: any) => JSON.stringify(value)
+})
 
 // Schema for allowed query properties
 export const fieldMetaQueryProperties = Type.Pick(fieldMetaSchema, [

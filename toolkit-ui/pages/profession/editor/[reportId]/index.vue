@@ -1,1 +1,0 @@
-[fieldId].vue

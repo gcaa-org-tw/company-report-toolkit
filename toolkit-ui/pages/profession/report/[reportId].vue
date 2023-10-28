@@ -9,7 +9,7 @@
     nuxt-link.report__field.pv3.ph2.bb.b--moon-gray.no-underline.black.dim(
       v-for="field in reportFieldList"
       :key="field.id"
-      :to="`/profession/editor/${report.id}/${field.id}`"
+      :to="editorLink(report, field)"
     )
       div
         .fw5.mb1 {{ meta(field).name }}
@@ -32,6 +32,14 @@ const { report, reportFieldList, isDataReady, meta } = useReport(reportId.value)
 
 function readableDate (date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
+}
+
+function editorLink (report, field) {
+  return {
+    name: 'profession-editor-reportId',
+    params: { reportId: report.id },
+    query: { fieldId: field.id }
+  }
 }
 
 </script>

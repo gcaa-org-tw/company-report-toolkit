@@ -10,7 +10,7 @@
       )
         | {{ keyword }}
       input.mt1.f6.w-100.searchPanel__input(v-model.trim="customizedKeyword" placeholder="自訂關鍵字")
-  .f6.gray.mv1(v-show="keywordResults.length")
+  .f6.dark-gray.mv1(v-show="keywordResults.length")
     .flex.mv2.dim.pointer(
       v-for="hit in keywordResults"
       :key="hit.page"
@@ -47,6 +47,12 @@ const curSearchHit = ref(null)
 
 const curKeyword = computed(() => {
   return customizedKeyword.value || predefinedKeyword.value || ''
+})
+
+watch(() => props.fieldMeta, (newVal) => {
+  if (newVal.keywords.length) {
+    predefinedKeyword.value = newVal.keywords[0]
+  }
 })
 
 watch([predefinedKeyword, customizedKeyword], ([newPre, newCus], [oldPre, oldCus]) => {

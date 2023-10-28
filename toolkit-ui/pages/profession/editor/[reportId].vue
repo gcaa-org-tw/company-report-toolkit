@@ -9,11 +9,12 @@
     @next="gotoNextField"
     @prev="gotoPrevField"
   )
+  // h1 kerker
   // .mv3
     .f4.mb3 最後瀏覽頁次
     .ba.b--moon-gray.pv2.ph4 {{ lastFocusPageIndex }}
   .editor__viewer
-    pdf-viewer(
+    profession-pdf-viewer(
       v-if="reportPage"
       :year="report.year"
       :report="report"
@@ -21,6 +22,7 @@
       :highlight="reportPage.highlight"
       :matched-pages="matchedPages"
       @view-page="handleViewPage"
+      @reload="reloadPage"
     )
 </template>
 <script lang="ts" setup>
@@ -34,7 +36,7 @@ const reportId = computed(() => {
 const { report, reportFieldList, isDataReady, meta } = useReport(reportId.value)
 
 const reportFieldId = computed(() => {
-  return Number.parseInt(route.params.fieldId as string)
+  return Number.parseInt(route.query.fieldId as string)
 })
 
 const reportField = computed(() => {
@@ -81,9 +83,11 @@ function gotoNextField () {
   }
 
   router.push({
-    name: 'profession-editor-reportId-fieldId',
+    name: 'profession-editor-reportId',
     params: {
-      reportId: reportId.value,
+      reportId: reportId.value
+    },
+    query: {
       fieldId: reportFieldList.value[nextIndex].id
     }
   })
@@ -96,12 +100,19 @@ function gotoPrevField () {
   }
 
   router.push({
-    name: 'profession-editor-reportId-fieldId',
+    name: 'profession-editor-reportId',
     params: {
-      reportId: reportId.value,
+      reportId: reportId.value
+    },
+    query: {
       fieldId: reportFieldList.value[prevIndex].id
     }
   })
+}
+
+function reloadPage () {
+  // force reload to trigger init hook
+  window.location.reload()
 }
 
 </script>
