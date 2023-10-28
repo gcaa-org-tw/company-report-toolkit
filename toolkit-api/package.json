@@ -7,11 +7,12 @@
   "keywords": [
     "feathers"
   ],
-  "author": {},
+  "author": { "name": "GCAA"},
   "contributors": [],
   "bugs": {},
   "engines": {
-    "node": ">= 16.18.1"
+    "node": "^18.18.2",
+    "npm": "^9.0.0"
   },
   "feathers": {
     "language": "ts",
@@ -59,7 +60,7 @@
     "@feathersjs/socketio": "^5.0.11",
     "@feathersjs/transport-commons": "^5.0.11",
     "@feathersjs/typebox": "^5.0.11",
-    "@types/node": "^20.8.6",
+    "@types/node": "^18.18.2",
     "axios": "^1.5.1",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.10",

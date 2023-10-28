@@ -1,0 +1,39 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // start chrome with: start chrome.exe --remote-debugging-port=9222
+      // this requires chrome to be closed before starting it
+      "type": "chrome",
+      "request": "attach",
+      "name": "Attach to Chrome",
+      "port": 9222,
+      "urlFilter": "http://localhost:3000/",
+      "webRoot": "${workspaceFolder}/toolkit-ui"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "server: nuxt",
+      "outputCapture": "std",
+      "cwd": "${workspaceFolder}/toolkit-ui/",
+      "localRoot": "${workspaceFolder}/toolkit-ui/",
+      "program": "${workspaceFolder}/toolkit-ui/node_modules/nuxt/bin/nuxt.mjs",
+      "args": [
+        "dev"
+      ],
+    }
+  ],
+  "compounds": [
+    {
+      "name": "fullstack: nuxt",
+      "configurations": [
+        "server: nuxt",
+        "Attach to Chrome"
+      ]
+    }
+  ]
+}
