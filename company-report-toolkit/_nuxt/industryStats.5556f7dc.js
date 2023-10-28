@@ -1,1 +1,0 @@
-function l(i,s){const n=s.totalFields===s.answeredFields,d=s.isVerified,e=s.company.industry;i[e]||(i[e]={total:0,answered:0,isVerified:0,name:e}),i[e].total+=1,i[e].answered+=n?1:0,i[e].isVerified+=d?1:0}export{l as m};
