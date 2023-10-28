@@ -57,7 +57,7 @@ jobs:
         run: touch .env
 
       - name: Build ui
-        run: npm run generate
+        run: rm public/company-report-toolkit && npm run generate
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
