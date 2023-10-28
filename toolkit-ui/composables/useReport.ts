@@ -21,7 +21,7 @@ export function useReport (reportId: number) {
       query: {
         reportId,
         $sort: {
-          id: 1
+          fieldId: 1
         },
         // we have 50+ fields in some reports, so we need to increase the limit
         $limit: 100

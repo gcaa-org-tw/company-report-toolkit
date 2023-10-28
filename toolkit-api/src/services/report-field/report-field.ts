@@ -40,6 +40,16 @@ const updateReportStats = async (context: HookContext) => {
   })
 }
 
+const applyDefaultQuery = (context: HookContext) => {
+  const { params } = context
+  if (!params.query) {
+    params.query = {}
+  }
+  if (!params.query.$sort) {
+    params.query.$sort = { fieldId: 1 }
+  }
+}
+
 // A configure function that registers the service and its hooks via `app.configure`
 export const reportField = (app: Application) => {
   // Register our service on the Feathers application
@@ -63,7 +73,7 @@ export const reportField = (app: Application) => {
         schemaHooks.validateQuery(reportFieldQueryValidator),
         schemaHooks.resolveQuery(reportFieldQueryResolver)
       ],
-      find: [],
+      find: [applyDefaultQuery],
       get: [],
       create: [
         schemaHooks.validateData(reportFieldDataValidator),
