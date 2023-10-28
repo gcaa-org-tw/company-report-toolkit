@@ -34,7 +34,7 @@ const reportId = computed(() => {
 const { report, reportFieldList, isDataReady, meta } = useReport(reportId.value)
 
 const reportFieldId = computed(() => {
-  return Number.parseInt(route.params.fieldId as string)
+  return Number.parseInt(route.query.fieldId as string)
 })
 
 const reportField = computed(() => {
@@ -81,9 +81,11 @@ function gotoNextField () {
   }
 
   router.push({
-    name: 'profession-editor-reportId-fieldId',
+    name: 'profession-editor-reportId',
     params: {
-      reportId: reportId.value,
+      reportId: reportId.value
+    },
+    query: {
       fieldId: reportFieldList.value[nextIndex].id
     }
   })
@@ -96,9 +98,11 @@ function gotoPrevField () {
   }
 
   router.push({
-    name: 'profession-editor-reportId-fieldId',
+    name: 'profession-editor-reportId',
     params: {
-      reportId: reportId.value,
+      reportId: reportId.value
+    },
+    query: {
       fieldId: reportFieldList.value[prevIndex].id
     }
   })

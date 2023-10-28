@@ -49,6 +49,12 @@ const curKeyword = computed(() => {
   return customizedKeyword.value || predefinedKeyword.value || ''
 })
 
+watch(() => props.fieldMeta, (newVal) => {
+  if (newVal.keywords.length) {
+    predefinedKeyword.value = newVal.keywords[0]
+  }
+})
+
 watch([predefinedKeyword, customizedKeyword], ([newPre, newCus], [oldPre, oldCus]) => {
   if (newPre !== oldPre && newPre) {
     customizedKeyword.value = ''
