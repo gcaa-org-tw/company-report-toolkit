@@ -49,9 +49,9 @@ const curKeyword = computed(() => {
   return customizedKeyword.value || predefinedKeyword.value || ''
 })
 
-watch(() => props.fieldMeta, (newVal) => {
-  if (newVal.keywords.length) {
-    predefinedKeyword.value = newVal.keywords[0]
+watchEffect(() => {
+  if (props.fieldMeta.keywords.length) {
+    predefinedKeyword.value = props.fieldMeta.keywords[0]
   }
 })
 
@@ -67,8 +67,10 @@ function selectKeyword (keyword: string) {
   predefinedKeyword.value = keyword
 }
 
-watch(curKeyword, () => {
-  searchKeyword()
+watchEffect(() => {
+  if (curKeyword.value) {
+    searchKeyword()
+  }
 })
 
 async function searchKeyword () {
