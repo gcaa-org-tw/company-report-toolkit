@@ -12,7 +12,7 @@
             placeholder="數值"
           />
         </label>
-        <label class="answerPanel__unit flex-none">
+        <label v-show="shouldShowUnit" class="answerPanel__unit flex-none">
           單位
           <input
           v-model.trim="fieldData.unit"
@@ -50,6 +50,12 @@ const fieldData = ref({ value: '', unit: '' })
 
 const canSubmitData = computed(() => {
   return fieldData.value.value && fieldData.value.unit
+})
+
+const NULL_UNIT = new Set(['無', 'NA'])
+
+const shouldShowUnit = computed(() => {
+  return !!props.fieldMeta.unit && !NULL_UNIT.has(props.fieldMeta.unit)
 })
 
 watchEffect(() => {
