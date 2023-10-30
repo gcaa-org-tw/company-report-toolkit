@@ -8,6 +8,7 @@
     @matched-pages="updateMatchedPages"
     @next="gotoNextField"
     @prev="gotoPrevField"
+    @report-field="updateReportField"
   )
   // h1 kerker
   // .mv3
@@ -46,6 +47,12 @@ const reportField = computed(() => {
 
   return target || reportFieldList.value[0]
 })
+
+function updateReportField (newValue: typeof reportFieldSchema) {
+  Object.keys(newValue).forEach((key) => {
+    reportField.value[key] = newValue[key]
+  })
+}
 
 const fieldMeta = computed(() => {
   return meta(reportField.value)

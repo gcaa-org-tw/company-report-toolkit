@@ -24,6 +24,12 @@ function genConvertToJson (fieldName: string) {
   }
 }
 
+export const FieldMetaDataType = Type.Union([
+  Type.Literal('string'),
+  Type.Literal('boolean'),
+  Type.Literal('number')
+])
+
 // Main data model schema
 export const fieldMetaSchema = Type.Object(
   {
@@ -32,7 +38,7 @@ export const fieldMetaSchema = Type.Object(
     // Accept string for sqlite3 w/ TypeScript support
     keywords: Type.Union([Type.Array(Type.String()), Type.String()], { default: [] }),
     description: Type.Optional(Type.String()),
-    dataType: Type.Union([Type.Literal('string'), Type.Literal('boolean')]),
+    dataType: FieldMetaDataType,
     // Accept string for sqlite3 w/ TypeScript support
     units: Type.Union([Type.Array(Type.String()), Type.String()], { default: [] }),
     createdAt: Type.String({ format: 'date-time' })

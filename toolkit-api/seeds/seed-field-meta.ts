@@ -5,6 +5,16 @@ import AutoDetectDecoderStream from 'autodetect-decoder-stream'
 import { app } from '../src/app'
 import { fieldMetaPath } from '../src/services/field-meta/field-meta.shared'
 
+function getDataType(humanType: string) {
+  if (humanType === '有／無') {
+    return 'boolean'
+  } else if (humanType === '數值') {
+    return 'number'
+  }
+
+  return 'string'
+}
+
 function seed () {
   const metaService = app.service(fieldMetaPath)
   const jobPromise = new Promise((resolve) => {
@@ -21,7 +31,7 @@ function seed () {
           .map((key) => data[key].trim())
           .filter(Boolean)
         const description = data.欄位說明
-        const dataType = data.欄位類型 === '有／無' ? 'boolean' : 'string'
+        const dataType = getDataType(data.欄位類型)
         const units = (data.單位備選 as string)
           .split('／')
           .map(unit => unit.trim())
