@@ -1,10 +1,10 @@
 <template>
   <div class="answerPanel">
     <form class="answerPanel__form pb2 bb b--moon-gray" @submit.prevent="submitFieldData">
-      <div class="fw5 mb2">填寫判讀結果</div>
+      <div class="fw5 mb2">{{ titleLabel }}</div>
       <div class="flex items-center mb2">
         <div class="answerPanel__value flex-auto mr3">
-          數值
+          <span class="f6 mid-gray"> 數值 </span>
           <template v-if="valueInputType !== 'radio'">
             <input
               v-model.trim="fieldData.value"
@@ -41,10 +41,26 @@
           </select>
         </label>
       </div>
-      <div class="tr">
+      <div class="flex mb2">
+        <label>
+          備註
+          <textarea
+            v-model.trim="fieldData.notes"
+            class="answerPanel__input"
+            placeholder="備註"
+          />
+        </label>
+      </div>
+      <div class="flex justify-between">
         <button
+          type="button"
+          class="answerPanel__submit"
+          @click="markAsNoAnswer"
+        >無法填答</button>
+        <button
+          type="submit"
           :disabled="!canSubmitData"
-          class="answerPanel__submit pv2 ph3 bw0 bg--green tc w4 pointer"
+          class="answerPanel__submit"
         >儲存</button>
       </div>
     </form>
@@ -65,13 +81,25 @@ const emit = defineEmits(['next'])
 
 const { feathers } = useProfessionApi()
 
-const fieldData = ref({ value: '', unit: '' })
+const fieldData = ref({ value: '', unit: '', notes: '' })
 
 const canSubmitData = computed(() => {
+  if (fieldData.value.notes) {
+    return true
+  }
   return fieldData.value.value && (fieldData.value.unit || !shouldShowUnit.value)
 })
 
-const NULL_UNIT = new Set(['無', 'NA'])
+const NA_VALUE = 'NA'
+const titleLabel = computed(() => {
+  let title = '填寫判讀結果'
+  if (fieldData.value.value === NA_VALUE) {
+    title += ' (已標為無法填答)'
+  }
+  return title
+})
+
+const NULL_UNIT = new Set(['無', NA_VALUE])
 
 const shouldShowUnit = computed(() => {
   if (!props.fieldMeta.units) {
@@ -95,15 +123,29 @@ watchEffect(() => {
   if (props.reportField) {
     fieldData.value.value = props.reportField.value || ''
     fieldData.value.unit = props.reportField.unit || ''
+    fieldData.value.notes = props.reportField.notes || ''
   }
 })
 
-async function submitFieldData () {
-  await feathers.app.service('report-field').patch(props.reportField.id, {
+async function patchReportField (data: typeof fieldData.value) {
+  await feathers.app.service('report-field').patch(props.reportField.id, data)
+  emit('next', data)
+}
+
+function submitFieldData () {
+  patchReportField({
     value: fieldData.value.value.toString(),
-    unit: fieldData.value.unit
+    unit: fieldData.value.unit,
+    notes: fieldData.value.notes
   })
-  emit('next')
+}
+
+function markAsNoAnswer () {
+  patchReportField({
+    value: NA_VALUE,
+    unit: '',
+    notes: fieldData.value.notes
+  })
 }
 
 </script>
@@ -111,7 +153,7 @@ async function submitFieldData () {
 .answerPanel {
   label {
     font-size: 0.875rem;
-    color: #666;
+    color: #555;
   }
   &__unit {
     width: 8rem;
@@ -126,6 +168,10 @@ async function submitFieldData () {
     color: black;
   }
   &__submit {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    background: #9EEBCF;
+    cursor: pointer;
     &:disabled {
       cursor: not-allowed;
     }

@@ -18,7 +18,7 @@
         .report__value(v-if="field.value !== null")
           | {{ field.value }} {{ field.unit }}
         .report__value(v-else) -
-        .mt2.gray.truncate(v-if="field.note") {{ field.note }}
+        .mt2.gray.truncate(v-if="field.notes") {{ field.notes }}
       div {{ readableDate(field.updatedAt) }}
 </template>
 <script lang="ts" setup>

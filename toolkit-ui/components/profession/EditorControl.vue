@@ -32,7 +32,7 @@
       :report="report"
       :report-field="reportField"
       :field-meta="fieldMeta"
-      @next="gotoNextField"
+      @next="updateReportField"
     )
 </template>
 <script lang="ts" setup>
@@ -46,7 +46,7 @@ const props = defineProps<{
   fieldMeta: typeof fieldMetaSchema
 }>()
 
-const emit = defineEmits(['page', 'matched-pages', 'next', 'prev'])
+const emit = defineEmits(['page', 'matched-pages', 'next', 'prev', 'report-field'])
 
 const reportPageLink = computed(() => {
   return {
@@ -71,6 +71,11 @@ const isBottomFolded = ref(false)
 
 function toggleBottomSection () {
   isBottomFolded.value = !isBottomFolded.value
+}
+
+function updateReportField (reportField: typeof reportFieldSchema): void {
+  emit('report-field', reportField)
+  gotoNextField()
 }
 
 // navigation
