@@ -27,34 +27,18 @@
         template(v-else)
           | 收合填答 x 驗證區
           i.fa-solid.fa-eye-slash.ml2.f7
-    form.fieldForm.pb2.bb.b--moon-gray(
+    answer-panel(
       v-show="!isBottomFolded"
-      @submit.prevent="submitFieldData"
+      :report="report"
+      :report-field="reportField"
+      :field-meta="fieldMeta"
+      @next="gotoNextField"
     )
-      .fw5.mb2 填寫判讀結果
-      .flex.items-center.mb2
-        label.fieldForm__value.flex-auto.mr3 數值
-          input.fieldForm__input(
-            v-model.trim="fieldData.value"
-            type="text"
-            placeholder="數值"
-          )
-        label.fieldForm__unit.flex-none 單位
-          input.fieldForm__input(
-            v-model.trim="fieldData.unit"
-            type="text"
-            placeholder="單位"
-          )
-      .tr
-        button.fieldForm__submit.pv2.ph3.bw0.bg--green.tc.w4.pointer(:disabled="!canSubmitData")
-          | 儲存
 </template>
 <script lang="ts" setup>
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
-
-const { feathers } = useProfessionApi()
 
 const props = defineProps<{
   report: typeof reportSchema
@@ -84,29 +68,9 @@ function gotoPage (payload: any): void {
 // submission
 
 const isBottomFolded = ref(false)
-const fieldData = ref({ value: '', unit: '' })
-
-const canSubmitData = computed(() => {
-  return fieldData.value.value && fieldData.value.unit
-})
 
 function toggleBottomSection () {
   isBottomFolded.value = !isBottomFolded.value
-}
-
-watchEffect(() => {
-  if (props.reportField) {
-    fieldData.value.value = props.reportField.value || ''
-    fieldData.value.unit = props.reportField.unit || ''
-  }
-})
-
-async function submitFieldData () {
-  await feathers.app.service('report-field').patch(props.reportField.id, {
-    value: fieldData.value.value,
-    unit: fieldData.value.unit
-  })
-  emit('next')
 }
 
 // navigation
@@ -140,29 +104,6 @@ function gotoPrevField () {
     bottom: 0;
     background-color: #fff;
     z-index: 1;
-  }
-}
-
-.fieldForm {
-  label {
-    font-size: 0.875rem;
-    color: #666;
-  }
-  &__unit {
-    width: 6rem;
-  }
-  &__input {
-    border: none;
-    border-bottom: 1px solid #ccc;
-    outline: none;
-    width: 100%;
-    font-size: 1rem;
-    color: black;
-  }
-  &__submit {
-    &:disabled {
-      cursor: not-allowed;
-    }
   }
 }
 </style>
