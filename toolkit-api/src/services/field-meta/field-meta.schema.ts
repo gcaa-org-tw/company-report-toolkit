@@ -35,6 +35,7 @@ export const fieldMetaSchema = Type.Object(
   {
     id: Type.Number(),
     name: Type.String(),
+    historyColumnName: Type.Optional(Type.String()),
     // Accept string for sqlite3 w/ TypeScript support
     keywords: Type.Union([Type.Array(Type.String()), Type.String()], { default: [] }),
     description: Type.Optional(Type.String()),
@@ -56,7 +57,7 @@ export const fieldMetaExternalResolver = resolve<FieldMeta, HookContext<FieldMet
 
 // Schema for creating new entries
 export const fieldMetaDataSchema = Type.Pick(fieldMetaSchema, [
-  'id', 'name', 'keywords', 'description', 'dataType', 'units'
+  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'units'
 ], {
   $id: 'FieldMetaData'
 })
@@ -81,7 +82,7 @@ export const fieldMetaPatchResolver = resolve<FieldMeta, HookContext<FieldMetaSe
 
 // Schema for allowed query properties
 export const fieldMetaQueryProperties = Type.Pick(fieldMetaSchema, [
-  'id', 'name', 'keywords', 'description', 'dataType', 'units'
+  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'units'
 ])
 export const fieldMetaQuerySchema = Type.Intersect(
   [
