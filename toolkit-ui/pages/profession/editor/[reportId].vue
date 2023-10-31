@@ -4,13 +4,13 @@
     :report="report"
     :report-field="reportField"
     :field-meta="fieldMeta"
+    :focused-page="lastFocusPageIndex"
     @page="changePage"
     @matched-pages="updateMatchedPages"
     @next="gotoNextField"
     @prev="gotoPrevField"
     @report-field="updateReportField"
   )
-  // h1 kerker
   // .mv3
     .f4.mb3 最後瀏覽頁次
     .ba.b--moon-gray.pv2.ph4 {{ lastFocusPageIndex }}

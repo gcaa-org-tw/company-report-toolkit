@@ -133,7 +133,7 @@ async function gotoSelectedPage (hit) {
 }
 
 function humanPageNumber (page: number) {
-  return page + (props.report.company.pageOffset || 0)
+  return page + (props.report.pageOffset || 0)
 }
 
 // function resetSearchState () {

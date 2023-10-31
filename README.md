@@ -32,7 +32,8 @@
 
 ### Environment setup
 
-This project builds on NodeJS (https://nodejs.org/en/download) and npm using the current LTS (node v18.18.2 and npm 9 as of Oct 22).
+This project builds on NodeJS (https://nodejs.org/en/download) and npm using the
+current LTS (node v18.18.2 and npm 10 as of Oct 31, 2023).
 
 
 ```

@@ -26,6 +26,7 @@ function seed () {
       .on('data', async (data: any) => {
         const id = Number.parseInt(data.欄位編號)
         const name = data.收集欄位
+        const historyColumnName = data.ESG檢測儀欄位名稱
         const keywords = Object.keys(data)
           .filter((key) => key.includes('關鍵字'))
           .map((key) => data[key].trim())
@@ -43,6 +44,7 @@ function seed () {
           tasks.push(
             metaService.patch(id, {
               name,
+              historyColumnName,
               keywords,
               description,
               dataType,
@@ -54,6 +56,7 @@ function seed () {
             metaService.create({
               id,
               name,
+              historyColumnName,
               keywords,
               description,
               dataType,

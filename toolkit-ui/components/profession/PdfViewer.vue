@@ -7,7 +7,7 @@
           v-model.lazy="readablePageIndex"
           @keyup.enter="$event.target.blur()"
         )
-        | 頁 / 共 {{ report.totalPages }} 頁
+        | 頁 / 共 {{ totalPages }} 頁
         button.reportViewer__button.ml2.gray(@click="toggleOnSetPageOffset")
           | {{ setPageOffsetLabel }}
       .flex.items-center
@@ -63,8 +63,7 @@ const PAGE_PER_CHUNK = 10
 
 const CHECK_PDF_LIB_SOMETIME = 100
 
-const TIME_TO_GLANCE_PAGE = 100
-const TIME_TO_VIEW_PAGE = 2000
+const TIME_TO_GLANCE_PAGE = 60
 
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
@@ -98,20 +97,26 @@ const pageAnchor = ref(0)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
 
-// 1 index
+// 1 index, simple way to track fully visible page
+const nextPageIndex = ref(1)
 const curPageIndex = ref(1)
 const readablePageIndex = computed({
   get () {
-    const index = curPageIndex.value + (props.report.pageOffset || 0)
-    if (index < 1) {
-      return '-'
-    }
-    return index
+    return curPageIndex.value + (props.report.pageOffset || 0)
   },
   set (valStr: string) {
     const val = Number.parseInt(valStr, 10) - (props.report.pageOffset || 0)
     manualSetPage(val)
   }
+})
+
+const totalPages = computed(() => {
+  const pageOffset = props.report.pageOffset || 0
+  if (!pageOffset) {
+    return props.report.totalPages
+  }
+  const humanTotalPages = props.report.totalPages + pageOffset
+  return `${humanTotalPages} + ${Math.abs(pageOffset)}`
 })
 
 const isOnSetPageOffset = ref(false)
@@ -423,13 +428,13 @@ watch(pdfScale, async (newValue, prevValue) => {
 // page view
 
 const handlePageVisible = _.debounce((pageIndex: number) => {
-  curPageIndex.value = pageIndex
-  emitLastVisiblePage()
-}, TIME_TO_GLANCE_PAGE)
-
-const emitLastVisiblePage = _.debounce(() => {
+  if (pageIndex === nextPageIndex.value) {
+    return
+  }
+  curPageIndex.value = nextPageIndex.value
+  nextPageIndex.value = pageIndex
   emit('view-page', curPageIndex.value)
-}, TIME_TO_VIEW_PAGE)
+}, TIME_TO_GLANCE_PAGE)
 
 </script>
 <style lang="scss" scoped>
