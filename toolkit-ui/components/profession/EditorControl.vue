@@ -32,6 +32,7 @@
       :report="report"
       :report-field="reportField"
       :field-meta="fieldMeta"
+      :focused-page="focusedPage"
       @next="updateReportField"
     )
 </template>
@@ -44,6 +45,7 @@ const props = defineProps<{
   report: typeof reportSchema
   reportField: typeof reportFieldSchema
   fieldMeta: typeof fieldMetaSchema
+  focusedPage: number
 }>()
 
 const emit = defineEmits(['page', 'matched-pages', 'next', 'prev', 'report-field'])

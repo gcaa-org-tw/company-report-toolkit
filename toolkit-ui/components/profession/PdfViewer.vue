@@ -64,7 +64,6 @@ const PAGE_PER_CHUNK = 10
 const CHECK_PDF_LIB_SOMETIME = 100
 
 const TIME_TO_GLANCE_PAGE = 60
-const TIME_TO_VIEW_PAGE = 2000
 
 useHead({
   link: [{ rel: 'stylesheet', href: `${PDFJS_BASE}/web/pdf_viewer.css` }]
@@ -434,12 +433,8 @@ const handlePageVisible = _.debounce((pageIndex: number) => {
   }
   curPageIndex.value = nextPageIndex.value
   nextPageIndex.value = pageIndex
-  emitLastVisiblePage()
-}, TIME_TO_GLANCE_PAGE)
-
-const emitLastVisiblePage = _.debounce(() => {
   emit('view-page', curPageIndex.value)
-}, TIME_TO_VIEW_PAGE)
+}, TIME_TO_GLANCE_PAGE)
 
 </script>
 <style lang="scss" scoped>

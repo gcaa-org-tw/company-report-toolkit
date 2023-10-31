@@ -42,13 +42,17 @@
         </label>
       </div>
       <div class="flex mb2">
-        <label>
+        <label class="flex-auto mr3">
           備註
           <textarea
             v-model.trim="fieldData.notes"
-            class="answerPanel__input"
+            class="answerPanel__input mt1"
             placeholder="備註"
           />
+        </label>
+        <label class="answerPanel__answerPage flex-none">
+          答案頁次
+          <input v-model="fieldData.pageIndex" type="number" class="answerPanel__input mt1" />
         </label>
       </div>
       <div class="flex justify-between">
@@ -75,13 +79,14 @@ const props = defineProps<{
   report: typeof reportSchema
   reportField: typeof reportFieldSchema
   fieldMeta: typeof fieldMetaSchema
+  focusedPage: number
 }>()
 
 const emit = defineEmits(['next'])
 
 const { feathers } = useProfessionApi()
 
-const fieldData = ref({ value: '', unit: '', notes: '' })
+const fieldData = ref({ value: '', unit: '', notes: '', pageIndex: 0 })
 
 const canSubmitData = computed(() => {
   if (fieldData.value.notes) {
@@ -119,15 +124,30 @@ const valueInputType = computed(() => {
   return TYPE_MAP[props.fieldMeta.dataType] || 'text'
 })
 
+const pageOffset = computed(() => {
+  return props.report.pageOffset || 0
+})
+
 watchEffect(() => {
   if (props.reportField) {
     fieldData.value.value = props.reportField.value || ''
     fieldData.value.unit = props.reportField.unit || ''
     fieldData.value.notes = props.reportField.notes || ''
+    if (props.reportField.pageIndex) {
+      fieldData.value.pageIndex = props.reportField.pageIndex + pageOffset.value
+    }
   }
 })
 
+watchEffect(() => {
+  fieldData.value.pageIndex = props.focusedPage + pageOffset.value
+})
+
 async function patchReportField (data: typeof fieldData.value) {
+  data = {
+    ...data,
+    pageIndex: data.pageIndex - pageOffset.value
+  }
   await feathers.app.service('report-field').patch(props.reportField.id, data)
   emit('next', data)
 }
@@ -136,7 +156,8 @@ function submitFieldData () {
   patchReportField({
     value: fieldData.value.value.toString(),
     unit: fieldData.value.unit,
-    notes: fieldData.value.notes
+    notes: fieldData.value.notes,
+    pageIndex: fieldData.value.pageIndex
   })
 }
 
@@ -144,7 +165,8 @@ function markAsNoAnswer () {
   patchReportField({
     value: NA_VALUE,
     unit: '',
-    notes: fieldData.value.notes
+    notes: fieldData.value.notes,
+    pageIndex: fieldData.value.pageIndex
   })
 }
 
@@ -157,6 +179,9 @@ function markAsNoAnswer () {
   }
   &__unit {
     width: 8rem;
+  }
+  &__answerPage {
+    width: 4rem;
   }
   &__input {
     border: none;

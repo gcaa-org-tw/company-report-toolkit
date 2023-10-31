@@ -17,6 +17,7 @@ export const reportFieldSchema = Type.Object(
     value: Type.Optional(Type.String()),
     unit: Type.Optional(Type.String()),
     notes: Type.Optional(Type.String()),
+    pageIndex: Type.Optional(Type.Number()),
     updatedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' })
   },
@@ -51,7 +52,7 @@ export const reportFieldPatchResolver = resolve<ReportField, HookContext<ReportF
 
 // Schema for allowed query properties
 export const reportFieldQueryProperties = Type.Pick(reportFieldSchema, [
-  'id', 'fieldId', 'reportId', 'value', 'unit', 'notes', 'updatedAt', 'createdAt'
+  'id', 'fieldId', 'reportId', 'value', 'unit', 'notes', 'pageIndex', 'updatedAt', 'createdAt'
 ])
 export const reportFieldQuerySchema = Type.Intersect(
   [
