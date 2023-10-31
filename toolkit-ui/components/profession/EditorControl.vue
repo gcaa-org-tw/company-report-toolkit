@@ -37,12 +37,6 @@
         :focused-page="focusedPage"
         @next="updateReportField"
       )
-    .mt3(v-show="!isBottomFolded")
-      verify-panel(
-        :report="report"
-        :report-field="reportField"
-        :field-meta="fieldMeta"
-      )
 </template>
 <script lang="ts" setup>
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'

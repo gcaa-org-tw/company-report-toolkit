@@ -68,6 +68,12 @@
         >儲存</button>
       </div>
     </form>
+    <VerifyPanel
+      :report="report"
+      :report-field="reportField"
+      :field-meta="fieldMeta"
+      :cur-value="fieldData.value"
+    />
   </div>
 </template>
 <script lang="ts" setup>
