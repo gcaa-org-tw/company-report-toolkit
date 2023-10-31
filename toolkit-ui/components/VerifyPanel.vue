@@ -118,7 +118,7 @@ watchEffect(() => {
     white-space: nowrap;
     position: sticky;
     left: 0;
-    background: white;
+    background: $answerPanelBg;
     padding-right: 0.25rem;
   }
 }
