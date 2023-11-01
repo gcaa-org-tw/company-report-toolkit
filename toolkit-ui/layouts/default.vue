@@ -5,6 +5,7 @@
     nuxt-link.gray.no-underline(to="/call-for-g0ver") 登入後台
   main
     slot
+  nuxt-snackbar
 </template>
 <script setup lang="ts">
 const route = useRoute()

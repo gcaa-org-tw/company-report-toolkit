@@ -9,7 +9,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
     '@nuxtjs/eslint-module',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    'nuxt-snackbar'
   ],
   css: [
     'tachyons/css/tachyons.css',
@@ -24,6 +25,10 @@ export default defineNuxtConfig({
         { hid: 'pdf-viewer-js', src: `${PDFJS_BASE}/web/pdf_viewer.js` }
       ]
     }
+  },
+  snackbar: {
+    bottom: true,
+    duration: 5000
   },
   vite: {
     plugins: [

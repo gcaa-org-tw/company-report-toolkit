@@ -1,6 +1,6 @@
 <template>
   <div class="answerPanel">
-    <form class="answerPanel__form pb2 bb b--moon-gray" @submit.prevent="submitFieldData">
+    <form class="answerPanel__form pb2 mb3 bb b--moon-gray" @submit.prevent="submitFieldData">
       <div class="fw5 mb2">{{ titleLabel }}</div>
       <div class="flex items-center mb2">
         <div class="answerPanel__value flex-auto mr3">
