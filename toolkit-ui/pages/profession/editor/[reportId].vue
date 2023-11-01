@@ -77,7 +77,7 @@ const progressMessage = computed(() => {
   const totalField = reportFieldList.value.length
   const remainedField = totalField - completedField
 
-  if (!remainedField || remainedField) {
+  if (!remainedField) {
     return COMPLETED_MESSAGE
   } else if (remainedField <= LAST_N_FIELDS) {
     return `最後 ${remainedField} 個欄位！ 🧙`
