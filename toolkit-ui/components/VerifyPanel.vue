@@ -83,10 +83,10 @@ const fieldHistory = computed(() => {
 
   const rawHistory = historyData.value
     .filter((history) => {
-      return historyColumnName === history.項目
+      return historyColumnName === history.項目 && !!history.來自公司報告
     })
     .sort((a, b) => {
-      return a.年份 - b.年份
+      return b.年份 - a.年份
     })
     .map((history) => {
       return {
@@ -101,12 +101,12 @@ const fieldHistory = computed(() => {
         ...history,
         diffLabel: '-'
       }
-      if (i > 0) {
-        ret.diffLabel = genDiffLabel(ret, rawHistory[i - 1])
+      if (i < rawHistory.length - 1) {
+        ret.diffLabel = genDiffLabel(ret, rawHistory[i + 1])
       }
       return ret
     })
-    .slice(-MAX_YEAR_AGO)
+    .slice(0, MAX_YEAR_AGO)
 })
 
 const allHistory = computed(() => {
@@ -118,11 +118,11 @@ const allHistory = computed(() => {
     value: props.curValue,
     diffLabel: '-'
   }
-  thisYear.diffLabel = genDiffLabel(thisYear, fieldHistory.value[fieldHistory.value.length - 1])
+  thisYear.diffLabel = genDiffLabel(thisYear, fieldHistory.value[0])
 
   return [
-    ...fieldHistory.value,
-    thisYear
+    thisYear,
+    ...fieldHistory.value
   ]
 })
 
