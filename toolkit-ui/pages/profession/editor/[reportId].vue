@@ -48,14 +48,42 @@ const reportField = computed(() => {
   return target || reportFieldList.value[0]
 })
 
+const snackbar = useSnackbar()
+const COMPLETED_MESSAGE = '看完收工！ 🎉 找找頁面左上角，就能回上一層'
+
 function updateReportField (newValue: typeof reportFieldSchema) {
   Object.keys(newValue).forEach((key) => {
     reportField.value[key] = newValue[key]
+  })
+  const duration = progressMessage.value === COMPLETED_MESSAGE ? 8000 : 4000
+  snackbar.add({
+    type: 'success',
+    duration,
+    text: progressMessage.value
   })
 }
 
 const fieldMeta = computed(() => {
   return meta(reportField.value)
+})
+
+const LAST_N_FIELDS = 5
+const progressMessage = computed(() => {
+  const completedField = reportFieldList.value
+    .filter((field: typeof reportFieldSchema) => {
+      return !!field.value
+    }).length
+
+  const totalField = reportFieldList.value.length
+  const remainedField = totalField - completedField
+
+  if (!remainedField || remainedField) {
+    return COMPLETED_MESSAGE
+  } else if (remainedField <= LAST_N_FIELDS) {
+    return `最後 ${remainedField} 個欄位！ 🧙`
+  } else {
+    return `已完成 ${completedField} / ${totalField} 個欄位 🤖`
+  }
 })
 
 // navigation & search

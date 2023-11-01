@@ -42,6 +42,7 @@
     "csv-parse": "^5.5.2",
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
+    "nuxt-snackbar": "^1.0.4",
     "sass": "^1.64.0",
     "socket.io-client": "^4.7.2",
     "tachyons": "^4.12.0",

@@ -136,12 +136,6 @@ function humanPageNumber (page: number) {
   return page + (props.report.pageOffset || 0)
 }
 
-// function resetSearchState () {
-//   keywordResults.value = []
-//   predefinedKeyword.value = ''
-//   customizedKeyword.value = ''
-// }
-
 </script>
 <style lang="scss" scoped>
 .searchPanel {
