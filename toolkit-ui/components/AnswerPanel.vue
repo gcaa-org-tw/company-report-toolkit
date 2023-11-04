@@ -37,7 +37,13 @@
         </div>
         <label v-show="shouldShowUnit" class="answerPanel__unit flex-none">
           單位
-          <select v-model="fieldData.unit" name="answerUnit" class="answerPanel__input">
+          <input
+            v-if="fieldMeta.isCustomUnit"
+            v-model="fieldData.unit"
+            type="text"
+            class="answerPanel__input"
+          />
+          <select v-else v-model="fieldData.unit" name="answerUnit" class="answerPanel__input">
             <option v-for="unit in fieldMeta.units" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </label>
@@ -139,6 +145,9 @@ watchEffect(() => {
   if (props.reportField) {
     fieldData.value.value = props.reportField.value || ''
     fieldData.value.unit = props.reportField.unit || ''
+    if (props.fieldMeta.units.length === 1 && !fieldData.value.unit) {
+      fieldData.value.unit = props.fieldMeta.units[0]
+    }
     fieldData.value.notes = props.reportField.notes || ''
     if (props.reportField.pageIndex) {
       fieldData.value.pageIndex = props.reportField.pageIndex + pageOffset.value
