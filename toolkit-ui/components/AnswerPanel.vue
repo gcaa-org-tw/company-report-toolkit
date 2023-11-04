@@ -112,7 +112,7 @@ const canSubmitData = computed(() => {
   if (fieldData.value.notes) {
     return true
   }
-  return fieldData.value.value && (fieldData.value.unit || !shouldShowUnit.value)
+  return fieldData.value.value !== '' && (fieldData.value.unit || !shouldShowUnit.value)
 })
 
 const NA_VALUE = 'NA'
