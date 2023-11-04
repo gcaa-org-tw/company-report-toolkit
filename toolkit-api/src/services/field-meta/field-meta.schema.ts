@@ -56,7 +56,8 @@ export type FieldMeta = Static<typeof fieldMetaSchema>
 export const fieldMetaValidator = getValidator(fieldMetaSchema, dataValidator)
 export const fieldMetaResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({
   keywords: genConvertToJson('keywords'),
-  units: genConvertToJson('units')
+  units: genConvertToJson('units'),
+  unitTransformer: genConvertToJson('unitTransformer'),
 })
 
 export const fieldMetaExternalResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({})

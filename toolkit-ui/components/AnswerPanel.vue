@@ -79,7 +79,7 @@
       :report="report"
       :report-field="reportField"
       :field-meta="fieldMeta"
-      :cur-value="fieldData.value"
+      :cur-filed-data="fieldData"
     />
   </div>
 </template>
@@ -99,7 +99,14 @@ const emit = defineEmits(['next'])
 
 const { feathers } = useProfessionApi()
 
-const fieldData = ref({ value: '', unit: '', notes: '', pageIndex: 0 })
+export type FieldData = {
+  value: string | number,
+  unit: string,
+  notes?: string,
+  pageIndex?: number
+}
+
+const fieldData = ref<FieldData>({ value: '', unit: '', notes: '', pageIndex: 0 })
 
 const canSubmitData = computed(() => {
   if (fieldData.value.notes) {
