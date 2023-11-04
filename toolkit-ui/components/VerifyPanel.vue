@@ -1,6 +1,6 @@
 <template>
   <div class="verifyPanel">
-    <div class="fw5 mb2">{{ titleLabel }}</div>
+    <div class="fw5 mb2">{{ titleLabel }}{{ unitLabel }}</div>
     <div v-if="fieldHistory.length" class="verifyPanel__table f6 pb3 relative" :style="tableStyle">
       <div class="verifyPanel__head verifyPanel__head--bt">年度</div>
       <div
@@ -28,12 +28,14 @@ import { parse } from 'csv-parse/browser/esm/sync'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
+import { FieldData } from './AnswerPanel.vue'
+import { normalizeReportFiledValue } from '~/utils/fieldMetaUtils'
 
 const props = defineProps<{
   report: typeof reportSchema
   reportField: typeof reportFieldSchema
   fieldMeta: typeof fieldMetaSchema,
-  curValue: string | number
+  curFiledData: FieldData
 }>()
 
 const HISTORY_ENDPOINT = 'https://thaubing-esg.gcaa.org.tw/content/company/'
@@ -58,10 +60,17 @@ const titleLabel = computed(() => {
   }
 })
 
+const unitLabel = computed(() => {
+  if (!fieldHistory.value.length || !props.fieldMeta.defaultUnit) {
+    return ''
+  }
+  return ` (${props.fieldMeta.defaultUnit})`
+})
+
 const historyData = shallowRef<historyDataType[]>()
 
 function genDiffLabel (cur: any, prev: any) {
-  const diff = Number.parseFloat(prev.value) - Number.parseFloat(cur.value)
+  const diff = Number.parseFloat(cur.value) - Number.parseFloat(prev.value)
   let diffLabel = '-'
   if (Number.isNaN(diff)) {
     return diffLabel
@@ -113,9 +122,10 @@ const allHistory = computed(() => {
   if (!fieldHistory.value.length) {
     return []
   }
+
   const thisYear = {
     year: props.report.year,
-    value: props.curValue,
+    value: normalizeReportFiledValue(props.curFiledData, props.fieldMeta),
     diffLabel: '-'
   }
   thisYear.diffLabel = genDiffLabel(thisYear, fieldHistory.value[0])
@@ -144,9 +154,12 @@ async function getHistoryData () {
   })
 }
 
-function beautifyValue (value: string) {
+function beautifyValue (value: string | number) {
   if (props.fieldMeta.dataType === 'number') {
-    return Number.parseFloat(value).toLocaleString()
+    if (typeof value === 'string') {
+      value = Number.parseFloat(value)
+    }
+    return value.toLocaleString()
   }
   return value.toLocaleString()
 }

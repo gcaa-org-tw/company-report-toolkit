@@ -33,34 +33,43 @@ function seed () {
           .filter(Boolean)
         const description = data.欄位說明
         const dataType = getDataType(data.欄位類型)
+        const numberStep = data.數值最小單位.toString() || '1'
+        const defaultUnit = (data.匯出單位 as string).trim()
         const units = (data.單位備選 as string)
-          .split('／')
+          .split(/[\/／]/)
           .map(unit => unit.trim())
-          .filter(unit => !!unit && unit !== 'NA' && unit !== '無')
+          .filter(unit => !!unit && unit !== 'NA')
+
+        const unitTransformer = (data.單位換算 as string)
+          .split(/[\/／]/)
+          .map(unit => Number.parseFloat(unit.trim()))
+          .filter(unit => !!unit)
+
+        const isCustomUnit = units.length === 1 && units[0] === '自填'
 
         const existing = await metaService.find({ query: { id, $limit: 0 }})
         resolve(null)
+        const payload = {
+          name,
+          historyColumnName,
+          keywords,
+          description,
+          dataType,
+          numberStep,
+          units,
+          defaultUnit,
+          unitTransformer,
+          isCustomUnit
+        } as any
         if (existing.total) {
           tasks.push(
-            metaService.patch(id, {
-              name,
-              historyColumnName,
-              keywords,
-              description,
-              dataType,
-              units
-            })
+            metaService.patch(id, payload)
           )
         } else {
           tasks.push(
             metaService.create({
               id,
-              name,
-              historyColumnName,
-              keywords,
-              description,
-              dataType,
-              units
+              ...payload
             })
           )
         }

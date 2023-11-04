@@ -154,7 +154,7 @@ function reloadPage () {
 <style lang="scss">
 .editor {
   display: grid;
-  grid-template-columns: 20rem 1fr;
+  grid-template-columns: $editorWidth 1fr;
 
   &__control {
     height: calc(100vh - #{$bannerHeight});

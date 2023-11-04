@@ -21,6 +21,13 @@ import { reportPath, reportMethods } from './report.shared'
 export * from './report.class'
 export * from './report.schema'
 
+function setHasSetPageOffsetIfNeeded (context: HookContext) {
+  const { data } = context
+  if (data && 'pageOffset' in data) {
+    data.hasSetPageOffset = true
+  }
+}
+
 // A configure function that registers the service and its hooks via `app.configure`
 export const report = (app: Application) => {
   // Register our service on the Feathers application
@@ -44,7 +51,11 @@ export const report = (app: Application) => {
       find: [],
       get: [],
       create: [schemaHooks.validateData(reportDataValidator), schemaHooks.resolveData(reportDataResolver)],
-      patch: [schemaHooks.validateData(reportPatchValidator), schemaHooks.resolveData(reportPatchResolver)],
+      patch: [
+        schemaHooks.validateData(reportPatchValidator),
+        schemaHooks.resolveData(reportPatchResolver),
+        setHasSetPageOffsetIfNeeded
+      ],
       remove: []
     },
     after: {

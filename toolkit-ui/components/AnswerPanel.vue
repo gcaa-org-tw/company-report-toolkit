@@ -9,7 +9,7 @@
             <input
               v-model.trim="fieldData.value"
               :type="valueInputType"
-              step="0.001"
+              :step="fieldMeta.numberStep || 1"
               class="answerPanel__input"
               placeholder="數值"
             />
@@ -37,7 +37,13 @@
         </div>
         <label v-show="shouldShowUnit" class="answerPanel__unit flex-none">
           單位
-          <select v-model="fieldData.unit" name="answerUnit" class="answerPanel__input">
+          <input
+            v-if="fieldMeta.isCustomUnit"
+            v-model="fieldData.unit"
+            type="text"
+            class="answerPanel__input"
+          />
+          <select v-else v-model="fieldData.unit" name="answerUnit" class="answerPanel__input">
             <option v-for="unit in fieldMeta.units" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </label>
@@ -73,7 +79,7 @@
       :report="report"
       :report-field="reportField"
       :field-meta="fieldMeta"
-      :cur-value="fieldData.value"
+      :cur-filed-data="fieldData"
     />
   </div>
 </template>
@@ -93,13 +99,20 @@ const emit = defineEmits(['next'])
 
 const { feathers } = useProfessionApi()
 
-const fieldData = ref({ value: '', unit: '', notes: '', pageIndex: 0 })
+export type FieldData = {
+  value: string | number,
+  unit: string,
+  notes?: string,
+  pageIndex?: number
+}
+
+const fieldData = ref<FieldData>({ value: '', unit: '', notes: '', pageIndex: 0 })
 
 const canSubmitData = computed(() => {
   if (fieldData.value.notes) {
     return true
   }
-  return fieldData.value.value && (fieldData.value.unit || !shouldShowUnit.value)
+  return fieldData.value.value !== '' && (fieldData.value.unit || !shouldShowUnit.value)
 })
 
 const NA_VALUE = 'NA'
@@ -139,6 +152,9 @@ watchEffect(() => {
   if (props.reportField) {
     fieldData.value.value = props.reportField.value || ''
     fieldData.value.unit = props.reportField.unit || ''
+    if (props.fieldMeta.units.length === 1 && !fieldData.value.unit) {
+      fieldData.value.unit = props.fieldMeta.units[0]
+    }
     fieldData.value.notes = props.reportField.notes || ''
     if (props.reportField.pageIndex) {
       fieldData.value.pageIndex = props.reportField.pageIndex + pageOffset.value

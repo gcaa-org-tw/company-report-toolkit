@@ -47,7 +47,11 @@
           :style="maskStyle"
           @click="setPageOne(index + 1)"
         )
-          .flex.items-center.justify-center.h-100.f3.fw6
+          .flex.flex-column.items-center.justify-around.h-100.f3.fw6
+            .reportViewer__maskLabel.pv3.ph4.br2
+              | 設定為第一頁
+            .reportViewer__maskLabel.pv3.ph4.br2
+              | 設定為第一頁
             .reportViewer__maskLabel.pv3.ph4.br2
               | 設定為第一頁
 </template>
@@ -55,6 +59,7 @@
 import _ from 'lodash'
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
 
+const snackbar = useSnackbar()
 const { feathers } = useProfessionApi()
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
@@ -120,6 +125,20 @@ const totalPages = computed(() => {
 })
 
 const isOnSetPageOffset = ref(false)
+
+function initIsOnSetPageOffset () {
+  if (props.report.hasSetPageOffset) {
+    isOnSetPageOffset.value = false
+  } else {
+    isOnSetPageOffset.value = true
+    snackbar.add({
+      type: 'warning',
+      text: '歡迎光臨，我們先校正報告書的第一頁吧 🍥',
+      duration: 5000
+    })
+  }
+}
+
 const toggleOnSetPageOffset = () => {
   isOnSetPageOffset.value = !isOnSetPageOffset.value
 }
@@ -287,15 +306,6 @@ function resetViewer () {
   scaleMeta.value.widthScale = 0
 }
 
-watchEffect(() => {
-  if (!pdfLinkBase.value || !isLibLoaded.value || !isMounted.value) {
-    return
-  }
-  resetViewer()
-
-  renderMainPage()
-})
-
 function getPageChunkIndex (pageIndex: number) {
   //  1 -> return 001
   // 10 -> return 001
@@ -350,6 +360,18 @@ const loadPageSlowly = _.debounce((pageIndex: number) => {
 const isMounted = useMounted()
 // const { width: pageWidth } = useWindowSize()
 const scrollerEle = ref(null)
+
+watchOnce(
+  () => {
+    return pdfLinkBase.value && !isLibLoaded.value && !isMounted.value
+  },
+  () => {
+    resetViewer()
+
+    renderMainPage()
+    initIsOnSetPageOffset()
+  }
+)
 
 function getAnchorPageTop (page: number) {
   const pageEleList = scrollerEle.value.querySelectorAll('.reportViewer__page')
@@ -459,6 +481,7 @@ const handlePageVisible = _.debounce((pageIndex: number) => {
   &__page {
     &--mask {
       background: #8802;
+      backdrop-filter: grayscale(1) brightness(0.5);
       top: -0.625rem;
       position: relative;
       z-index: 2;

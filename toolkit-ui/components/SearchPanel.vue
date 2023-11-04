@@ -86,7 +86,11 @@ async function searchKeyword () {
     ],
     hitsPerPage: 100
   })
-  keywordResults.value = hits
+  keywordResults.value = hits.filter((hit) => {
+    // pdf2html parse hidden page as well XD
+    // hide it to avoid confusion
+    return hit.page <= props.report.totalPages
+  })
   curSearchHit.value = null
 }
 
