@@ -20,9 +20,9 @@
         @matched-pages="updateMatchedPages"
         @page="gotoPage"
       )
-  .editorControl__keepBottom.pb3.pt2.ph3.bt.b--moon-gray.shadow-1
+  .editorControl__keepBottom.pv2.ph3.bt.ba.b--moon-gray.shadow-1.br2
     .flex.justify-end
-      button.pv1.ph3.ba.bg-white.pointer.f6.gray.flex.items-baseline(@click="toggleBottomSection")
+      button.pv2.ph3.ba.bg-dark-gray.white.br2.pointer.f6.flex.items-baseline(@click="toggleBottomSection")
         template(v-if="isBottomFolded")
           | 展開填答 x 驗證區
           i.fa-solid.fa-eye.ml2.f7
@@ -109,10 +109,12 @@ function gotoPrevField () {
   }
 
   &__keepBottom {
-    position: sticky;
-    bottom: 0;
+    width: $editorWidth;
+    position: fixed;
+    bottom: 0.5rem;
+    right: 0.5rem;
     background-color: $answerPanelBg;
-    z-index: 1;
+    z-index: 1000;
   }
 }
 </style>
