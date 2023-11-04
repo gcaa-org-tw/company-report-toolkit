@@ -9,7 +9,7 @@
             <input
               v-model.trim="fieldData.value"
               :type="valueInputType"
-              step="0.001"
+              :step="fieldMeta.numberStep || 1"
               class="answerPanel__input"
               placeholder="數值"
             />
