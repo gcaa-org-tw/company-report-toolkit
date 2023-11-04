@@ -40,8 +40,14 @@ export const fieldMetaSchema = Type.Object(
     keywords: Type.Union([Type.Array(Type.String()), Type.String()], { default: [] }),
     description: Type.Optional(Type.String()),
     dataType: FieldMetaDataType,
+    // use string instead of number to avoid precision loss
+    numberStep: Type.String({ default: 1 }),
     // Accept string for sqlite3 w/ TypeScript support
     units: Type.Union([Type.Array(Type.String()), Type.String()], { default: [] }),
+    defaultUnit: Type.Optional(Type.String()),
+    // Accept string for sqlite3 w/ TypeScript support
+    unitTransformer: Type.Union([Type.Array(Type.Number()), Type.String()], { default: [] }),
+    isCustomUnit: Type.Boolean({ default: false }),
     createdAt: Type.String({ format: 'date-time' })
   },
   { $id: 'FieldMeta', additionalProperties: false }
@@ -57,7 +63,8 @@ export const fieldMetaExternalResolver = resolve<FieldMeta, HookContext<FieldMet
 
 // Schema for creating new entries
 export const fieldMetaDataSchema = Type.Pick(fieldMetaSchema, [
-  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'units'
+  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'numberStep',
+  'units', 'defaultUnit', 'unitTransformer', 'isCustomUnit'
 ], {
   $id: 'FieldMetaData'
 })
@@ -66,6 +73,7 @@ export const fieldMetaDataValidator = getValidator(fieldMetaDataSchema, dataVali
 export const fieldMetaDataResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({
   keywords: async (value: any) => JSON.stringify(value),
   units: async (value: any) => JSON.stringify(value),
+  unitTransformer: async (value: any) => JSON.stringify(value),
   createdAt: async () => dayjs().toISOString()
 })
 
@@ -77,12 +85,14 @@ export type FieldMetaPatch = Static<typeof fieldMetaPatchSchema>
 export const fieldMetaPatchValidator = getValidator(fieldMetaPatchSchema, dataValidator)
 export const fieldMetaPatchResolver = resolve<FieldMeta, HookContext<FieldMetaService>>({
   keywords: async (value: any) => JSON.stringify(value),
-  units: async (value: any) => JSON.stringify(value)
+  units: async (value: any) => JSON.stringify(value),
+  unitTransformer: async (value: any) => JSON.stringify(value)
 })
 
 // Schema for allowed query properties
 export const fieldMetaQueryProperties = Type.Pick(fieldMetaSchema, [
-  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'units'
+  'id', 'name', 'historyColumnName', 'keywords', 'description', 'dataType', 'numberStep',
+  'units', 'defaultUnit', 'unitTransformer', 'isCustomUnit'
 ])
 export const fieldMetaQuerySchema = Type.Intersect(
   [
