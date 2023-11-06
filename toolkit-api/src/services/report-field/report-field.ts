@@ -31,8 +31,10 @@ const updateReportStats = async (context: HookContext) => {
 
   const answeredFields = await reportFieldService.find({
     query: {
-      reportId,
-      value: { $ne: null }
+      $or: [
+        { reportId, value: { $ne: null } },
+        { reportId, notes: { $ne: null } }
+      ]
     }
   })
   reportService.patch(reportId, {
