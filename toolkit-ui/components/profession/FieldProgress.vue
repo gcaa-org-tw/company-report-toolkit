@@ -32,19 +32,26 @@ const props = withDefaults(defineProps<{
   isIndustry: true
 })
 
+const MIN_WIDTH = 0.08
+
 const progressItems = computed(() => {
   const ret = []
   const total = props.progress.total || props.progress.totalFields || 1
+  const minCount = Math.ceil(total * MIN_WIDTH)
   const isVerified = props.isIndustry ? props.progress.isVerified || 0 : 0
   const answered = (props.progress.answered || props.progress.answeredFields || 0) - isVerified
   const remaining = total - answered - isVerified
+
+  const isVerifiedWidth = isVerified ? Math.max(isVerified, minCount) : 0
+  const answeredWidth = answered ? Math.max(answered, minCount) : 0
+  const remainingWidth = total - isVerifiedWidth - answeredWidth
 
   if (isVerified) {
     ret.push({
       abbr: '驗',
       title: '已驗證',
       value: isVerified,
-      width: `${isVerified / total * 100}%`,
+      width: `${isVerifiedWidth / total * 100}%`,
       bg: 'bg-green'
     })
   }
@@ -53,7 +60,7 @@ const progressItems = computed(() => {
       abbr: '判',
       title: '判讀完成',
       value: answered,
-      width: `${answered / total * 100}%`,
+      width: `${answeredWidth / total * 100}%`,
       bg: 'bg-gold'
     })
   }
@@ -62,7 +69,7 @@ const progressItems = computed(() => {
       abbr: '待',
       title: '待判讀',
       value: remaining,
-      width: `${remaining / total * 100}%`,
+      width: `${remainingWidth / total * 100}%`,
       bg: 'bg-moon-gray'
     })
   }
