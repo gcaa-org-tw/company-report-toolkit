@@ -21,28 +21,43 @@
       >{{ theType }}</button>
     </div>
     <div class="pa4">
-      <NuxtLink
-        v-for="field in visibleReportFieldList"
-        :key="field.id"
-        :to="editorLink(report, field)"
-        class="report__field pv3 ph2 bb b--moon-gray no-underline black dim"
-      >
-        <div>
-          <div class="fw5 mb1">{{ meta(field).name }}</div>
-          <div class="f6 gray truncate"> {{ meta(field).description }}</div>
+      <template v-if="!visibleReportFieldList.length">
+        <div class="mv5 f4 fw5 tc">
+          <template v-if="filter === filterType.pending">
+            所有欄位都判讀完畢 🧙🧙🧙
+          </template>
+          <template v-else-if="filter === filterType.isAnswered">
+            你是跳坑這本的勇者嗎？請點上面的「待判讀」，挑個喜歡的欄位開始吧 🐈
+          </template>
+          <template v-else>
+            此分類無資料
+          </template>
         </div>
-        <div>
-          <div v-if="field.value !== null" class="report__value">
-            {{ field.value }} {{ field.unit }}
+      </template>
+      <template v-else>
+        <NuxtLink
+          v-for="field in visibleReportFieldList"
+          :key="field.id"
+          :to="editorLink(report, field)"
+          class="report__field pv3 ph2 bb b--moon-gray no-underline black dim"
+        >
+          <div>
+            <div class="fw5 mb1">{{ meta(field).name }}</div>
+            <div class="f6 gray truncate"> {{ meta(field).description }}</div>
           </div>
-          <div v-else class="report__value"> - </div>
-          <div v-if="field.notes" class="mt2 gray truncate">
-            {{ field.notes }}
+          <div>
+            <div v-if="field.value !== null" class="report__value">
+              {{ field.value }} {{ field.unit }}
+            </div>
+            <div v-else class="report__value"> - </div>
+            <div v-if="field.notes" class="mt2 gray truncate">
+              {{ field.notes }}
+            </div>
           </div>
-        </div>
-        <div class="nowrap self-center">{{ readableDate(field.updatedAt) }}</div>
-        <i class="fa-solid fa-arrow-right self-center"></i>
-      </NuxtLink>
+          <div class="nowrap self-center">{{ readableDate(field.updatedAt) }}</div>
+          <i class="fa-solid fa-arrow-right self-center"></i>
+        </NuxtLink>
+      </template>
     </div>
   </div>
 </template>
