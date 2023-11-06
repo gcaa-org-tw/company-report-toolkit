@@ -1,34 +1,90 @@
-<template lang="pug">
-.report.pa4.lh-copy(v-if="isDataReady")
-  .pb4.bb.b--moon-gray.mb5
-    h1.tc.f2.fw6.mb2 {{ report.company.industry }} | {{ report.company.name }}
-    p.tc.f3.mv2 已判讀 {{ report.answeredFields }} / {{ report.totalFields }} 欄
-    .w5.center
-      profession-field-progress(:progress="report" :is-industry="false")
-  .pa4
-    nuxt-link.report__field.pv3.ph2.bb.b--moon-gray.no-underline.black.dim(
-      v-for="field in reportFieldList"
-      :key="field.id"
-      :to="editorLink(report, field)"
-    )
-      div
-        .fw5.mb1 {{ meta(field).name }}
-        .f6.gray.truncate {{ meta(field).description }}
-      div
-        .report__value(v-if="field.value !== null")
-          | {{ field.value }} {{ field.unit }}
-        .report__value(v-else) -
-        .mt2.gray.truncate(v-if="field.notes") {{ field.notes }}
-      div {{ readableDate(field.updatedAt) }}
+<template>
+  <div v-if="isDataReady" class="report pa4 lh-copy">
+    <div class="pb4">
+      <h1 class="tc f2 fw6 mb2">
+        {{ report.company.industry }} | {{ report.company.name }}
+      </h1>
+      <p class="tc f3 mv2">
+        已判讀 {{ report.answeredFields }} / {{ report.totalFields }} 欄
+      </p>
+      <div class="w5 center">
+        <ProfessionFieldProgress :progress="report" :is-industry="false" />
+      </div>
+    </div>
+    <div class="bb bt b--moon-gray flex items-center justify-center pa4 mb4">
+      <button
+        v-for="theType in Object.values(filterType)"
+        :key="theType"
+        class="report__filter bg-white pv2 ph3 ba b--light-gray br2 dim pointer"
+        :class="{ 'bg-green': filter === theType }"
+        @click="changeFilter(theType)"
+      >{{ theType }}</button>
+    </div>
+    <div class="pa4">
+      <NuxtLink
+        v-for="field in visibleReportFieldList"
+        :key="field.id"
+        :to="editorLink(report, field)"
+        class="report__field pv3 ph2 bb b--moon-gray no-underline black dim"
+      >
+        <div>
+          <div class="fw5 mb1">{{ meta(field).name }}</div>
+          <div class="f6 gray truncate"> {{ meta(field).description }}</div>
+        </div>
+        <div>
+          <div v-if="field.value !== null" class="report__value">
+            {{ field.value }} {{ field.unit }}
+          </div>
+          <div v-else class="report__value"> - </div>
+          <div v-if="field.notes" class="mt2 gray truncate">
+            {{ field.notes }}
+          </div>
+        </div>
+        <div class="nowrap self-center">{{ readableDate(field.updatedAt) }}</div>
+        <i class="fa-solid fa-arrow-right self-center"></i>
+      </NuxtLink>
+    </div>
+  </div>
 </template>
 <script lang="ts" setup>
 import dayjs from 'dayjs'
+import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 
 const route = useRoute()
+
+enum filterType {
+  all = '所有欄位',
+  pending = '待判讀',
+  isAnswered = '判讀完成'
+}
+
+const filter = ref(filterType.pending)
+
+function changeFilter (type: filterType) {
+  filter.value = type
+}
+
 const reportId = computed(() => {
   return Number.parseInt(route.params.reportId as string)
 })
 const { report, reportFieldList, isDataReady, meta } = useReport(reportId.value)
+
+function isFieldEmpty (field: typeof reportFieldSchema) {
+  return !field.value && !field.notes
+}
+
+const visibleReportFieldList = computed(() => {
+  if (filter.value === filterType.all) {
+    return reportFieldList.value
+  }
+  let validator = isFieldEmpty
+  if (filter.value === filterType.isAnswered) {
+    validator = (field: typeof reportFieldSchema) => {
+      return !isFieldEmpty(field)
+    }
+  }
+  return reportFieldList.value.filter(validator)
+})
 
 function readableDate (date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
@@ -51,9 +107,15 @@ function editorLink (report, field) {
 
   &__field {
     display: grid;
-    grid-template-columns: 40% 40% 20%;
+    grid-template-columns: 1fr 1fr 10rem 2rem;
     grid-gap: 1rem;
     margin-bottom: 1rem;
+  }
+
+  &__filter {
+    &:not(:last-child) {
+      margin-right: 1rem;
+    }
   }
 }
 </style>
