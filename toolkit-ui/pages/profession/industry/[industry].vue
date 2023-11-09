@@ -1,73 +1,62 @@
 <template lang="pug">
-.industry.pa4.lh-copy(v-if="reportList.length")
+.industry.pa4.lh-copy(v-if="reportList.length" :class="{ 'industry--wide': isDetailMode }")
   .pb3
     h1.tc.f2.fw6.mb2 {{ industryName }}
     p.tc.f3.mv2 {{ industryStats.total }} 本
     .w5.center
       profession-field-progress(:progress="industryStats")
-  .pv3.mb4.bt.bb.b--moon-gray.flex.justify-center
-    button.industry__filter.bg-white.pv2.ph3.ba.b--light-gray.br2.dim.pointer(
-      v-for="theType in Object.values(filterType)"
-      :key="theType"
-      :class="{ 'bg-green': filter === theType }"
-      @click="changeFilter(theType)"
-    ) {{ theType }}
-  .pa4
-    .industry__report
-      .industry__cell 公司名稱
-      .industry__cell 年份
-      .industry__cell 進度
-      .industry__cell 更新時間
-    template(v-if="visibleReportList.length")
-      nuxt-link.industry__report.black.dim.no-underline(
-        v-for="report in visibleReportList"
-        :key="report.id"
-        :to="`/profession/report/${report.id}`"
-      )
-        .industry__cell {{ report.company.name }}
-        .industry__cell {{ report.year }}
-        .industry__cell
-          profession-field-progress(:progress="report" :is-industry="false")
-        .industry__cell {{ readableDate(report.updatedAt) }}
-    .pa2.tc(v-else) 此分類無 資料
+  .pv3.mb4.bt.bb.b--moon-gray.flex.justify-between
+    div(:class="{ 'o-80': isDetailMode }")
+      button.industry__filter.bg-white.pv2.ph3.ba.b--light-gray.br2.dim.pointer(
+        v-for="theType in Object.values(FilterType)"
+        :key="theType"
+        :class="{ 'bg-green': filter === theType, 'moon-gray': isDetailMode }"
+        @click="changeFilter(theType)"
+      ) {{ theType }}
+    .industry__modeList
+      button.industry__mode.bg-white.pv2.ph3.ba.b-light-green.b--light-gray.br2.dim.pointer(
+        v-for="theMode in Object.values(PageMode)"
+        :key="theMode"
+        :class="{ 'industry__mode--active': pageMode === theMode }"
+        @click="pageMode = theMode"
+      ) {{ theMode }}
+  div(v-if="isDetailMode")
+    ProfessionIndustryDetail
+  .pa4(v-else)
+    ProfessionReportList(:report-list="reportList" :filter="filter")
 </template>
-<script lang="ts" setup>
-import dayjs from 'dayjs'
+<script lang="ts">
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import type { IndustryStatsMap } from '~/utils/industryStats'
 
-const route = useRoute()
-const industryName = route.params.industry as string
-const { feathers } = useProfessionApi()
-
-enum filterType {
+export enum FilterType {
   all = '全部',
   verified = '已驗證',
   isAnswered = '判讀完成',
   pending = '待判讀'
 }
 
-const reportList = ref([])
-const filter = ref(filterType.all)
-
-function changeFilter (type: filterType) {
-  filter.value = type
+enum PageMode {
+  list = '報告書列表',
+  detail = '所有欄位資料'
 }
 
-const visibleReportList = computed(() => {
-  if (filter.value === filterType.all) {
-    return reportList.value
-  }
-  return reportList.value.filter((report: typeof reportSchema) => {
-    if (filter.value === filterType.verified) {
-      return report.isVerified
-    }
-    if (filter.value === filterType.isAnswered) {
-      return report.answeredFields === report.totalFields
-    }
-    return report.answeredFields < report.totalFields
-  })
-})
+</script>
+<script lang="ts" setup>
+const route = useRoute()
+const industryName = route.params.industry as string
+const { feathers } = useProfessionApi()
+
+const reportList = ref<typeof reportSchema[]>([])
+const filter = ref(FilterType.all)
+
+const pageMode = ref(PageMode.list)
+
+const isDetailMode = computed(() => pageMode.value === PageMode.detail)
+
+function changeFilter (type: FilterType) {
+  filter.value = type
+}
 
 const industryStats = computed(() => {
   const industryMap: IndustryStatsMap = {}
@@ -104,10 +93,6 @@ async function getReportList () {
     })
 }
 
-function readableDate (date: string) {
-  return dayjs(date).format('YYYY/MM/DD HH:mm')
-}
-
 watchEffect(() => {
   if (feathers.isReady.value) {
     getReportList()
@@ -121,23 +106,30 @@ watchEffect(() => {
   max-width: 100vw;
   margin: 0 auto;
 
+  &--wide {
+    width: 100vw;
+  }
+
   &__filter {
     &:not(:last-child) {
       margin-right: 1rem;
     }
   }
 
-  &__report {
-    display: grid;
-    grid-template-columns: 2fr 0.75fr 1.5fr 1fr;
-    grid-gap: 0.5rem;
-    padding: 0.5rem 0;
-    align-items: center;
-    border-bottom: 1px solid #ccc;
-  }
+  &__mode {
+    &:first-child {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    &:last-child {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
 
-  &__cell {
-    padding: 0 0.5rem;
+    &--active {
+      background: #137752;
+      color: white;
+    }
   }
 }
 </style>

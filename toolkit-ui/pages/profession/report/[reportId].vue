@@ -2,7 +2,11 @@
   <div v-if="isDataReady" class="report pa4 lh-copy">
     <div class="pb4">
       <h1 class="tc f2 fw6 mb2">
-        {{ report.company.industry }} | {{ report.company.name }}
+        <nuxt-link :to="industryPageLink" class="f5 gray no-underline flex items-center dim">
+          <i class="fa-solid fa-arrow-left mr2"></i>
+          回{{ report.company.industry }}列表
+        </nuxt-link>
+        {{ report.company.name }}
       </h1>
       <p class="tc f3 mv2">
         已判讀 {{ report.answeredFields }} / {{ report.totalFields }} 欄
@@ -11,7 +15,7 @@
         <ProfessionFieldProgress :progress="report" :is-industry="false" />
       </div>
     </div>
-    <div class="bb bt b--moon-gray flex items-center justify-center pa4 mb4">
+    <div class="bb bt b--moon-gray flex items-center justify-center pv3 mb4">
       <button
         v-for="theType in Object.values(filterType)"
         :key="theType"
@@ -61,17 +65,18 @@
     </div>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts">
 import dayjs from 'dayjs'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 
-const route = useRoute()
-
-enum filterType {
+export enum filterType {
   all = '所有欄位',
   pending = '待判讀',
   isAnswered = '判讀完成'
 }
+</script>
+<script lang="ts" setup>
+const route = useRoute()
 
 const filter = ref(filterType.pending)
 
@@ -87,6 +92,16 @@ const { report, reportFieldList, isDataReady, meta } = useReport(reportId.value)
 function isFieldEmpty (field: typeof reportFieldSchema) {
   return !field.value && !field.notes
 }
+
+const industryPageLink = computed(() => {
+  if (!report.value) {
+    return '#'
+  }
+  return {
+    name: 'profession-industry-industry',
+    params: { industry: report.value.company.industry }
+  }
+})
 
 const visibleReportFieldList = computed(() => {
   if (filter.value === filterType.all) {
