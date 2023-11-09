@@ -30,22 +30,22 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
-import { filterType } from '~/pages/profession/industry/[industry].vue'
+import { FilterType } from '~/pages/profession/industry/[industry].vue'
 
 const props = defineProps<{
   reportList: typeof reportSchema[],
-  filter: filterType
+  filter: FilterType
 }>()
 
 const visibleReportList = computed(() => {
-  if (props.filter === filterType.all) {
+  if (props.filter === FilterType.all) {
     return props.reportList
   }
   return props.reportList.filter((report: typeof reportSchema) => {
-    if (props.filter === filterType.verified) {
+    if (props.filter === FilterType.verified) {
       return report.isVerified
     }
-    if (props.filter === filterType.isAnswered) {
+    if (props.filter === FilterType.isAnswered) {
       return report.answeredFields === report.totalFields
     }
     return report.answeredFields < report.totalFields
