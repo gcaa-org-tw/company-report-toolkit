@@ -13,61 +13,30 @@
       @click="changeFilter(theType)"
     ) {{ theType }}
   .pa4
-    .industry__report
-      .industry__cell 公司名稱
-      .industry__cell 年份
-      .industry__cell 進度
-      .industry__cell 更新時間
-    template(v-if="visibleReportList.length")
-      nuxt-link.industry__report.black.dim.no-underline(
-        v-for="report in visibleReportList"
-        :key="report.id"
-        :to="`/profession/report/${report.id}`"
-      )
-        .industry__cell {{ report.company.name }}
-        .industry__cell {{ report.year }}
-        .industry__cell
-          profession-field-progress(:progress="report" :is-industry="false")
-        .industry__cell {{ readableDate(report.updatedAt) }}
-    .pa2.tc(v-else) 此分類無 資料
+    ProfessionReportList(:report-list="reportList" :filter="filter")
 </template>
-<script lang="ts" setup>
-import dayjs from 'dayjs'
+<script lang="ts">
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import type { IndustryStatsMap } from '~/utils/industryStats'
 
-const route = useRoute()
-const industryName = route.params.industry as string
-const { feathers } = useProfessionApi()
-
-enum filterType {
+export enum filterType {
   all = '全部',
   verified = '已驗證',
   isAnswered = '判讀完成',
   pending = '待判讀'
 }
+</script>
+<script lang="ts" setup>
+const route = useRoute()
+const industryName = route.params.industry as string
+const { feathers } = useProfessionApi()
 
-const reportList = ref([])
+const reportList = ref<typeof reportSchema[]>([])
 const filter = ref(filterType.all)
 
 function changeFilter (type: filterType) {
   filter.value = type
 }
-
-const visibleReportList = computed(() => {
-  if (filter.value === filterType.all) {
-    return reportList.value
-  }
-  return reportList.value.filter((report: typeof reportSchema) => {
-    if (filter.value === filterType.verified) {
-      return report.isVerified
-    }
-    if (filter.value === filterType.isAnswered) {
-      return report.answeredFields === report.totalFields
-    }
-    return report.answeredFields < report.totalFields
-  })
-})
 
 const industryStats = computed(() => {
   const industryMap: IndustryStatsMap = {}
@@ -104,10 +73,6 @@ async function getReportList () {
     })
 }
 
-function readableDate (date: string) {
-  return dayjs(date).format('YYYY/MM/DD HH:mm')
-}
-
 watchEffect(() => {
   if (feathers.isReady.value) {
     getReportList()
@@ -125,19 +90,6 @@ watchEffect(() => {
     &:not(:last-child) {
       margin-right: 1rem;
     }
-  }
-
-  &__report {
-    display: grid;
-    grid-template-columns: 2fr 0.75fr 1.5fr 1fr;
-    grid-gap: 0.5rem;
-    padding: 0.5rem 0;
-    align-items: center;
-    border-bottom: 1px solid #ccc;
-  }
-
-  &__cell {
-    padding: 0 0.5rem;
   }
 }
 </style>
