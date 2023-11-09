@@ -11,7 +11,7 @@
         <ProfessionFieldProgress :progress="report" :is-industry="false" />
       </div>
     </div>
-    <div class="bb bt b--moon-gray flex items-center justify-center pa4 mb4">
+    <div class="bb bt b--moon-gray flex items-center justify-center pv3 mb4">
       <button
         v-for="theType in Object.values(filterType)"
         :key="theType"

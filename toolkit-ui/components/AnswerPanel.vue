@@ -148,16 +148,16 @@ const pageOffset = computed(() => {
   return props.report.pageOffset || 0
 })
 
-watchEffect(() => {
-  if (props.reportField) {
-    fieldData.value.value = props.reportField.value || ''
-    fieldData.value.unit = props.reportField.unit || ''
+watchImmediate(() => props.reportField, (reportField) => {
+  if (reportField) {
+    fieldData.value.value = reportField.value || ''
+    fieldData.value.unit = reportField.unit || ''
     if (props.fieldMeta.units.length === 1 && !fieldData.value.unit) {
       fieldData.value.unit = props.fieldMeta.units[0]
     }
-    fieldData.value.notes = props.reportField.notes || ''
-    if (props.reportField.pageIndex) {
-      fieldData.value.pageIndex = props.reportField.pageIndex + pageOffset.value
+    fieldData.value.notes = reportField.notes || ''
+    if (reportField.pageIndex) {
+      fieldData.value.pageIndex = reportField.pageIndex + pageOffset.value
     }
   }
 })
@@ -169,7 +169,7 @@ watchEffect(() => {
 async function patchReportField (data: typeof fieldData.value) {
   data = {
     ...data,
-    pageIndex: data.pageIndex - pageOffset.value
+    pageIndex: (data.pageIndex || 0) - pageOffset.value
   }
   await feathers.app.service('report-field').patch(props.reportField.id, data)
   emit('next', data)
