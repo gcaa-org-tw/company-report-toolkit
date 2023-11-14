@@ -361,7 +361,7 @@ const isMounted = useMounted()
 // const { width: pageWidth } = useWindowSize()
 const scrollerEle = ref(null)
 
-watchOnce(
+whenever(
   () => {
     return pdfLinkBase.value && !isLibLoaded.value && !isMounted.value
   },

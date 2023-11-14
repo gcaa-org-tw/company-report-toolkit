@@ -6,11 +6,18 @@
     .w5.center
       profession-field-progress(:progress="industryStats")
   .pv3.mb4.bt.bb.b--moon-gray.flex.justify-between
-    div(:class="{ 'o-80': isDetailMode }")
+    div(v-if="isDetailMode")
+      button.industry__filter.bg-white.pv2.ph3.ba.b--light-gray.br2.dim.pointer(
+        v-for="year in yearList"
+        :key="year"
+        :class="{ 'bg-green': curYear === year }"
+        @click="setYear(year)"
+      ) {{ year }}
+    div(v-else)
       button.industry__filter.bg-white.pv2.ph3.ba.b--light-gray.br2.dim.pointer(
         v-for="theType in Object.values(FilterType)"
         :key="theType"
-        :class="{ 'bg-green': filter === theType, 'moon-gray': isDetailMode }"
+        :class="{ 'bg-green': filter === theType }"
         @click="changeFilter(theType)"
       ) {{ theType }}
     .industry__modeList
@@ -21,12 +28,13 @@
         @click="pageMode = theMode"
       ) {{ theMode }}
   div(v-if="isDetailMode")
-    ProfessionIndustryDetail
+    ProfessionIndustryDetail(:report-list="reportsOfYear")
   .pa4(v-else)
     ProfessionReportList(:report-list="reportList" :filter="filter")
 </template>
 <script lang="ts">
-import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
+import _ from 'lodash'
+import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import type { IndustryStatsMap } from '~/utils/industryStats'
 
 export enum FilterType {
@@ -49,6 +57,22 @@ const { feathers } = useProfessionApi()
 
 const reportList = ref<typeof reportSchema[]>([])
 const filter = ref(FilterType.all)
+
+const curYear = ref(0)
+const yearList = computed(() => {
+  return _.uniq(
+    reportList.value.map((report: typeof reportSchema) => report.year)
+  )
+})
+function setYear (year: number) {
+  curYear.value = year
+}
+
+const reportsOfYear = computed(() => {
+  return reportList.value.filter(
+    (report: typeof reportSchema) => report.year === curYear.value
+  )
+})
 
 const pageMode = ref(PageMode.list)
 
@@ -85,11 +109,17 @@ async function getReportList () {
         companyId: {
           $in: companyIds
         },
-        $limit: 500
+        $limit: 500,
+        $sort: {
+          year: -1
+        }
       }
     })
     .then((res: any) => {
       reportList.value = res.data
+      if (res.data.length) {
+        curYear.value = res.data[0].year
+      }
     })
 }
 
