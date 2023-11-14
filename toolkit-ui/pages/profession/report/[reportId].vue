@@ -10,6 +10,9 @@
       </h1>
       <p class="tc f3 mv2">
         已判讀 {{ report.answeredFields }} / {{ report.totalFields }} 欄
+        <span v-if="report.isVerified" class="ml2 gray f5">
+          （已標為驗證，不可再修改）
+        </span>
       </p>
       <div class="w5 center">
         <ProfessionFieldProgress :progress="report" :is-industry="false" />
@@ -43,7 +46,8 @@
           v-for="field in visibleReportFieldList"
           :key="field.id"
           :to="editorLink(report, field)"
-          class="report__field pv3 ph2 bb b--moon-gray no-underline black dim"
+          class="report__field pv3 ph2 bb b--moon-gray no-underline black"
+          :class="{dim: !report.isVerified}"
         >
           <div>
             <div class="fw5 mb1">{{ meta(field).name }}</div>
@@ -59,7 +63,7 @@
             </div>
           </div>
           <div class="nowrap self-center">{{ readableDate(field.updatedAt) }}</div>
-          <i class="fa-solid fa-arrow-right self-center"></i>
+          <i v-if="!report.isVerified" class="fa-solid fa-arrow-right self-center"></i>
         </NuxtLink>
       </template>
     </div>
@@ -67,6 +71,7 @@
 </template>
 <script lang="ts">
 import dayjs from 'dayjs'
+import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 
 export enum filterType {
@@ -120,7 +125,10 @@ function readableDate (date: string) {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
 }
 
-function editorLink (report, field) {
+function editorLink (report: typeof reportSchema, field: typeof reportFieldSchema) {
+  if (report.isVerified) {
+    return '#'
+  }
   return {
     name: 'profession-editor-reportId',
     params: { reportId: report.id },
