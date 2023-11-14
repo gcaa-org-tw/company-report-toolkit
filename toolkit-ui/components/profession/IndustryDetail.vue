@@ -12,11 +12,13 @@
         class="industryDetail__cell industryDetail__cell--head"
       > {{ field.name }} </div>
       <div class="industryDetail__cell industryDetail__cell--head">更新時間</div>
+      <div class="industryDetail__cell industryDetail__cell--head"></div>
       <template v-for="report in reportList" :key="report.id">
         <template v-if="industryFieldMap[report.id]">
           <NuxtLink :to="reportLink(report)" class="industryDetail__cell industryDetail__cell--name gray dim no-underline">
+            <span v-if="report.isVerified">✅</span>
             {{ report.company.abbreviation }}
-            <i class="ml3 fa-solid fa-arrow-up-right-from-square"></i>
+            <i class="ml2 fa-solid fa-arrow-up-right-from-square"></i>
           </NuxtLink>
           <div
             v-for="meta in filedMetaList"
@@ -32,6 +34,15 @@
           </div>
           <div class="industryDetail__cell">
             {{ readableDate(report.updatedAt) }}
+          </div>
+          <div class="industryDetail__cell">
+            <button
+              v-if="!report.isVerified"
+              class="bg-green white pv1 ph2 br2 bw0 dim pointer"
+              @click="markAsVerified(report)"
+            >
+              標為已驗證 ✅
+            </button>
           </div>
         </template>
       </template>
@@ -57,7 +68,7 @@ const loadingProgress = ref(0)
 
 const tableStyle = computed(() => {
   return {
-    gridTemplateColumns: `5rem repeat(${filedMetaList.value.length}, 6rem) 8rem`
+    gridTemplateColumns: `6rem repeat(${filedMetaList.value.length}, 6rem) 8rem 10rem`
   }
 })
 
@@ -67,6 +78,21 @@ function readableDate (date: string) {
 
 function reportLink (report: typeof reportSchema) {
   return `/profession/report/${report.id}`
+}
+
+const snackbar = useSnackbar()
+async function markAsVerified (report: typeof reportSchema) {
+  const doMark = confirm(`確定要將「${report.company.name} 」標為已驗證嗎？按下去之後，整本報告書就無法修改囉～～～`)
+  if (doMark) {
+    await feathers.app.service('report').patch(report.id, {
+      isVerified: true
+    })
+    snackbar.add({
+      type: 'success',
+      text: `${report.company.name}驗證完畢`
+    })
+    report.isVerified = true
+  }
 }
 
 function loadOnePageIndustryData (idList: number[], skip = 0) {
