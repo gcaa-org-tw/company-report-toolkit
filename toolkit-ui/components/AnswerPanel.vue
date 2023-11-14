@@ -59,6 +59,7 @@
         </label>
         <label class="answerPanel__answerPage flex-none">
           答案頁次
+          <button type="button" class="mt1 w-100 f7" @click="syncPageIndex">同步頁次</button>
           <input v-model="fieldData.pageIndex" type="number" class="answerPanel__input mt1" />
         </label>
       </div>
@@ -134,6 +135,10 @@ const shouldShowUnit = computed(() => {
   }
 })
 
+function syncPageIndex () {
+  fieldData.value.pageIndex = props.focusedPage + pageOffset.value
+}
+
 const TYPE_MAP: { [key: string]: string } = {
   number: 'number',
   string: 'text',
@@ -156,14 +161,7 @@ watchImmediate(() => props.reportField, (reportField) => {
       fieldData.value.unit = props.fieldMeta.units[0]
     }
     fieldData.value.notes = reportField.notes || ''
-    if (reportField.pageIndex) {
-      fieldData.value.pageIndex = reportField.pageIndex + pageOffset.value
-    }
   }
-})
-
-watchEffect(() => {
-  fieldData.value.pageIndex = props.focusedPage + pageOffset.value
 })
 
 async function patchReportField (data: typeof fieldData.value) {
