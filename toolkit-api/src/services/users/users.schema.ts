@@ -7,13 +7,20 @@ import type { HookContext } from '../../declarations'
 import { dataValidator, queryValidator } from '../../validators'
 import type { UserService } from './users.class'
 
+export const UserRole = Type.Union([
+  Type.Literal('admin'),
+  Type.Literal('collaborator'),
+  Type.Literal('visitor')
+], { default: 'visitor' })
+
 // Main data model schema
 export const userSchema = Type.Object(
   {
     id: Type.String(),
     auth0Id: Type.Optional(Type.String()),
     email: Type.String(),
-    name: Type.String()
+    name: Type.String(),
+    role: UserRole
   },
   { $id: 'User', additionalProperties: false }
 )

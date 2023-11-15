@@ -2,6 +2,7 @@
 import { authenticate } from '@feathersjs/authentication'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { atLeastCollaborator, mustBeAdmin } from '../../hooks/authorization'
 
 import {
   reportFieldDataValidator,
@@ -79,13 +80,15 @@ export const reportField = (app: Application) => {
       get: [],
       create: [
         schemaHooks.validateData(reportFieldDataValidator),
-        schemaHooks.resolveData(reportFieldDataResolver)
+        schemaHooks.resolveData(reportFieldDataResolver),
+        mustBeAdmin
       ],
       patch: [
         schemaHooks.validateData(reportFieldPatchValidator),
-        schemaHooks.resolveData(reportFieldPatchResolver)
+        schemaHooks.resolveData(reportFieldPatchResolver),
+        atLeastCollaborator
       ],
-      remove: []
+      remove: [mustBeAdmin]
     },
     after: {
       all: [],

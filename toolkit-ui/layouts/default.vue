@@ -8,7 +8,12 @@
         <button class="pa0 bw0 bg-white pointer dim" @click="logout">
           登出
         </button>
-        <img class="gcaa__avatar br-pill ml2" :src="user.picture" :title="user.nickname" />
+        <div
+          class="gcaa__avatar br-100 ml2 bg-moon-gray"
+          :class="{'gcaa__avatar--admin': isAdmin}"
+        >
+          <img class="w-100 br-100" :src="user.picture" :title="user.nickname" />
+        </div>
       </div>
       <template v-else>
         <NuxtLink to="/call-for-g0ver" class="gray no-underline">
@@ -24,7 +29,7 @@
 </template>
 <script setup lang="ts">
 const route = useRoute()
-const { user } = useAuth()
+const { user, isAdmin } = useAuth()
 
 const homepage = computed(() => {
   if (route.name === 'index') {
@@ -47,6 +52,11 @@ const logout = useLogout()
   &__avatar {
     height: 2.5rem;
     width: 2.5rem;
+    padding: 0.25rem;
+
+    &--admin {
+      background-image: linear-gradient(315deg, #f06543 0%, #ffbe3d 74%);
+    }
   }
 }
 </style>

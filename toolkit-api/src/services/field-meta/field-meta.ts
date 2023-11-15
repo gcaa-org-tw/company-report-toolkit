@@ -2,6 +2,7 @@
 import { authenticate } from '@feathersjs/authentication'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { mustBeAdmin } from '../../hooks/authorization'
 
 import {
   fieldMetaDataValidator,
@@ -48,13 +49,17 @@ export const fieldMeta = (app: Application) => {
       get: [],
       create: [
         schemaHooks.validateData(fieldMetaDataValidator),
-        schemaHooks.resolveData(fieldMetaDataResolver)
+        schemaHooks.resolveData(fieldMetaDataResolver),
+        mustBeAdmin
       ],
       patch: [
         schemaHooks.validateData(fieldMetaPatchValidator),
-        schemaHooks.resolveData(fieldMetaPatchResolver)
+        schemaHooks.resolveData(fieldMetaPatchResolver),
+        mustBeAdmin
       ],
-      remove: []
+      remove: [
+        mustBeAdmin
+      ]
     },
     after: {
       all: []
