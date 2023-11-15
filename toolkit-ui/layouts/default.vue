@@ -24,7 +24,7 @@
 </template>
 <script setup lang="ts">
 const route = useRoute()
-const { user, auth0 } = useAuth()
+const { user } = useAuth()
 
 const homepage = computed(() => {
   if (route.name === 'index') {
@@ -36,9 +36,8 @@ const homepage = computed(() => {
   }
 })
 
-function logout () {
-  auth0.logout()
-}
+const logout = useLogout()
+
 </script>
 <style lang="scss">
 .gcaa {
