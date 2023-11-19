@@ -156,8 +156,27 @@ const pageOffset = computed(() => {
 // user tracking
 let startTime = 0
 
+const pageVisibility = useDocumentVisibility()
+const windowVisibility = useWindowFocus()
+
 onMounted(() => {
   startTime = Date.now()
+})
+
+watch(windowVisibility, async (isFocused) => {
+  if (!isFocused) {
+    await trackTimeSpendIfNeeded()
+  } else {
+    startTime = Date.now()
+  }
+})
+
+watch(pageVisibility, async (visibility) => {
+  if (visibility === 'hidden') {
+    await trackTimeSpendIfNeeded()
+  } else if (visibility === 'visible') {
+    startTime = Date.now()
+  }
 })
 
 async function trackTimeSpendIfNeeded () {
