@@ -2,6 +2,8 @@ import { Application, feathers } from '@feathersjs/feathers'
 import feathersSocketioClient from '@feathersjs/socketio-client'
 import socketio from 'socket.io-client'
 import authentication from '@feathersjs/authentication-client'
+import { userSchema } from '~/libs/feathers/services/users/users.schema'
+import { reportFieldMethods } from '~/libs/feathers/services/report-field/report-field.shared'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { RuntimeConfig } from 'nuxt/schema'
 
@@ -31,7 +33,7 @@ export function startLogin (auth0: any = undefined, route: any = undefined) {
 export function useLogout () {
   const auth0 = useAuth0()
   const config = useRuntimeConfig()
-  const baseUrl = config.app.baseURL || ''
+  const baseUrl = config.app.baseUrl || ''
   return () => {
     if (auth0) {
       const redirectUrl = `${window.location.origin}${baseUrl}`
@@ -69,7 +71,19 @@ async function initFeathersClient (
     return undefined
   }
 
+  feathersApp.use('report-field', socketClient.service('report-field'), {
+    methods: reportFieldMethods
+  })
+
   return feathersApp
+}
+
+async function initUser (feathersApp: Application) {
+  // feathers.find return only current user
+  const userList = await feathersApp.service('users').find()
+  if (userList.total) {
+    user.value = userList.data[0]
+  }
 }
 
 export class FeathersApp {
@@ -85,12 +99,15 @@ export class FeathersApp {
     if (!this.application) {
       const endpoint = config.public.apiEndpoint || DEFAULT_SOCKET_URL
       const ret = await initFeathersClient(token, endpoint, router)
-      if (ret) {
-        this.application = ret
-        this.jwtToken.value = token
-        this.ready.value = true
-        this.apiEndpoint.value = endpoint
+      if (!ret) {
+        return
       }
+      this.application = ret
+      this.jwtToken.value = token
+      this.ready.value = true
+      this.apiEndpoint.value = endpoint
+
+      initUser(this.application)
     }
   }
 
@@ -100,6 +117,31 @@ export class FeathersApp {
 }
 
 let _feathersApp: FeathersApp | undefined
+const user = ref<typeof userSchema | undefined>()
+
+export function useAuth () {
+  const auth0 = useAuth0()
+
+  const avatar = computed(() => {
+    if (!auth0 || !auth0.isAuthenticated?.value) {
+      return undefined
+    }
+    return auth0.user.value?.picture
+  })
+
+  const isAdmin = computed(() => {
+    return user.value && user.value.role === 'admin'
+  })
+
+  const isCollaborator = computed(() => {
+    if (isAdmin.value) {
+      return true
+    }
+    return !!user.value && user.value.role === 'collaborator'
+  })
+
+  return { user, isAdmin, isCollaborator, avatar }
+}
 
 export function useProfessionApi () {
   const auth0 = useAuth0()
@@ -108,7 +150,6 @@ export function useProfessionApi () {
   const router = useRouter()
 
   const token = ref('')
-  const user = ref<any>(undefined)
 
   const registerState = getRegisterState()
   if (!_feathersApp) {
@@ -122,7 +163,6 @@ export function useProfessionApi () {
     }
     if (auth0) {
       await startLogin(auth0, route)
-      user.value = auth0.user
       if (auth0.isAuthenticated.value) {
         token.value = await auth0.getAccessTokenSilently()
         feathersApp.init(token.value, config, router)
@@ -155,7 +195,9 @@ export function useProfessionApi () {
     onMounted(initApi)
   }
 
-  return { user, token, feathers: feathersApp }
+  const { user, isAdmin, isCollaborator } = useAuth()
+
+  return { user, token, feathers: feathersApp, isAdmin, isCollaborator }
 }
 
 // As API don't have RS256 keys, a successful registration will return this error:

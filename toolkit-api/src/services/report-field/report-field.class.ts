@@ -16,7 +16,24 @@ export class ReportFieldService<ServiceParams extends Params = ReportFieldParams
   ReportFieldData,
   ReportFieldParams,
   ReportFieldPatch
-> {}
+> {
+  async track (data: ReportField, params: ServiceParams) {
+    const { id, timeSpentInSeconds } = data
+    const { user } = params
+
+    const reportField = await this.get(id)
+
+    const newData: any = {
+      timeSpentInSeconds: reportField.timeSpentInSeconds + timeSpentInSeconds
+    }
+    if (user?.role === 'admin') {
+      newData.hasAdminEdited = true
+    }
+
+    const newReportField = await this.patch(id, newData, params)
+    return newReportField
+  }
+}
 
 export const getOptions = (app: Application): KnexAdapterOptions => {
   return {

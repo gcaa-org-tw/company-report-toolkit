@@ -23,6 +23,7 @@ export const reportSchema = Type.Object(
     totalFields: Type.Number({ default: 0 }),
     answeredFields: Type.Number({ default: 0 }),
     isVerified: Type.Boolean({ default: false }),
+    timeSpentInSeconds: Type.Number({ default: 0 }),
     updatedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' })
   },
@@ -71,7 +72,7 @@ export const reportPatchResolver = resolve<Report, HookContext<ReportService>>({
 // Schema for allowed query properties
 export const reportQueryProperties = Type.Pick(reportSchema, [
   'id', 'companyId', 'year', 'totalFields', 'pageOffset', 'hasSetPageOffset',
-  'answeredFields', 'isVerified', 'updatedAt', 'createdAt'
+  'answeredFields', 'isVerified', 'timeSpentInSeconds', 'updatedAt', 'createdAt'
 ])
 export const reportQuerySchema = Type.Intersect(
   [

@@ -18,6 +18,8 @@ export const reportFieldSchema = Type.Object(
     unit: Type.Optional(Type.String()),
     notes: Type.Optional(Type.String()),
     pageIndex: Type.Optional(Type.Number()),
+    timeSpentInSeconds: Type.Number({ default: 0 }),
+    hasAdminEdited: Type.Boolean({ default: false }),
     updatedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' })
   },

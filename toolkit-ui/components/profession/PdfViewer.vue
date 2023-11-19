@@ -8,7 +8,7 @@
           @keyup.enter="$event.target.blur()"
         )
         | 頁 / 共 {{ totalPages }} 頁
-        button.reportViewer__button.ml2.gray(@click="toggleOnSetPageOffset")
+        button.reportViewer__button.ml2.gray(v-if="isCollaborator" @click="toggleOnSetPageOffset")
           | {{ setPageOffsetLabel }}
       .flex.items-center
         button.reportViewer__button(@click="zoomIn")
@@ -60,7 +60,7 @@ import _ from 'lodash'
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
 
 const snackbar = useSnackbar()
-const { feathers } = useProfessionApi()
+const { feathers, isCollaborator } = useProfessionApi()
 
 const PDFJS_BASE = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179'
 const PDF_SRC_BASE = 'https://gcaa-static.s3.ap-northeast-3.amazonaws.com/company-report-toolkit'
@@ -127,13 +127,13 @@ const totalPages = computed(() => {
 const isOnSetPageOffset = ref(false)
 
 function initIsOnSetPageOffset () {
-  if (props.report.hasSetPageOffset) {
+  if (props.report.hasSetPageOffset || !isCollaborator.value) {
     isOnSetPageOffset.value = false
   } else {
     isOnSetPageOffset.value = true
     snackbar.add({
       type: 'warning',
-      text: '歡迎光臨，我們先校正報告書的第一頁吧 🍥',
+      text: '歡迎光臨，我們先校正報告書的第一頁吧 🍥' + isCollaborator.value,
       duration: 5000
     })
   }
@@ -148,9 +148,19 @@ const setPageOffsetLabel = computed(() => {
 
 async function setPageOne (physicalPageIndex: number) {
   const pageOffset = 1 - physicalPageIndex
-  await feathers.app.service('report').patch(props.report.id, { pageOffset })
-  emit('reload')
-  isOnSetPageOffset.value = false
+  try {
+    await feathers.app.service('report').patch(props.report.id, { pageOffset })
+    emit('reload')
+    isOnSetPageOffset.value = false
+  } catch (err: any) {
+    if (err.message) {
+      snackbar.add({
+        type: 'error',
+        text: err.message
+      })
+    }
+    throw err
+  }
 }
 
 // scale

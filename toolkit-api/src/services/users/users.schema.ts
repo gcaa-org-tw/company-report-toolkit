@@ -7,13 +7,20 @@ import type { HookContext } from '../../declarations'
 import { dataValidator, queryValidator } from '../../validators'
 import type { UserService } from './users.class'
 
+export const UserRole = Type.Union([
+  Type.Literal('admin'),
+  Type.Literal('collaborator'),
+  Type.Literal('visitor')
+], { default: 'visitor' })
+
 // Main data model schema
 export const userSchema = Type.Object(
   {
     id: Type.String(),
     auth0Id: Type.Optional(Type.String()),
     email: Type.String(),
-    name: Type.String()
+    name: Type.String(),
+    role: UserRole
   },
   { $id: 'User', additionalProperties: false }
 )
@@ -54,7 +61,7 @@ export const userQueryValidator = getValidator(userQuerySchema, queryValidator)
 export const userQueryResolver = resolve<UserQuery, HookContext<UserService>>({
   // If there is a user (e.g. with authentication), they are only allowed to see their own data
   id: async (value, user, context) => {
-    if (context.params.user) {
+    if (context.params.user && context.params.user.role !== 'admin') {
       return context.params.user.id
     }
 

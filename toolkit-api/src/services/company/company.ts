@@ -2,6 +2,7 @@
 import { authenticate } from '@feathersjs/authentication'
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import { mustBeAdmin } from '../../hooks/authorization'
 
 import {
   companyDataValidator,
@@ -43,9 +44,9 @@ export const company = (app: Application) => {
       all: [schemaHooks.validateQuery(companyQueryValidator), schemaHooks.resolveQuery(companyQueryResolver)],
       find: [],
       get: [],
-      create: [schemaHooks.validateData(companyDataValidator), schemaHooks.resolveData(companyDataResolver)],
-      patch: [schemaHooks.validateData(companyPatchValidator), schemaHooks.resolveData(companyPatchResolver)],
-      remove: []
+      create: [schemaHooks.validateData(companyDataValidator), schemaHooks.resolveData(companyDataResolver), mustBeAdmin],
+      patch: [schemaHooks.validateData(companyPatchValidator), schemaHooks.resolveData(companyPatchResolver), mustBeAdmin],
+      remove: [mustBeAdmin]
     },
     after: {
       all: []
