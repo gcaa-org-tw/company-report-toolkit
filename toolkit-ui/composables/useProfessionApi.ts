@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { Application, feathers } from '@feathersjs/feathers'
 import feathersSocketioClient from '@feathersjs/socketio-client'
 import socketio from 'socket.io-client'
@@ -78,12 +79,10 @@ async function initFeathersClient (
   return feathersApp
 }
 
-async function initUser (feathersApp: Application) {
+async function initUser (feathersApp: Application, auth0: any) {
   // feathers.find return only current user
-  const userList = await feathersApp.service('users').find()
-  if (userList.total) {
-    user.value = userList.data[0]
-  }
+  const userId = _.get(auth0, 'user.value.sub')
+  user.value = await feathersApp.service('users').get(userId)
 }
 
 export class FeathersApp {
@@ -95,7 +94,7 @@ export class FeathersApp {
   public jwtToken = ref('')
   public apiEndpoint = ref('')
 
-  public async init (token: string, config: RuntimeConfig, router: any) {
+  public async init (token: string, config: RuntimeConfig, router: any, auth0: any) {
     if (!this.application) {
       const endpoint = config.public.apiEndpoint || DEFAULT_SOCKET_URL
       const ret = await initFeathersClient(token, endpoint, router)
@@ -107,7 +106,7 @@ export class FeathersApp {
       this.ready.value = true
       this.apiEndpoint.value = endpoint
 
-      initUser(this.application)
+      initUser(this.application, auth0)
     }
   }
 
@@ -165,7 +164,7 @@ export function useProfessionApi () {
       await startLogin(auth0, route)
       if (auth0.isAuthenticated.value) {
         token.value = await auth0.getAccessTokenSilently()
-        feathersApp.init(token.value, config, router)
+        feathersApp.init(token.value, config, router, auth0)
       }
     }
   }
