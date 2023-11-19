@@ -98,7 +98,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['next'])
 
-const { feathers } = useProfessionApi()
+const { feathers, isCollaborator } = useProfessionApi()
 
 export type FieldData = {
   value: string | number,
@@ -153,6 +153,27 @@ const pageOffset = computed(() => {
   return props.report.pageOffset || 0
 })
 
+// user tracking
+let startTime = 0
+
+onMounted(() => {
+  startTime = Date.now()
+})
+
+async function trackTimeSpendIfNeeded () {
+  if (!isCollaborator.value) {
+    return
+  }
+  const timeSpentInSeconds = Math.round((Date.now() - startTime) / 1000)
+  await feathers.app.service('report-field').track({
+    id: props.reportField.id,
+    timeSpentInSeconds
+  })
+  startTime = Date.now()
+}
+
+// handle submission and field change
+
 watchImmediate(() => props.reportField, (reportField) => {
   if (reportField) {
     fieldData.value.value = reportField.value || ''
@@ -170,6 +191,7 @@ async function patchReportField (data: typeof fieldData.value) {
     pageIndex: (data.pageIndex || 0) - pageOffset.value
   }
   await feathers.app.service('report-field').patch(props.reportField.id, data)
+  await trackTimeSpendIfNeeded()
   emit('next', data)
 }
 

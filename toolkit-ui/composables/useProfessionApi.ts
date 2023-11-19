@@ -3,6 +3,7 @@ import feathersSocketioClient from '@feathersjs/socketio-client'
 import socketio from 'socket.io-client'
 import authentication from '@feathersjs/authentication-client'
 import { userSchema } from '~/libs/feathers/services/users/users.schema'
+import { reportFieldMethods } from '~/libs/feathers/services/report-field/report-field.shared'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { RuntimeConfig } from 'nuxt/schema'
 
@@ -69,6 +70,10 @@ async function initFeathersClient (
     router.push({ name: 'auth-register' })
     return undefined
   }
+
+  feathersApp.use('report-field', socketClient.service('report-field'), {
+    methods: reportFieldMethods
+  })
 
   return feathersApp
 }
