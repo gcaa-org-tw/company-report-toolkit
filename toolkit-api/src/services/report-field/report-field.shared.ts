@@ -18,7 +18,7 @@ export type ReportFieldClientService = Pick<
 
 export const reportFieldPath = 'report-field'
 
-export const reportFieldMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const reportFieldMethods = ['find', 'get', 'create', 'patch', 'remove', 'track'] as const
 
 export const reportFieldClient = (client: ClientApplication) => {
   const connection = client.get('connection')

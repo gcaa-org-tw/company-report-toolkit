@@ -12,7 +12,8 @@ import {
   reportFieldExternalResolver,
   reportFieldDataResolver,
   reportFieldPatchResolver,
-  reportFieldQueryResolver
+  reportFieldQueryResolver,
+  ReportField
 } from './report-field.schema'
 
 import type { Application } from '../../declarations'
@@ -25,22 +26,36 @@ export * from './report-field.class'
 export * from './report-field.schema'
 
 const updateReportStats = async (context: HookContext) => {
-  const { app, result } = context
+  const { app, result, params, data } = context
   const { reportId } = result
   const reportService = app.service(reportPath)
   const reportFieldService = app.service(reportFieldPath)
 
-  const answeredFields = await reportFieldService.find({
-    query: {
-      $or: [
-        { reportId, value: { $ne: null } },
-        { reportId, notes: { $ne: null } }
-      ]
-    }
-  })
-  reportService.patch(reportId, {
-    answeredFields: answeredFields.total
-  })
+  if ('value' in data || 'notes' in data) {
+    const answeredFields = await reportFieldService.find({
+      query: {
+        $or: [
+          { reportId, value: { $ne: null } },
+          { reportId, notes: { $ne: null } }
+        ]
+      }
+    })
+    await reportService.patch(reportId, {
+      answeredFields: answeredFields.total
+    }, params)
+  } else if (data && data.timeSpentInSeconds) {
+    const allFields = await reportFieldService.find({
+      query: {
+        reportId
+      }
+    })
+    const totalTimeSpent = allFields.data.reduce((acc: number, field: ReportField) => {
+      return acc + field.timeSpentInSeconds
+    }, 0)
+    await reportService.patch(reportId, {
+      timeSpentInSeconds: totalTimeSpent
+    }, params)
+  }
 }
 
 const applyDefaultQuery = (context: HookContext) => {
@@ -78,6 +93,7 @@ export const reportField = (app: Application) => {
       ],
       find: [applyDefaultQuery],
       get: [],
+      track: [atLeastCollaborator],
       create: [
         schemaHooks.validateData(reportFieldDataValidator),
         schemaHooks.resolveData(reportFieldDataResolver),
