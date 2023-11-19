@@ -12,7 +12,7 @@
           class="gcaa__avatar br-100 ml2 bg-moon-gray"
           :class="{'gcaa__avatar--admin': isAdmin}"
         >
-          <img class="w-100 br-100" :src="user.picture" :title="user.nickname" />
+          <img class="w-100 br-100" :src="avatar" :title="user.name" />
         </div>
       </div>
       <template v-else>
@@ -28,8 +28,9 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useAuth } from '~/composables/useProfessionApi'
 const route = useRoute()
-const { user, isAdmin } = useAuth()
+const { user, isAdmin, avatar } = useAuth()
 
 const homepage = computed(() => {
   if (route.name === 'index') {

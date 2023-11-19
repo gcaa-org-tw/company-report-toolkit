@@ -20,7 +20,7 @@
         @matched-pages="updateMatchedPages"
         @page="gotoPage"
       )
-  .editorControl__keepBottom.pv2.ph3.bt.ba.b--moon-gray.shadow-1.br2
+  .editorControl__keepBottom.pv2.ph3.bt.ba.b--moon-gray.shadow-1.br2(v-if="isCollaborator")
     .flex.justify-end
       button.pv2.ph3.ba.bg-dark-gray.white.br2.pointer.f6.flex.items-baseline(@click="toggleBottomSection")
         template(v-if="isBottomFolded")
@@ -42,6 +42,8 @@
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
+
+const { isCollaborator } = useProfessionApi()
 
 const props = defineProps<{
   report: typeof reportSchema

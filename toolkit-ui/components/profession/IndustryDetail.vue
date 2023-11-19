@@ -12,7 +12,7 @@
         class="industryDetail__cell industryDetail__cell--head"
       > {{ field.name }} </div>
       <div class="industryDetail__cell industryDetail__cell--head">更新時間</div>
-      <div class="industryDetail__cell industryDetail__cell--head"></div>
+      <div v-if="isAdmin" class="industryDetail__cell industryDetail__cell--head"></div>
       <template v-for="report in reportList" :key="report.id">
         <template v-if="industryFieldMap[report.id]">
           <NuxtLink :to="reportLink(report)" class="industryDetail__cell industryDetail__cell--name gray dim no-underline">
@@ -35,7 +35,7 @@
           <div class="industryDetail__cell">
             {{ readableDate(report.updatedAt) }}
           </div>
-          <div class="industryDetail__cell">
+          <div v-if="isAdmin" class="industryDetail__cell">
             <button
               v-if="!report.isVerified"
               class="bg-green white pv1 ph2 br2 bw0 dim pointer"
@@ -59,7 +59,7 @@ const props = defineProps<{
   reportList: typeof reportSchema[]
 }>()
 
-const { feathers } = useProfessionApi()
+const { feathers, isAdmin } = useProfessionApi()
 
 type REPORT_FILED_MAP = { [fieldId: string]: typeof reportFieldSchema }
 const industryFieldMap = ref<{ [reportId: string]: REPORT_FILED_MAP }>({})
@@ -67,8 +67,12 @@ const filedMetaList = ref<{ [id: string]: typeof fieldMetaSchema }>({})
 const loadingProgress = ref(0)
 
 const tableStyle = computed(() => {
+  let gridTpl = `6rem repeat(${filedMetaList.value.length}, 6rem) 8rem`
+  if (isAdmin.value) {
+    gridTpl += ' 10rem'
+  }
   return {
-    gridTemplateColumns: `6rem repeat(${filedMetaList.value.length}, 6rem) 8rem 10rem`
+    gridTemplateColumns: gridTpl
   }
 })
 
