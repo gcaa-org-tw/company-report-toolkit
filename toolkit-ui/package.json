@@ -37,6 +37,7 @@
     "@feathersjs/socketio-client": "^5.0.11",
     "@fortawesome/fontawesome-free": "^6.4.2",
     "@fortawesome/vue-fontawesome": "^3.0.3",
+    "@nuxtjs/plausible": "^0.2.3",
     "airtable": "^0.12.2",
     "algoliasearch": "^4.19.1",
     "csv-parse": "^5.5.2",

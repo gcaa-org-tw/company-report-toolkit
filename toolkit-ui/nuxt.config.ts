@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   modules: [
+    '@nuxtjs/plausible',
     '@nuxtjs/eslint-module',
     '@vueuse/nuxt',
     'nuxt-snackbar'
