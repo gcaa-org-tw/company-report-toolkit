@@ -1,6 +1,6 @@
 <template>
   <div class="industryDetail">
-    <h1 v-if="loadingProgress < 1" class="mv5 tc f2">
+    <h1 v-if="loadingProgress < 100" class="mv5 tc f2">
       資料載入中...
       <span class="fw7">{{ loadingProgress }}%</span>
     </h1>

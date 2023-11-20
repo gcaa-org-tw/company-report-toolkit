@@ -54,7 +54,7 @@ export const reportFieldPatchResolver = resolve<ReportField, HookContext<ReportF
 
 // Schema for allowed query properties
 export const reportFieldQueryProperties = Type.Pick(reportFieldSchema, [
-  'id', 'fieldId', 'reportId', 'value', 'unit', 'notes', 'pageIndex', 'updatedAt', 'createdAt'
+  'id', 'fieldId', 'reportId', 'value', 'unit', 'notes', 'pageIndex', 'timeSpentInSeconds', 'hasAdminEdited', 'updatedAt', 'createdAt'
 ])
 export const reportFieldQuerySchema = Type.Intersect(
   [

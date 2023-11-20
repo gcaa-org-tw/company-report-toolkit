@@ -18,7 +18,7 @@
         <i class="fas fa-sync-alt"></i>
       </button>
     </div>
-    <div v-if="curStatsType === StatsType.report">
+    <div v-if="curStatsType === StatsType.report" class="f6">
       <table class="w-100 ba b--moon-gray" cellspacing="0">
         <thead>
           <tr class="bg-light-gray tl">
@@ -44,20 +44,21 @@
         </tbody>
       </table>
     </div>
-    <div v-else>
-      {{ curStatsType }}還在施工中 🤖
+    <div v-else class="f6">
+      <ProfessionDetailStats :report-list="reportList" :stats-type="curStatsType" />
     </div>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts">
 import { Report } from '~/libs/feathers/services/report/report.shared'
-const { feathers } = useProfessionApi()
-
-enum StatsType {
+export enum StatsType {
   report = '各報告書',
   fieldMeta = '各欄位',
   reportField = '原始資料'
 }
+</script>
+<script lang="ts" setup>
+const { feathers } = useProfessionApi()
 
 const statsTypeList = Object.values(StatsType)
 const curStatsType = ref(StatsType.report)

@@ -24,7 +24,7 @@ export function useFieldMeta () {
     fieldMetaList.value = resp.data
   }
 
-  watch(feathers.isReady, async (isReady) => {
+  watchImmediate(feathers.isReady, async (isReady) => {
     if (isReady) {
       await fileMetaResp()
     }
