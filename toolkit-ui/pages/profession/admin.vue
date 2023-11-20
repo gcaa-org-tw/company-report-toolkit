@@ -14,7 +14,10 @@
       </thead>
       <tbody>
         <tr v-for="user in userList" :key="user.id">
-          <td class="pv2 ph3 bt b--moon-gray">{{ user.name }}</td>
+          <td class="pv2 ph3 bt b--moon-gray flex items-center">
+            <span :title="ROLE_MAP[user.role]" class="mr2">{{ ROLE_ICON_MAP[user.role] }}</span>
+            {{ user.name }}
+          </td>
           <td class="pv2 ph3 bt b--moon-gray">{{ user.email }}</td>
           <td class="pv2 ph3 bt b--moon-gray">
             <select name="role" :value="user.role" class="admin__role" @change="changeRole(user, $event)">
@@ -38,6 +41,12 @@ const ROLE_MAP = {
   admin: '管理員',
   collaborator: '協作者',
   visitor: '訪客'
+} as any
+
+const ROLE_ICON_MAP = {
+  admin: '🧙',
+  collaborator: '🖊️',
+  visitor: '👤'
 } as any
 
 const ROLE_LIST = Object.keys(ROLE_MAP)
