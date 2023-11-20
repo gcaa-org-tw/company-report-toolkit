@@ -23,11 +23,8 @@ export class ReportFieldService<ServiceParams extends Params = ReportFieldParams
 
     const reportField = await this.get(id)
 
-    const newData: any = {
+    const newData = {
       timeSpentInSeconds: reportField.timeSpentInSeconds + timeSpentInSeconds
-    }
-    if (user?.role === 'admin') {
-      newData.hasAdminEdited = true
     }
 
     const newReportField = await this.patch(id, newData, params)
