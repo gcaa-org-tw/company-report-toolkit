@@ -3,7 +3,7 @@
     <div class="pb3">
       <h1 class="f2 fw6">使用狀況統計</h1>
       <p class="f4 mb4">
-        這裡只會顯示有判讀過的報告書～
+        這裡只會顯示有判讀過的報告書，若要下載原始資料，請在下拉選單選取「原始資料」。
       </p>
     </div>
     <div class="pv3 flex items-center justify-end mb4 bt bb b--moon-gray">
