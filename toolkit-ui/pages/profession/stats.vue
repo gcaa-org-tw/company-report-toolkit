@@ -3,22 +3,17 @@
     <div class="pb3">
       <h1 class="f2 fw6">使用狀況統計</h1>
       <p class="f4 mb4">
-        這裡只會顯示有判讀過的報告書～
+        這裡只會顯示有判讀過的報告書，若要下載原始資料，請在下拉選單選取「原始資料」。
       </p>
     </div>
     <div class="pv3 flex items-center justify-end mb4 bt bb b--moon-gray">
-      <div class="mr3">
-        <select v-model="curStatsType" class="stats__control">
-          <option v-for="statsType in statsTypeList" :key="statsType" :value="statsType">
-            {{ statsType }}
-          </option>
-        </select>
-      </div>
-      <button class="stats__control" @click="getAllReport">
-        <i class="fas fa-sync-alt"></i>
-      </button>
+      <select v-model="curStatsType" class="stats__control">
+        <option v-for="statsType in statsTypeList" :key="statsType" :value="statsType">
+          {{ statsType }}
+        </option>
+      </select>
     </div>
-    <div v-if="curStatsType === StatsType.report">
+    <div v-if="curStatsType === StatsType.report" class="f6">
       <table class="w-100 ba b--moon-gray" cellspacing="0">
         <thead>
           <tr class="bg-light-gray tl">
@@ -44,20 +39,21 @@
         </tbody>
       </table>
     </div>
-    <div v-else>
-      {{ curStatsType }}還在施工中 🤖
+    <div v-else class="f6">
+      <ProfessionDetailStats :report-list="reportList" :stats-type="curStatsType" />
     </div>
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts">
 import { Report } from '~/libs/feathers/services/report/report.shared'
-const { feathers } = useProfessionApi()
-
-enum StatsType {
+export enum StatsType {
   report = '各報告書',
   fieldMeta = '各欄位',
   reportField = '原始資料'
 }
+</script>
+<script lang="ts" setup>
+const { feathers } = useProfessionApi()
 
 const statsTypeList = Object.values(StatsType)
 const curStatsType = ref(StatsType.report)
@@ -65,7 +61,7 @@ const curStatsType = ref(StatsType.report)
 const reportList = ref<Report[]>([])
 
 function timeInMin (report: Report) {
-  return Math.round(report.timeSpentInSeconds / 60)
+  return Math.round(report.timeSpentInSeconds * 10 / 60) / 10
 }
 
 function getAllReport () {

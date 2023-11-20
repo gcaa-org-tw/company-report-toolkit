@@ -1,6 +1,6 @@
 <template>
   <div class="industryDetail">
-    <h1 v-if="loadingProgress < 1" class="mv5 tc f2">
+    <h1 v-if="loadingProgress < 100" class="mv5 tc f2">
       資料載入中...
       <span class="fw7">{{ loadingProgress }}%</span>
     </h1>
@@ -53,7 +53,6 @@
 import dayjs from 'dayjs'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
-import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
 
 const props = defineProps<{
   reportList: typeof reportSchema[]
@@ -63,7 +62,7 @@ const { feathers, isAdmin } = useProfessionApi()
 
 type REPORT_FILED_MAP = { [fieldId: string]: typeof reportFieldSchema }
 const industryFieldMap = ref<{ [reportId: string]: REPORT_FILED_MAP }>({})
-const filedMetaList = ref<{ [id: string]: typeof fieldMetaSchema }>({})
+const { filedMetaList } = useFieldMeta()
 const loadingProgress = ref(0)
 
 const tableStyle = computed(() => {
@@ -133,16 +132,6 @@ async function loadIndustryData () {
 }
 
 async function initPageData () {
-  const fileMetaResp = await feathers.app.service('field-meta').find({
-    query: {
-      // we have 50+ fields in some reports, so we need to increase the limit
-      $limit: 100,
-      $sort: {
-        id: 1
-      }
-    }
-  })
-  filedMetaList.value = fileMetaResp.data
   await loadIndustryData()
 }
 
