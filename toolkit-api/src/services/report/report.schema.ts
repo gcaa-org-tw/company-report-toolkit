@@ -8,7 +8,7 @@ import type { HookContext } from '../../declarations'
 import { dataValidator, queryValidator } from '../../validators'
 import type { ReportService } from './report.class'
 import { companySchema } from '../company/company.schema'
-import { companyPath } from '../company/company.shared'
+import { companyPath, Company } from '../company/company.shared'
 
 // Main data model schema
 export const reportSchema = Type.Object(
@@ -29,6 +29,10 @@ export const reportSchema = Type.Object(
   },
   { $id: 'Report', additionalProperties: false }
 )
+
+// company info is static, so we can cache it
+const companyMap = new Map<string, Company>()
+
 export type Report = Static<typeof reportSchema>
 export const reportValidator = getValidator(reportSchema, dataValidator)
 export const reportResolver = resolve<Report, HookContext<ReportService>>({
@@ -36,8 +40,13 @@ export const reportResolver = resolve<Report, HookContext<ReportService>>({
     if (!row.companyId) {
       return undefined
     }
+    if (companyMap.has(row.companyId)) {
+      return companyMap.get(row.companyId)
+    }
     try {
-      return await context.app.service(companyPath).get(row.companyId)
+      const theCompany = await context.app.service(companyPath).get(row.companyId)
+      companyMap.set(row.companyId, theCompany)
+      return theCompany
     } catch {
       return undefined
     }
