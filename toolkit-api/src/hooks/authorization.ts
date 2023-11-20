@@ -11,7 +11,7 @@ export function atLeastCollaborator (context: HookContext) {
   const { user } = context.params
   const errMsg = '帳號權限不足，請找管理員調整權限 🧙'
   if (!user) {
-    throw new Forbidden(errMsg)
+    return
   }
   const roleOrder = ROLES_ORDER.indexOf(user.role)
   if (roleOrder < 0 || roleOrder > INDEX_ABOVE_COLLABORATOR) {
@@ -21,7 +21,7 @@ export function atLeastCollaborator (context: HookContext) {
 
 export function mustBeAdmin (context: HookContext) {
   const { user } = context.params
-  if (!user || user.role !== 'admin') {
+  if (user && user.role !== 'admin') {
     throw new Forbidden('泥不是管理員，不能這樣做 🧙')
   }
 }
