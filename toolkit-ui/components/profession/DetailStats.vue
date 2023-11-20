@@ -20,8 +20,32 @@
             <td>{{ reportMap.get(field.reportId).company.name }}</td>
             <td>{{ reportMap.get(field.reportId).year }}</td>
             <td>{{ fieldMetaMap.get(field.fieldId).name }}</td>
-            <td>{{ timeInMin(field) }}</td>
+            <td>{{ timeInMin(field.timeSpentInSeconds) }}</td>
             <td>{{ field.hasAdminEdited ? '✅' : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+    <template v-else-if="statsType === StatsType.fieldMeta">
+      <table class="w-100 ba b--moon-gray" cellspacing="0">
+        <thead>
+          <tr class="bg-light-gray tl">
+            <th>欄位名稱</th>
+            <th>平均填答時間（分）</th>
+            <th>中位數填答時間（分）</th>
+            <th>標準差填答時間（分）</th>
+            <th>管理員改過比例</th>
+            <th>填答次數</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="fieldMeta in visibleFieldMetaList" :key="fieldMeta.id">
+            <td>{{ fieldMeta.name }}</td>
+            <td>{{ timeInMin(perFieldMetaStats.get(fieldMeta.id)?.meanTimeSpent || 0) }}</td>
+            <td>{{ timeInMin(perFieldMetaStats.get(fieldMeta.id)?.medianTimeSpent || 0) }}</td>
+            <td>{{ timeInMin(perFieldMetaStats.get(fieldMeta.id)?.stdTimeSpend || 0) }}</td>
+            <td>{{ perFieldMetaStats.get(fieldMeta.id)?.adminEditRatio || 0 }}%</td>
+            <td>{{ perFieldMetaStats.get(fieldMeta.id)?.count || 0 }}</td>
           </tr>
         </tbody>
       </table>
@@ -29,6 +53,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import stats from 'stats-lite'
 import { Report } from '~/libs/feathers/services/report/report.shared'
 import { ReportField } from '~/libs/feathers/services/report-field/report-field.shared'
 import { StatsType } from '~/pages/profession/stats.vue'
@@ -39,7 +64,7 @@ const props = defineProps<{
 }>()
 
 const { feathers } = useProfessionApi()
-const { fieldMetaMap } = useFieldMeta()
+const { fieldMetaList, fieldMetaMap } = useFieldMeta()
 
 const reportFieldList = ref<ReportField[]>([])
 const loadingProgress = ref(0)
@@ -52,8 +77,53 @@ const reportMap = computed(() => {
   return map
 })
 
-function timeInMin (field: ReportField) {
-  return Math.round(field.timeSpentInSeconds / 60)
+type FieldMetaStats = {
+  timeSpentList: number[],
+  meanTimeSpent: number,
+  medianTimeSpent: number,
+  stdTimeSpend: number,
+  adminEditCount: number,
+  adminEditRatio: number,
+  count: number
+}
+
+const perFieldMetaStats = computed(() => {
+  const statsMap = new Map<number, FieldMetaStats>()
+
+  reportFieldList.value.forEach((field) => {
+    if (!statsMap.has(field.fieldId)) {
+      statsMap.set(field.fieldId, {
+        timeSpentList: [],
+        meanTimeSpent: 0,
+        medianTimeSpent: 0,
+        stdTimeSpend: 0,
+        adminEditCount: 0,
+        adminEditRatio: 0,
+        count: 0
+      })
+    }
+    const fieldStats = statsMap.get(field.fieldId)!
+    fieldStats.timeSpentList.push(field.timeSpentInSeconds)
+    fieldStats.adminEditCount += field.hasAdminEdited ? 1 : 0
+    fieldStats.count += 1
+  })
+
+  for (const [, fieldStats] of statsMap) {
+    fieldStats.meanTimeSpent = stats.mean(fieldStats.timeSpentList)
+    fieldStats.medianTimeSpent = stats.median(fieldStats.timeSpentList)
+    fieldStats.stdTimeSpend = stats.stdev(fieldStats.timeSpentList)
+    fieldStats.adminEditRatio = Math.round(fieldStats.adminEditCount * 100 / fieldStats.count)
+  }
+
+  return statsMap
+})
+
+const visibleFieldMetaList = computed(() => {
+  return fieldMetaList.value.filter(fieldMeta => perFieldMetaStats.value.has(fieldMeta.id))
+})
+
+function timeInMin (timeSpentInSeconds: number) {
+  return Math.round(timeSpentInSeconds * 10 / 60) / 10
 }
 
 function loadOnePageFieldData (skip = 0) {
@@ -76,9 +146,10 @@ async function getAllReportField () {
   // each year, we will get 150 reports * 50 fields = 7500 records
   // may require performance tuning in the future
   let skipCursor = 0
+  const tempReportFieldList: ReportField[] = []
   while (true) {
     const reportFieldResp = await loadOnePageFieldData(skipCursor)
-    reportFieldList.value = reportFieldList.value.concat(reportFieldResp.data)
+    tempReportFieldList.push(...reportFieldResp.data)
 
     if (!reportFieldResp.data.length) {
       loadingProgress.value = 100
@@ -87,6 +158,7 @@ async function getAllReportField () {
     skipCursor = reportFieldResp.skip + reportFieldResp.data.length
     loadingProgress.value = Math.floor(skipCursor * 100 / reportFieldResp.total)
   }
+  reportFieldList.value = tempReportFieldList
 }
 
 watchImmediate(
@@ -106,7 +178,7 @@ watchImmediate(
   }
   td {
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
   }
 }
 </style>

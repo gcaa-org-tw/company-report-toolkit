@@ -7,16 +7,11 @@
       </p>
     </div>
     <div class="pv3 flex items-center justify-end mb4 bt bb b--moon-gray">
-      <div class="mr3">
-        <select v-model="curStatsType" class="stats__control">
-          <option v-for="statsType in statsTypeList" :key="statsType" :value="statsType">
-            {{ statsType }}
-          </option>
-        </select>
-      </div>
-      <button class="stats__control" @click="getAllReport">
-        <i class="fas fa-sync-alt"></i>
-      </button>
+      <select v-model="curStatsType" class="stats__control">
+        <option v-for="statsType in statsTypeList" :key="statsType" :value="statsType">
+          {{ statsType }}
+        </option>
+      </select>
     </div>
     <div v-if="curStatsType === StatsType.report" class="f6">
       <table class="w-100 ba b--moon-gray" cellspacing="0">
@@ -66,7 +61,7 @@ const curStatsType = ref(StatsType.report)
 const reportList = ref<Report[]>([])
 
 function timeInMin (report: Report) {
-  return Math.round(report.timeSpentInSeconds / 60)
+  return Math.round(report.timeSpentInSeconds * 10 / 60) / 10
 }
 
 function getAllReport () {
