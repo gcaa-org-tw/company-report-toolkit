@@ -133,7 +133,7 @@ function initIsOnSetPageOffset () {
     isOnSetPageOffset.value = true
     snackbar.add({
       type: 'warning',
-      text: '歡迎光臨，我們先校正報告書的第一頁吧 🍥' + isCollaborator.value,
+      text: '歡迎光臨，我們先校正報告書的第一頁吧 🍥',
       duration: 5000
     })
   }

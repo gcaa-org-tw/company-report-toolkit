@@ -25,6 +25,14 @@ import { reportPath } from '../report/report.shared'
 export * from './report-field.class'
 export * from './report-field.schema'
 
+const setAdminFlag = async (context: HookContext) => {
+  const { params, data } = context
+  const hasEditField = 'value' in data || 'notes' in data
+  if (hasEditField && params.user?.role === 'admin') {
+    context.data.hasAdminEdited = true
+  }
+}
+
 const updateReportStats = async (context: HookContext) => {
   const { app, result, params, data } = context
   const { reportId } = result
@@ -102,7 +110,8 @@ export const reportField = (app: Application) => {
       patch: [
         schemaHooks.validateData(reportFieldPatchValidator),
         schemaHooks.resolveData(reportFieldPatchResolver),
-        atLeastCollaborator
+        atLeastCollaborator,
+        setAdminFlag
       ],
       remove: [mustBeAdmin]
     },
