@@ -7,7 +7,7 @@
     <div class="industryDetail__table mv3 f6" :style="tableStyle">
       <div class="industryDetail__cell industryDetail__cell--head industryDetail__cell--name">公司名稱</div>
       <div
-        v-for="field in filedMetaList"
+        v-for="field in fieldMetaList"
         :key="field.id"
         class="industryDetail__cell industryDetail__cell--head"
       > {{ field.name }} </div>
@@ -21,7 +21,7 @@
             <i class="ml2 fa-solid fa-arrow-up-right-from-square"></i>
           </NuxtLink>
           <div
-            v-for="meta in filedMetaList"
+            v-for="meta in fieldMetaList"
             :key="meta.id"
             class="industryDetail__cell"
           >
@@ -62,11 +62,11 @@ const { feathers, isAdmin } = useProfessionApi()
 
 type REPORT_FILED_MAP = { [fieldId: string]: typeof reportFieldSchema }
 const industryFieldMap = ref<{ [reportId: string]: REPORT_FILED_MAP }>({})
-const { filedMetaList } = useFieldMeta()
+const { fieldMetaList } = useFieldMeta()
 const loadingProgress = ref(0)
 
 const tableStyle = computed(() => {
-  let gridTpl = `6rem repeat(${filedMetaList.value.length}, 6rem) 8rem`
+  let gridTpl = `6rem repeat(${fieldMetaList.value.length}, 6rem) 8rem`
   if (isAdmin.value) {
     gridTpl += ' 10rem'
   }
