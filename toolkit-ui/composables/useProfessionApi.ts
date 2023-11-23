@@ -34,7 +34,7 @@ export function startLogin (auth0: any = undefined, route: any = undefined) {
 export function useLogout () {
   const auth0 = useAuth0()
   const config = useRuntimeConfig()
-  const baseUrl = config.app.baseUrl || ''
+  const baseUrl = config.app.baseURL || ''
   return () => {
     if (auth0) {
       const redirectUrl = `${window.location.origin}${baseUrl}`
