@@ -70,7 +70,8 @@ function getAllReport () {
     .find({
       query: {
         timeSpentInSeconds: { $gt: 0 },
-        $limit: 500
+        $limit: 500,
+        $sort: { answeredFields: -1 }
       }
     })
     .then((res: any) => {

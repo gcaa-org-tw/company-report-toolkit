@@ -5,7 +5,7 @@
         工人智慧補完計畫 | 透明足跡
       </NuxtLink>
       <div v-if="user" class="flex items-center">
-        <NuxtLink v-if="isAdmin" to="/profession/stats" class="gray dim no-underline mr3">
+        <NuxtLink v-if="user" to="/profession/stats" class="gray dim no-underline mr3">
           統計資料
         </NuxtLink>
         <NuxtLink v-if="isAdmin" to="/profession/admin" class="gray dim no-underline mr3">
