@@ -84,11 +84,21 @@
     />
   </div>
 </template>
-<script lang="ts" setup>
+<script lang="ts">
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
 
+export const NA_VALUE = 'NA'
+
+export type FieldData = {
+  value: string | number,
+  unit: string,
+  notes?: string,
+  pageIndex?: number
+}
+</script>
+<script lang="ts" setup>
 const props = defineProps<{
   report: typeof reportSchema
   reportField: typeof reportFieldSchema
@@ -100,13 +110,6 @@ const emit = defineEmits(['next'])
 
 const { feathers, isCollaborator } = useProfessionApi()
 
-export type FieldData = {
-  value: string | number,
-  unit: string,
-  notes?: string,
-  pageIndex?: number
-}
-
 const fieldData = ref<FieldData>({ value: '', unit: '', notes: '', pageIndex: 0 })
 
 const canSubmitData = computed(() => {
@@ -116,7 +119,6 @@ const canSubmitData = computed(() => {
   return fieldData.value.value !== '' && (fieldData.value.unit || !shouldShowUnit.value)
 })
 
-const NA_VALUE = 'NA'
 const titleLabel = computed(() => {
   let title = '填寫判讀結果'
   if (fieldData.value.value === NA_VALUE) {
