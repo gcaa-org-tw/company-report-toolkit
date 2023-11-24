@@ -26,6 +26,7 @@ import _ from 'lodash'
 import algoliasearch from 'algoliasearch'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
+import { toLogicalPageIndex } from '~/utils/reportUtils'
 
 const props = defineProps<{
   report: typeof reportSchema
@@ -137,7 +138,7 @@ async function gotoSelectedPage (hit) {
 }
 
 function humanPageNumber (page: number) {
-  return page + (props.report.pageOffset || 0)
+  return toLogicalPageIndex(page, props.report)
 }
 
 </script>

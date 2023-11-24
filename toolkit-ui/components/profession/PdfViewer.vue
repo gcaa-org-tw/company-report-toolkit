@@ -42,22 +42,33 @@
           :scale="pdfScale.scale"
           @visible="handlePageVisible(index + 1)"
         )
-        .reportViewer__page.reportViewer__page--mask.center.pointer(
+        .reportViewer__page.reportViewer__page--mask.center.pointer.flex(
           v-if="isOnSetPageOffset"
           :style="maskStyle"
-          @click="setPageOne(index + 1)"
         )
-          .flex.flex-column.items-center.justify-around.h-100.f3.fw6
-            .reportViewer__maskLabel.pv3.ph4.br2
+          .flex.flex-column.items-center.justify-center.h-100.f3.fw6.flex-auto
+            .reportViewer__maskLabel.pv3.ph4.br2.mb3(@click="togglePageLayout")
+              template(v-if="is2PagesLayout")
+                | 切換為單頁模式
+              template(v-else)
+                | 切換為雙頁模式
+            .reportViewer__maskLabel.pv3.ph4.br2(@click="setPageOne(index + 1, true)")
               | 設定為第一頁
-            .reportViewer__maskLabel.pv3.ph4.br2
-              | 設定為第一頁
-            .reportViewer__maskLabel.pv3.ph4.br2
+          .flex.flex-column.items-center.justify-center.h-100.f3.fw6.flex-auto(
+            v-if="is2PagesLayout"
+          )
+            .reportViewer__maskLabel.pv3.ph4.br2.mb3(@click="togglePageLayout")
+              template(v-if="is2PagesLayout")
+                | 切換為單頁模式
+              template(v-else)
+                | 切換為雙頁模式
+            .reportViewer__maskLabel.pv3.ph4.br2(@click="setPageOne(index + 1, false)")
               | 設定為第一頁
 </template>
 <script lang="ts" setup>
 import _ from 'lodash'
 import type { reportSchema } from '~/libs/feathers/services/report/report.schema'
+import { toLogicalPageIndex, toPhysicalPageIndex } from '~/utils/reportUtils'
 
 const snackbar = useSnackbar()
 const { feathers, isCollaborator } = useProfessionApi()
@@ -102,26 +113,37 @@ const pageAnchor = ref(0)
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
 
+const is2PagesLayout = ref(false)
+
+function togglePageLayout () {
+  is2PagesLayout.value = !is2PagesLayout.value
+}
+
 // 1 index, simple way to track fully visible page
 const nextPageIndex = ref(1)
 const curPageIndex = ref(1)
 const readablePageIndex = computed({
   get () {
-    return curPageIndex.value + (props.report.pageOffset || 0)
+    return toLogicalPageIndex(curPageIndex.value, props.report)
   },
   set (valStr: string) {
-    const val = Number.parseInt(valStr, 10) - (props.report.pageOffset || 0)
+    const val = toPhysicalPageIndex(Number.parseInt(valStr, 10), props.report)
     manualSetPage(val)
   }
 })
 
 const totalPages = computed(() => {
-  const pageOffset = props.report.pageOffset || 0
-  if (!pageOffset) {
-    return props.report.totalPages
+  let pageOffset = props.report.pageOffset || 0
+  let totalPages = props.report.totalPages
+  if (props.report.is2Pages) {
+    totalPages = totalPages * 2 - 1
   }
-  const humanTotalPages = props.report.totalPages + pageOffset
-  return `${humanTotalPages} + ${Math.abs(pageOffset)}`
+  if (pageOffset) {
+    totalPages += pageOffset
+    pageOffset = Math.abs(pageOffset)
+  }
+
+  return `${totalPages} + ${Math.abs(pageOffset)}`
 })
 
 const isOnSetPageOffset = ref(false)
@@ -146,10 +168,19 @@ const setPageOffsetLabel = computed(() => {
   return isOnSetPageOffset.value ? '取消設定報告第一頁' : '頁次對不上？點此調整'
 })
 
-async function setPageOne (physicalPageIndex: number) {
+async function setPageOne (physicalPageIndex: number, isFirstPage: boolean) {
+  if (is2PagesLayout.value) {
+    // in 2 pages layout, p1 = p1, p2 = [p2, p3], p3 = [p4, p5], ...
+    if (physicalPageIndex > 1) {
+      physicalPageIndex = (physicalPageIndex - 1) * 2 + (isFirstPage ? 0 : 1)
+    }
+  }
   const pageOffset = 1 - physicalPageIndex
   try {
-    await feathers.app.service('report').patch(props.report.id, { pageOffset })
+    await feathers.app.service('report').patch(props.report.id, {
+      pageOffset,
+      is2Pages: is2PagesLayout.value
+    })
     emit('reload')
     isOnSetPageOffset.value = false
   } catch (err: any) {
@@ -399,6 +430,9 @@ function manualSetPage (page: number) {
 }
 
 async function gotoPage (page: number) {
+  // in is2Page, we will get p2.5 for logical p3
+  // set it to physical p2
+  page = Math.floor(page)
   const anchorTop = getAnchorPageTop(page)
   const promise = loadPage(page, { anchor: anchorTop })
   if (page > 1) {
@@ -496,7 +530,7 @@ const handlePageVisible = _.debounce((pageIndex: number) => {
       position: relative;
       z-index: 2;
 
-      &:hover {
+      > div:hover {
         background: #8806;
       }
     }
