@@ -88,6 +88,7 @@
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
+import { toLogicalPageIndex, toPhysicalPageIndex } from '~/utils/reportUtils'
 
 export const NA_VALUE = 'NA'
 
@@ -138,7 +139,7 @@ const shouldShowUnit = computed(() => {
 })
 
 function syncPageIndex () {
-  fieldData.value.pageIndex = props.focusedPage + pageOffset.value
+  fieldData.value.pageIndex = toLogicalPageIndex(props.focusedPage, props.report)
 }
 
 const TYPE_MAP: { [key: string]: string } = {
@@ -149,10 +150,6 @@ const TYPE_MAP: { [key: string]: string } = {
 
 const valueInputType = computed(() => {
   return TYPE_MAP[props.fieldMeta.dataType] || 'text'
-})
-
-const pageOffset = computed(() => {
-  return props.report.pageOffset || 0
 })
 
 // user tracking
@@ -203,13 +200,14 @@ watchImmediate(() => props.reportField, (reportField) => {
       fieldData.value.unit = props.fieldMeta.units[0]
     }
     fieldData.value.notes = reportField.notes || ''
+    fieldData.value.pageIndex = toLogicalPageIndex(reportField.pageIndex, props.report)
   }
 })
 
 async function patchReportField (data: typeof fieldData.value) {
   data = {
     ...data,
-    pageIndex: (data.pageIndex || 0) - pageOffset.value
+    pageIndex: toPhysicalPageIndex(data.pageIndex || 0, props.report)
   }
   await feathers.app.service('report-field').patch(props.reportField.id, data)
   await trackTimeSpendIfNeeded()
