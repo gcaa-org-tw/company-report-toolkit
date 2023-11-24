@@ -31,7 +31,7 @@ fi
 
 # split the source file into 10 page chunks
 echo Start spliting $source into 10 page chunks
-cpdf "$source" -split -chunk 10 -o $TEMP_DIR/%%%.pdf
+cpdf "$source" -split -chunk 10 -o $TEMP_DIR/%%%.pdf -decrypt-force
 
 
 # minify each file
