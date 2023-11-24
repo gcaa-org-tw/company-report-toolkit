@@ -13,6 +13,7 @@
             <th>欄位名稱</th>
             <th>填答時間（分）</th>
             <th>管理員改過</th>
+            <th>無法填答</th>
           </tr>
         </thead>
         <tbody>
@@ -22,6 +23,7 @@
             <td>{{ fieldMetaMap.get(field.fieldId).name }}</td>
             <td>{{ timeInMin(field.timeSpentInSeconds) }}</td>
             <td>{{ field.hasAdminEdited ? '✅' : '-' }}</td>
+            <td>{{ field.value === NA_VALUE ? '✅' : '-' }}</td>
           </tr>
         </tbody>
       </table>
@@ -57,6 +59,7 @@ import stats from 'stats-lite'
 import { Report } from '~/libs/feathers/services/report/report.shared'
 import { ReportField } from '~/libs/feathers/services/report-field/report-field.shared'
 import { StatsType } from '~/pages/profession/stats.vue'
+import { NA_VALUE } from '~/components/AnswerPanel.vue'
 
 const props = defineProps<{
   reportList: Report[],
@@ -131,7 +134,7 @@ function loadOnePageFieldData (skip = 0) {
     .find({
       query: {
         timeSpentInSeconds: { $gt: 0 },
-        $select: ['fieldId', 'reportId', 'timeSpentInSeconds', 'hasAdminEdited'],
+        $select: ['fieldId', 'reportId', 'timeSpentInSeconds', 'hasAdminEdited', 'value'],
         $limit: 500,
         $sort: {
           reportId: 1,
