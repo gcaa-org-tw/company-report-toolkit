@@ -51,7 +51,7 @@
         >
           <div>
             <div class="fw5 mb1">{{ meta(field).name }}</div>
-            <div class="f6 gray truncate"> {{ meta(field).description }}</div>
+            <div class="f6 gray"> {{ meta(field).description }}</div>
           </div>
           <div>
             <div v-if="field.value !== null" class="report__value">
@@ -145,7 +145,7 @@ function editorLink (report: typeof reportSchema, field: typeof reportFieldSchem
 
   &__field {
     display: grid;
-    grid-template-columns: 1fr 1fr 10rem 2rem;
+    grid-template-columns: 30rem 1fr 10rem 2rem;
     grid-gap: 1rem;
     margin-bottom: 1rem;
   }
