@@ -40,6 +40,7 @@ mkdir -p $dest
 echo Start minifying files
 for file in $TEMP_DIR/*.pdf; do
   base=`basename $file`
+  # mv $file "$dest/$base"
 
-  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$dest/$base" $file
+  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$dest/$base" $file
 done
