@@ -200,7 +200,8 @@ watchImmediate(() => props.reportField, (reportField) => {
       fieldData.value.unit = props.fieldMeta.units[0]
     }
     fieldData.value.notes = reportField.notes || ''
-    fieldData.value.pageIndex = toLogicalPageIndex(reportField.pageIndex, props.report)
+    const rawPageIndex = reportField.pageIndex || props.focusedPage || 0
+    fieldData.value.pageIndex = toLogicalPageIndex(rawPageIndex, props.report)
   }
 })
 
