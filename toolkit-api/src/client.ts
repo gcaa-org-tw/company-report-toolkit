@@ -2,6 +2,7 @@
 import { feathers } from '@feathersjs/feathers'
 import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
+import { healthClient } from './services/health'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
 import { reportFieldClient } from './services/report-field/report-field.shared'
@@ -60,5 +61,6 @@ export const createClient = <Configuration = any,>(
   client.configure(reportClient)
   client.configure(fieldMetaClient)
   client.configure(reportFieldClient)
+  client.configure(healthClient)
   return client
 }
