@@ -1,12 +1,14 @@
 import _ from 'lodash'
-import { Application, feathers } from '@feathersjs/feathers'
+import type { Application } from '@feathersjs/feathers'
+import { feathers } from '@feathersjs/feathers'
 import feathersSocketioClient from '@feathersjs/socketio-client'
 import socketio from 'socket.io-client'
 import authentication from '@feathersjs/authentication-client'
+import { useAuth0 } from '@auth0/auth0-vue'
+import type { RuntimeConfig } from 'nuxt/schema'
 import { userSchema } from '~/libs/feathers/services/users/users.schema'
 import { reportFieldMethods } from '~/libs/feathers/services/report-field/report-field.shared'
-import { useAuth0 } from '@auth0/auth0-vue'
-import { RuntimeConfig } from 'nuxt/schema'
+import { reportMethods, reportPath } from '~/libs/feathers/services/report/report.shared'
 
 export const DEFAULT_SOCKET_URL = 'http://localhost:3030/'
 
@@ -74,6 +76,10 @@ async function initFeathersClient (
 
   feathersApp.use('report-field', socketClient.service('report-field'), {
     methods: reportFieldMethods
+  })
+
+  feathersApp.use(reportPath, socketClient.service(reportPath), {
+    methods: reportMethods
   })
 
   return feathersApp

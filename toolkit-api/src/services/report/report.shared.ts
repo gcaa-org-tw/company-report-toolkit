@@ -9,7 +9,7 @@ export type ReportClientService = Pick<ReportService<Params<ReportQuery>>, (type
 
 export const reportPath = 'report'
 
-export const reportMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const reportMethods = ['find', 'get', 'create', 'patch', 'remove', 'download'] as const
 
 export const reportClient = (client: ClientApplication) => {
   const connection = client.get('connection')

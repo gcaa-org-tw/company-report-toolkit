@@ -25,7 +25,7 @@
     "@vueuse/nuxt": "^10.2.1",
     "eslint": "^8.45.0",
     "eslint-plugin-vue-pug": "^0.6.0",
-    "nuxt": "^3.6.5",
+    "nuxt": "^3.9.0",
     "pug": "^3.0.2",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-pug": "^0.3.2"

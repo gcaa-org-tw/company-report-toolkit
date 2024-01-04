@@ -21,14 +21,14 @@
         @click="changeFilter(theType)"
       ) {{ theType }}
     .industry__modeList
-      button.industry__mode.bg-white.pv2.ph3.ba.b-light-green.b--light-gray.br2.dim.pointer(
+      button.industry__mode.bg-white.pv2.ph3.ba.b--light-gray.br2.dim.pointer(
         v-for="theMode in Object.values(PageMode)"
         :key="theMode"
         :class="{ 'industry__mode--active': pageMode === theMode }"
         @click="pageMode = theMode"
       ) {{ theMode }}
   div(v-if="isDetailMode")
-    ProfessionIndustryDetail(:report-list="reportsOfYear")
+    ProfessionIndustryDetail(:report-list="reportsOfYear" :industry="industryName" :year="curYear")
   .pa4(v-else)
     ProfessionReportList(:report-list="reportList" :filter="filter")
 </template>

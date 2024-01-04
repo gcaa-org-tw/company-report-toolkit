@@ -1,5 +1,5 @@
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
-import { FieldData } from '~/components/AnswerPanel.vue'
+import type { FieldData } from '~/components/AnswerPanel.vue'
 
 // convert filedData.value using default unit
 export function normalizeReportFiledValue (fieldData: FieldData, fieldMeta: typeof fieldMetaSchema) {

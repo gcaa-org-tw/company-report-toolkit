@@ -7,7 +7,9 @@
   "keywords": [
     "feathers"
   ],
-  "author": { "name": "GCAA"},
+  "author": {
+    "name": "GCAA"
+  },
   "contributors": [],
   "bugs": {},
   "engines": {
@@ -60,12 +62,15 @@
     "@feathersjs/socketio": "^5.0.11",
     "@feathersjs/transport-commons": "^5.0.11",
     "@feathersjs/typebox": "^5.0.11",
+    "@json2csv/plainjs": "^7.0.4",
     "@types/node": "^18.18.2",
     "axios": "^1.5.1",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.10",
     "dotenv": "^16.3.1",
     "knex": "^3.0.1",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^12.0.1",
     "pg": "^8.11.3",
     "pg-native": "^3.0.1",
     "shx": "^0.3.4",
@@ -77,6 +82,8 @@
   "devDependencies": {
     "@feathersjs/cli": "^5.0.11",
     "@feathersjs/rest-client": "^5.0.11",
+    "@types/koa-mount": "^4.0.5",
+    "@types/koa-router": "^7.4.8",
     "@types/mocha": "^10.0.2",
     "autodetect-decoder-stream": "^2.0.2",
     "csv-reader": "^1.0.12",

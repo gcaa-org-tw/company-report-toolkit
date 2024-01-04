@@ -4,57 +4,65 @@
       資料載入中...
       <span class="fw7">{{ loadingProgress }}%</span>
     </h1>
-    <div class="industryDetail__table mv3 f6" :style="tableStyle">
-      <div class="industryDetail__cell industryDetail__cell--head industryDetail__cell--name">公司名稱</div>
-      <div
-        v-for="field in fieldMetaList"
-        :key="field.id"
-        class="industryDetail__cell industryDetail__cell--head"
-      > {{ field.name }} </div>
-      <div class="industryDetail__cell industryDetail__cell--head">更新時間</div>
-      <div v-if="isAdmin" class="industryDetail__cell industryDetail__cell--head"></div>
-      <template v-for="report in reportList" :key="report.id">
-        <template v-if="industryFieldMap[report.id]">
-          <NuxtLink :to="reportLink(report)" class="industryDetail__cell industryDetail__cell--name gray dim no-underline">
-            <span v-if="report.isVerified">✅</span>
-            {{ report.company.abbreviation }}
-            <i class="ml2 fa-solid fa-arrow-up-right-from-square"></i>
-          </NuxtLink>
-          <div
-            v-for="meta in fieldMetaList"
-            :key="meta.id"
-            class="industryDetail__cell"
-          >
-            <div class="industryDetail__value">
-              <ProfessionIndustryCellValue
-                :report-field="industryFieldMap[report.id][meta.id]"
-                :filed-meta="meta"
-              />
-            </div>
-          </div>
-          <div class="industryDetail__cell">
-            {{ readableDate(report.updatedAt) }}
-          </div>
-          <div v-if="isAdmin" class="industryDetail__cell">
-            <button
-              v-if="!report.isVerified"
-              class="bg-green white pv1 ph2 br2 bw0 dim pointer"
-              @click="markAsVerified(report)"
+    <template v-else>
+      <div class="flex justify-end">
+        <button class="bg-green pv2 ph3 ba white b--light-gray br2 dim pointer" @click="exportTable">匯出表格</button>
+      </div>
+      <div class="industryDetail__table mv3 f6" :style="tableStyle">
+        <div class="industryDetail__cell industryDetail__cell--head industryDetail__cell--name">公司名稱</div>
+        <div
+          v-for="field in fieldMetaList"
+          :key="field.id"
+          class="industryDetail__cell industryDetail__cell--head"
+        > {{ field.name }} </div>
+        <div class="industryDetail__cell industryDetail__cell--head">更新時間</div>
+        <div v-if="isAdmin" class="industryDetail__cell industryDetail__cell--head"></div>
+        <template v-for="report in reportList" :key="report.id">
+          <template v-if="industryFieldMap[report.id]">
+            <NuxtLink :to="reportLink(report)" class="industryDetail__cell industryDetail__cell--name gray dim no-underline">
+              <span v-if="report.isVerified">✅</span>
+              {{ report.company.abbreviation }}
+              <i class="ml2 fa-solid fa-arrow-up-right-from-square"></i>
+            </NuxtLink>
+            <div
+              v-for="meta in fieldMetaList"
+              :key="meta.id"
+              class="industryDetail__cell"
             >
-              標為已驗證 ✅
-            </button>
-          </div>
+              <div class="industryDetail__value">
+                <ProfessionIndustryCellValue
+                  :report-field="industryFieldMap[report.id][meta.id]"
+                  :filed-meta="meta"
+                />
+              </div>
+            </div>
+            <div class="industryDetail__cell">
+              {{ readableDate(report.updatedAt) }}
+            </div>
+            <div v-if="isAdmin" class="industryDetail__cell">
+              <button
+                v-if="!report.isVerified"
+                class="bg-green white pv1 ph2 br2 bw0 dim pointer"
+                @click="markAsVerified(report)"
+              >
+                標為已驗證 ✅
+              </button>
+            </div>
+          </template>
         </template>
-      </template>
-    </div>
+      </div>
+    </template>
   </div>
 </template>
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
+import { reportPath } from '~/libs/feathers/services/report/report.shared'
 
 const props = defineProps<{
+  industry: string
+  year: number
   reportList: typeof reportSchema[]
 }>()
 
@@ -139,6 +147,16 @@ watch(() => props.reportList, initPageData, {
   immediate: true
 })
 
+async function exportTable () {
+  const reportIdList = props.reportList.map(report => report.id)
+  const fileName = `${props.industry}-${props.year}.csv`
+  const resp = await feathers.app.service(reportPath).download({
+    reportIds: reportIdList,
+    fileName
+  })
+  const downloadUrl = `${feathers.apiEndpoint.value}file/${resp.id}`
+  window.open(downloadUrl)
+}
 </script>
 <style scoped lang="scss">
 .industryDetail {
