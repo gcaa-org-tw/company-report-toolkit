@@ -25,7 +25,7 @@
 </template>
 <script lang="ts" setup>
 import { parse } from 'csv-parse/browser/esm/sync'
-import { FieldData } from './AnswerPanel.vue'
+import type { FieldData } from './AnswerPanel.vue'
 import { reportSchema } from '~/libs/feathers/services/report/report.schema'
 import { reportFieldSchema } from '~/libs/feathers/services/report-field/report-field.schema'
 import { fieldMetaSchema } from '~/libs/feathers/services/field-meta/field-meta.schema'
