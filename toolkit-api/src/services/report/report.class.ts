@@ -112,7 +112,8 @@ export class ReportService<ServiceParams extends Params = ReportParams> extends 
         const rowObj = {
           證券代號: report?.company?.stockCode,
           公司名稱: report?.company?.name,
-          公司簡稱: report?.company?.abbreviation
+          公司簡稱: report?.company?.abbreviation,
+          年份: report?.year,
         }
         const oneReportFields = allReportFields[reportId]
         return metaList.reduce((acc, meta) => {
