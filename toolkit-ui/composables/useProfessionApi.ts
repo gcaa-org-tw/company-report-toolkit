@@ -3,10 +3,10 @@ import { Application, feathers } from '@feathersjs/feathers'
 import feathersSocketioClient from '@feathersjs/socketio-client'
 import socketio from 'socket.io-client'
 import authentication from '@feathersjs/authentication-client'
-import { userSchema } from '~/libs/feathers/services/users/users.schema'
-import { reportFieldMethods } from '~/libs/feathers/services/report-field/report-field.shared'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { RuntimeConfig } from 'nuxt/schema'
+import { userSchema } from '~/libs/feathers/services/users/users.schema'
+import { reportFieldMethods } from '~/libs/feathers/services/report-field/report-field.shared'
 
 export const DEFAULT_SOCKET_URL = 'http://localhost:3030/'
 
