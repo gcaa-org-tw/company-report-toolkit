@@ -43,11 +43,17 @@ cd toolkit-api
 cp env.example .env
 npm install
 npm run migrate
-
 npm run dev
 
-# 再把前端跑起來 (run the development version of the UI frontend)
-cd toolkit-ui
+# 再塞點資料、建立報告書、公司
+npx ts-node seeds/seed-company.ts
+npx ts-node seeds/seed-field-meta.ts
+npx ts-node seeds/seed-report.ts
+npx ts-nodde seeds/seed-report-field.ts
+
+
+# 然後把前端跑起來 (run the development version of the UI frontend)
+cd ../toolkit-ui
 cp env.example .env #如果後端使用自建的設定檔，請修改 auth0 相關變數
 npm install
 
