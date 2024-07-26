@@ -60,6 +60,7 @@ npm install
 npm run dev
 ```
 
-### 徵求中
+### 欄位定義
 
-1. TS 熟手
+1. 請先從[這份試算表](https://g0v.hackmd.io/@ddio-io/open-csr-report/https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fu%2F1%2Fd%2F1Ypq8uVsJoU4RhB4shdCrygKmk6Hm_OcqNR5QbBb5bSQ%2Fedit%23gid%3D0)
+   下載最新的 CSV （請勿手改，方便非工程師核對），放到 toolkit-api/seeds/field-meta.csv ，再執行 seed-field-mets.ts 即可
