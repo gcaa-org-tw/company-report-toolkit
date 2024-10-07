@@ -71,12 +71,7 @@ function switchPage (page, top = 0) {
 
 function setScale (scale, top = 0) {
   if (pdfViewer.value) {
-    const scroller = pdfViewer.value.container.parentElement
-    top = props.pageAnchor || top || scroller.scrollTop
     pdfViewer.value.currentScale = scale / pdf2CssUnits.value
-    if (top) {
-      scroller.scrollTo({ top })
-    }
   }
 }
 

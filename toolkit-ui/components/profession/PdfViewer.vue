@@ -476,21 +476,6 @@ function fitScaleHeight () {
   scaleMode.value = ScaleType.FitHeight
 }
 
-watch(pdfScale, async (newValue, prevValue) => {
-  if (!newValue || !prevValue || !scrollerEle.value) {
-    return
-  }
-  const scroller = scrollerEle.value
-  const halfScreenHeight = scroller.clientHeight / 2
-  const origTopRatio = (scroller.scrollTop + halfScreenHeight) / scroller.scrollHeight
-  await nextTick()
-  const newTop = scroller.scrollHeight * origTopRatio - halfScreenHeight
-  pageAnchor.value = newTop
-  setTimeout(() => {
-    pageAnchor.value = 0
-  }, STICKY_FOR_A_WHILE)
-})
-
 // page view
 
 const handlePageVisible = _.debounce((pageIndex: number) => {
