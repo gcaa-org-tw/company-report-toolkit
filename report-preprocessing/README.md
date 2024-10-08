@@ -37,7 +37,7 @@ node ./build-index.js -s <source pdf>  -i 統編 -y 資料年度
 
 ```
 # 假設 PDF 少於 9,999 頁
-./minify-pdf.sh ./path/to/csr/report.pdf ./path/to/output/dir
+./split-n-minify.sh ./path/to/csr/report.pdf ./path/to/output/dir
 ```
 
 並將 PDF 上傳到合適的線上空間
