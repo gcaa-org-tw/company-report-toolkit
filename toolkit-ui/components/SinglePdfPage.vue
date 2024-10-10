@@ -17,6 +17,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  clickAnchor: {
+    type: Array,
+    default: () => []
+  },
   highlight: {
     type: String,
     default: ''
@@ -69,9 +73,22 @@ function switchPage (page, top = 0) {
   }
 }
 
-function setScale (scale, top = 0) {
+function setScale (scale: number): void {
   if (pdfViewer.value) {
-    pdfViewer.value.currentScale = scale / pdf2CssUnits.value
+    const previousScale = pdfViewer.value.currentScale
+    const newScale = scale / pdf2CssUnits.value
+    pdfViewer.value.currentScale = newScale
+
+    if (props.clickAnchor.length !== 0) {
+      const scroller = pdfViewer.value.container.parentElement
+      const scaleDiff = (newScale / previousScale) - 1
+      const rect = scroller.getBoundingClientRect()
+      const scrollAnchorX = props.clickAnchor[0] - rect.left
+      const scrollAnchorY = props.clickAnchor[1] - rect.top
+
+      scroller.scrollLeft += scrollAnchorX * scaleDiff
+      scroller.scrollTop += scrollAnchorY * scaleDiff
+    }
   }
 }
 
