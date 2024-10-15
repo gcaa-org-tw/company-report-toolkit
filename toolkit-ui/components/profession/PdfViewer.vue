@@ -39,8 +39,10 @@
           :class="[`thePage--${index + 1}`]"
           :highlight="cursor.highlight"
           :page-anchor="pageAnchor"
+          :click-anchor="clickAnchor"
           :scale="pdfScale.scale"
           @visible="handlePageVisible(index + 1)"
+          @wheel="handleZoomLevelMouseScroll"
         )
         .reportViewer__page.reportViewer__page--mask.center.pointer.flex(
           v-if="isOnSetPageOffset"
@@ -110,6 +112,7 @@ const isLibLoaded = ref(false)
 const pdfLibTimer = ref<number | undefined>(undefined)
 const pageLoadQueue = ref<number[]>([])
 const pageAnchor = ref(0)
+const clickAnchor = ref<number[]>([])
 const pageChunk = shallowRef<any>({})
 const pages = ref<any>([null])
 
@@ -227,10 +230,12 @@ const pdfScale = computed(() => {
 
 onMounted(() => {
   keepCheckingPdfLibReadiness()
+  window.addEventListener('keydown', handleZoomLevelKeyDown)
 })
 
 onBeforeUnmount(() => {
   clearTimeout(pdfLibTimer.value)
+  window.removeEventListener('keydown', handleZoomLevelKeyDown)
 })
 
 const isMainReady = computed(() => {
@@ -476,21 +481,28 @@ function fitScaleHeight () {
   scaleMode.value = ScaleType.FitHeight
 }
 
-watch(pdfScale, async (newValue, prevValue) => {
-  if (!newValue || !prevValue || !scrollerEle.value) {
+function handleZoomLevelKeyDown (event: KeyboardEvent) {
+  if (event.key === '+') {
+    zoomIn()
+  } else if (event.key === '-') {
+    zoomOut()
+  }
+}
+
+function handleZoomLevelMouseScroll (event: WheelEvent) {
+  if (event.buttons !== 1) {
     return
   }
-  const scroller = scrollerEle.value
-  const halfScreenHeight = scroller.clientHeight / 2
-  const origTopRatio = (scroller.scrollTop + halfScreenHeight) / scroller.scrollHeight
-  await nextTick()
-  const newTop = scroller.scrollHeight * origTopRatio - halfScreenHeight
-  pageAnchor.value = newTop
-  setTimeout(() => {
-    pageAnchor.value = 0
-  }, STICKY_FOR_A_WHILE)
-})
+  event.preventDefault()
+  const origin = [event.clientX, event.clientY]
+  clickAnchor.value = origin
 
+  if (event.deltaY < 0) {
+    zoomIn()
+  } else {
+    zoomOut()
+  }
+}
 // page view
 
 const handlePageVisible = _.debounce((pageIndex: number) => {
