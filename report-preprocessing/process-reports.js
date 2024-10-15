@@ -38,13 +38,10 @@ async function main (argPayload) {
   const ignoreList = buildIgnoreList(argPayload.ignore || [])
 
   for (const reportName of argPayload.src) {
-    // reportName = <company name>-<year>.pdf
-    const [name, year] = path.parse(reportName).name.split('-').map(s => s.trim())
-    const companyId = companyMap.name[name] || companyMap.abbr[name]
-
-    // // reportName = <dummy0>_<dummy1>_<tw year>_<company id>.pdf
-    // const [dummy0, dummy1, twYear, companyId] = path.parse(reportName).name.split('_').map(s => s.trim())
-    // const year = Number(twYear) + 1911
+    // reportName = <stockId>_<twYear>_<companyId>.pdf (<股票代號>_<資料年份(民國)>_<統一編號>.pdf)
+    // example: 1102_112_03244509.pdf
+    const [stockId, twYear, companyId] = path.parse(reportName).name.split('_').map(s => s.trim())
+    const year = Number(twYear) + 1911
 
     if (!companyId) {
       console.error(`***** Cannot find company ID for ${reportName} *****`)
