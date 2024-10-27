@@ -506,11 +506,10 @@ function handleZoomLevelMouseScroll (event: WheelEvent) {
 // page view
 
 const handlePageVisible = _.debounce((pageIndex: number) => {
-  if (pageIndex === nextPageIndex.value) {
-    return
-  }
-  curPageIndex.value = nextPageIndex.value
   nextPageIndex.value = pageIndex
+  if (nextPageIndex.value !== curPageIndex.value) {
+    curPageIndex.value = nextPageIndex.value
+  }
   emit('view-page', curPageIndex.value)
 }, TIME_TO_GLANCE_PAGE)
 
