@@ -1,23 +1,12 @@
 import parseArgs from 'command-line-args'
-import csvtojson from 'csvtojson'
 import dotenv from 'dotenv'
 import shellExec from 'shell-exec'
 import * as url from 'node:url'
 
+import { prepareCompanyMap, extractPdfNameInfo } from './utils.js'
 import { buildOneIndex } from './build-index.js'
 import path from 'path'
 import fs from 'fs'
-
-async function prepareCompanyMap () {
-  const rows = await csvtojson().fromFile('./companyList.csv')
-  const companyMap = rows.reduce((acc, row) => {
-    acc.name[row.公司名稱] = row.統編
-    acc.abbr[row.公司簡稱] = row.統編
-    acc.id[row.統編] = row.公司簡稱
-    return acc
-  }, {name: {}, abbr: {}, id: {}})
-  return companyMap
-}
 
 function buildIgnoreList (ignoreFileList) {
   const ignoreList = new Map()
@@ -38,10 +27,7 @@ async function main (argPayload) {
   const ignoreList = buildIgnoreList(argPayload.ignore || [])
 
   for (const reportName of argPayload.src) {
-    // reportName = <stockId>_<twYear>_<companyId>.pdf (<股票代號>_<資料年份(民國)>_<統一編號>.pdf)
-    // example: 1102_112_03244509.pdf
-    const [stockId, twYear, companyId] = path.parse(reportName).name.split('_').map(s => s.trim())
-    const year = Number(twYear) + 1911
+    const { companyId, year } = extractPdfNameInfo(reportName)
 
     if (!companyId) {
       console.error(`***** Cannot find company ID for ${reportName} *****`)
