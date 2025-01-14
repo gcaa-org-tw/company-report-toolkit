@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { parse } from 'yaml'
+import ora from 'ora'
 import { app } from '../src/app'
 import { reportPath } from '../src/services/report/report.shared'
 import { reportFieldPath } from '../src/services/report-field/report-field.shared'
@@ -10,6 +11,8 @@ async function seed () {
   const reportService = app.service(reportPath)
   const metaService = app.service(fieldMetaPath)
   const fieldService = app.service(reportFieldPath)
+
+  const spinner = ora('Generating all tasks...').start()
 
   const reports = await reportService.find({ paginate: false })
   const metaList = await metaService.find({ paginate: false })
@@ -35,17 +38,20 @@ async function seed () {
     return acc
   }, [[]])
 
-  console.log(`Seeding ${chunkedTasks.length} chunks of ${chunkSize} tasks`)
+  spinner.succeed(`Going to seed ${tasks.length} report fields, split into ${chunkedTasks.length} chunks`)
+
+  spinner.start('Seeding report fields...')
   let doneCount = 0
   for(const chunk of chunkedTasks) {
     doneCount += 1
-    if (doneCount % 10 === 0) {
-      console.log(`Done ${doneCount} chunks`)
-    }
+    const progress = Math.round(doneCount / chunkedTasks.length * 100)
+    spinner.text = `[${progress}%] Seeding report fields... (${doneCount}/${chunkedTasks.length})`
     await Promise.all(chunk.map((newTask) => {
       return fieldService.create(newTask)
     }))
   }
+
+  spinner.succeed(`Seeded ${tasks.length} report fields`)
 
   // init report stats
   const nFields = metaList.length
@@ -56,8 +62,8 @@ async function seed () {
       isVerified: false
     })
   }))
+  spinner.succeed(`Initialized ${reports.length} report stats`)
 
-  console.log(`Seeded ${tasks.length} report fields`)
   // shutdown app as knex.destroy print error XD
   process.exit(0)
 }
