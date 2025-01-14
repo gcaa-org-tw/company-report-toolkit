@@ -49,7 +49,7 @@ npm run dev
 npx ts-node seeds/seed-company.ts
 npx ts-node seeds/seed-field-meta.ts
 npx ts-node seeds/seed-report.ts
-npx ts-nodde seeds/seed-report-field.ts
+npx ts-node seeds/seed-report-field.ts
 
 
 # 然後把前端跑起來 (run the development version of the UI frontend)
