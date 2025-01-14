@@ -199,7 +199,7 @@ async function setPageOne (physicalPageIndex: number, isFirstPage: boolean) {
 
 // scale
 
-const scaleMode = ref<ScaleType>(ScaleType.FitWidth)
+const scaleMode = ref<ScaleType>(ScaleType.FitHeight)
 const scaleMeta = ref({ pdfSize: { width: 0, height: 0 }, widthScale: 0, heightScale: 0, customScale: 0 })
 
 const pdfScale = computed(() => {
@@ -348,7 +348,7 @@ async function renderMainPage () {
 function resetViewer () {
   pageChunk.value = {}
   pages.value = Array(props.report.totalPages).fill(null)
-  scaleMode.value = ScaleType.FitWidth
+  scaleMode.value = ScaleType.FitHeight
   scaleMeta.value.widthScale = 0
 }
 
