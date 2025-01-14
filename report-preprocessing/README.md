@@ -32,7 +32,6 @@ node ./process-reports.js -s <list of pdf>
 node ./build-index.js -s <source pdf>  -i 統編 -y 資料年度
 ```
 
-
 ### 將 PDF 切成小塊（已包含在一鍵完成中）
 
 ```
@@ -41,5 +40,4 @@ node ./build-index.js -s <source pdf>  -i 統編 -y 資料年度
 ```
 
 並將 PDF 上傳到合適的線上空間
-
 
