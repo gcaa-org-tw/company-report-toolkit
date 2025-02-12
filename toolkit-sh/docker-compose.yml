@@ -1,0 +1,10 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - ./backup-psql.sh:/usr/local/bin/backup.sh
+      - ./backups:/backups
+    working_dir: /backups
