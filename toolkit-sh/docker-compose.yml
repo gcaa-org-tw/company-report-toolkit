@@ -6,5 +6,6 @@ services:
     image: postgres:16
     volumes:
       - ./backup-psql.sh:/usr/local/bin/backup.sh
+      - ./restore-psql.sh:/usr/local/bin/restore.sh
       - ./backups:/backups
     working_dir: /backups
