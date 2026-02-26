@@ -1,6 +1,7 @@
 import parseArgs from 'command-line-args'
 import dotenv from 'dotenv'
 import shellExec from 'shell-exec'
+import yaml from 'js-yaml'
 import * as url from 'node:url'
 
 import { prepareCompanyMap, extractPdfNameInfo } from './utils.js'
@@ -27,7 +28,7 @@ async function main (argPayload) {
   const ignoreList = buildIgnoreList(argPayload.ignore || [])
 
   for (const reportName of argPayload.src) {
-    const { companyId, year } = extractPdfNameInfo(reportName)
+    const { companyId, year } = extractPdfNameInfo(reportName, companyMap)
 
     if (!companyId) {
       console.error(`***** Cannot find company ID for ${reportName} *****`)
@@ -38,7 +39,7 @@ async function main (argPayload) {
       continue
     }
     console.info(`== Processing ${reportName} for ${companyId}[${year}]`)
-    const totalPage = await buildOneIndex({
+    const totalPages = await buildOneIndex({
       src: reportName,
       companyId,
       year
@@ -57,10 +58,11 @@ async function main (argPayload) {
       id: companyId,
       name: companyMap.id[companyId],
       year,
-      totalPage
+      totalPages
     })
     // in case of script crash
     fs.writeFileSync(reportDefPath, JSON.stringify(resultList, null, 2))
+    genReportSeed(resultList, reportDefPath)
   }
   
   if (resultList.length === 0) {
@@ -68,7 +70,30 @@ async function main (argPayload) {
     return
   }
   fs.writeFileSync(reportDefPath, JSON.stringify(resultList, null, 2))
+  genReportSeed(resultList, reportDefPath)
   console.info(`Check company list in ${reportDefPath}`)
+}
+
+function genReportSeed (resultList, reportDefPath) {
+  const ymlPath = reportDefPath.replace(/\.json$/, '.yml')
+  const annualReports = {}
+
+  for (const result of resultList) {
+    const { id, name, year, totalPages } = result
+    if (!annualReports[year]) {
+      annualReports[year] = {
+          year: Number(year),
+          reports: []
+      }
+    }
+    annualReports[year].reports.push({
+      id,
+      name,
+      totalPages
+    })
+  }
+
+  fs.writeFileSync(ymlPath, yaml.dump(Object.values(annualReports)))
 }
 
 const modulePath = url.fileURLToPath(import.meta.url)
