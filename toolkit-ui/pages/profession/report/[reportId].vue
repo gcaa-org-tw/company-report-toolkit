@@ -58,7 +58,7 @@
               {{ field.value }} {{ field.unit }}
             </div>
             <div v-else class="report__value"> - </div>
-            <div v-if="field.notes" class="mt2 gray truncate">
+            <div v-if="field.notes" class="report__notes mt2 gray">
               {{ field.notes }}
             </div>
           </div>
@@ -154,6 +154,10 @@ function editorLink (report: typeof reportSchema, field: typeof reportFieldSchem
     &:not(:last-child) {
       margin-right: 1rem;
     }
+  }
+
+  &__notes {
+    white-space: pre-line;
   }
 }
 </style>
