@@ -19,11 +19,11 @@ function seed () {
         if (existing.total) return
         tasks.push(
           companyService.create({
-            id: data.tax_code,
-            name: data.name,
-            abbreviation: data.name_abbr,
-            industry: data.industry,
-            stockCode: data.stock_code
+            id: data.tax_code.trim(),
+            name: data.name.trim(),
+            abbreviation: data.name_abbr.trim(),
+            industry: data.industry.trim(),
+            stockCode: data.stock_code.trim()
           })
         )
       })
