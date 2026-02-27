@@ -1,414 +1,524 @@
-- year: 2023
+- year: 2024
   reports:
-    - id: '11913502'
-      name: 台泥
-      totalPages: 216
-    - id: '03244509'
-      name: 亞泥
-      totalPages: 145
     - id: '07568009'
-      name: 環泥
-      totalPages: 85
+      name: 環球水泥
+      totalPages: 59
     - id: '40601248'
-      name: 幸福
-      totalPages: 70
+      name: 幸福水泥
+      totalPages: 96
     - id: '03279507'
-      name: 信大
-      totalPages: 104
+      name: 信大水泥
+      totalPages: 103
     - id: '36514783'
-      name: 卜蜂
-      totalPages: 104
+      name: 台灣卜蜂企業
+      totalPages: 107
     - id: '73251209'
-      name: 統一
-      totalPages: 92
+      name: 統一企業
+      totalPages: 91
     - id: '03543210'
-      name: 台榮
-      totalPages: 113
+      name: 台榮產業
+      totalPages: 124
     - id: '20927014'
       name: 大統益
-      totalPages: 68
+      totalPages: 73
     - id: '03794905'
-      name: 台糖公司
-      totalPages: 180
-    - id: '89397503'
-      name: 臺鹽
-      totalPages: 138
-    - id: '12529007'
-      name: 環泰
-      totalPages: 169
+      name: 台灣糖業
+      totalPages: 193
     - id: '75708007'
-      name: 台塑
-      totalPages: 175
+      name: 台灣塑膠工業
+      totalPages: 173
     - id: '75370905'
-      name: 南亞
-      totalPages: 155
+      name: 南亞塑膠工業
+      totalPages: 142
     - id: '11917107'
-      name: 台聚
-      totalPages: 161
+      name: 台灣聚合化學品
+      totalPages: 151
     - id: '11686106'
-      name: 華夏
+      name: 華夏海灣塑膠
       totalPages: 182
     - id: '83387850'
-      name: 三芳
-      totalPages: 101
+      name: 三芳化學工業
+      totalPages: 121
     - id: '20747385'
-      name: 亞聚
-      totalPages: 138
-    - id: '11893409'
-      name: 台達化
-      totalPages: 131
-    - id: '20844865'
-      name: 台苯
-      totalPages: 79
-    - id: '04212250'
-      name: 國喬
-      totalPages: 107
-    - id: '04748660'
-      name: 聯成
-      totalPages: 101
-    - id: '58650902'
-      name: 台化
-      totalPages: 146
-    - id: '03707901'
-      name: 中油
-      totalPages: 257
-    - id: '03522600'
-      name: 遠東新
-      totalPages: 174
-    - id: '07435515'
-      name: 新纖
-      totalPages: 120
-    - id: '07220710'
-      name: 宏洲
-      totalPages: 105
-    - id: '14001199'
-      name: 福懋
-      totalPages: 103
-    - id: '07663290'
-      name: 力麗
-      totalPages: 83
-    - id: '33955322'
-      name: 力鵬
-      totalPages: 81
-    - id: '22266307'
-      name: 年興
-      totalPages: 93
-    - id: '43295237'
-      name: 集盛
-      totalPages: 68
-    - id: '22817999'
-      name: 宏遠
-      totalPages: 166
-    - id: '73686632'
-      name: 得力
-      totalPages: 90
-    - id: '33085508'
-      name: 正隆
-      totalPages: 127
-    - id: '85066002'
-      name: 永豐餘
-      totalPages: 69
-    - id: '34202841'
-      name: 榮成
-      totalPages: 151
-    - id: '22327037'
-      name: 永豐實
-      totalPages: 103
-    - id: '88121697'
-      name: 東盟開發
-      totalPages: 99
-    - id: '30414175'
-      name: 中鋼
-      totalPages: 83
-    - id: '75280209'
-      name: 東和鋼鐵
-      totalPages: 142
-    - id: '75992214'
-      name: 燁興
-      totalPages: 123
-    - id: '88187108'
-      name: 春雨
-      totalPages: 125
-    - id: '07838854'
-      name: 中鴻
-      totalPages: 129
-    - id: '55389357'
-      name: 豐興
-      totalPages: 118
-    - id: '75947936'
-      name: 燁輝
-      totalPages: 130
-    - id: '69771636'
-      name: 威致
-      totalPages: 84
-    - id: '79837539'
-      name: 盛餘
-      totalPages: 106
-    - id: '75460005'
-      name: 唐榮公司
-      totalPages: 162
-    - id: '84252697'
-      name: 榮剛
-      totalPages: 115
-    - id: '11520909'
-      name: 南港
-      totalPages: 75
-    - id: '03553737'
-      name: 台橡
-      totalPages: 197
-    - id: '59504506'
-      name: 正新
-      totalPages: 127
-    - id: '59619900'
-      name: 建大
+      name: 亞洲聚合
       totalPages: 148
-    - id: '12209807'
-      name: 南帝
+    - id: '11893409'
+      name: 台達化學工業
+      totalPages: 135
+    - id: '20844865'
+      name: 台灣苯乙烯工業
+      totalPages: 80
+    - id: '04212250'
+      name: 國喬石油化學
+      totalPages: 156
+    - id: '04748660'
+      name: 聯成化學科技
       totalPages: 97
+    - id: '03084741'
+      name: 中國石油化學工業開發
+      totalPages: 168
+    - id: '58650902'
+      name: 台灣化學纖維
+      totalPages: 162
+    - id: '03707901'
+      name: 台灣中油
+      totalPages: 165
+    - id: '03522600'
+      name: 遠東新世紀
+      totalPages: 180
+    - id: '07435515'
+      name: 新光合成纖維
+      totalPages: 148
+    - id: '07220710'
+      name: 宏洲纖維工業
+      totalPages: 108
+    - id: '14001199'
+      name: 福懋興業
+      totalPages: 104
+    - id: '68919301'
+      name: 臺南紡織
+      totalPages: 132
+    - id: '07663290'
+      name: 力麗企業
+      totalPages: 85
+    - id: '33955322'
+      name: 力鵬企業
+      totalPages: 83
+    - id: '22266307'
+      name: 年興紡織
+      totalPages: 66
+    - id: '43295237'
+      name: 集盛實業
+      totalPages: 68
+    - id: '33144175'
+      name: 怡華實業
+      totalPages: 97
+    - id: '22817999'
+      name: 宏遠興業
+      totalPages: 144
+    - id: '73686632'
+      name: 得力實業
+      totalPages: 95
+    - id: '22267777'
+      name: 大統新創
+      totalPages: 63
+    - id: '88121697'
+      name: 東盟開發實業
+      totalPages: 98
     - id: '52264848'
-      name: 和大
-      totalPages: 120
+      name: 和大工業
+      totalPages: 68
     - id: '84980915'
-      name: 巧新
+      name: 巧新科技工業
       totalPages: 113
-    - id: '24004006'
-      name: 三陽工業
-      totalPages: 184
+    - id: '35412204'
+      name: 華新麗華
+      totalPages: 148
     - id: '11384405'
-      name: 東鹼
-      totalPages: 46
+      name: 東南實業
+      totalPages: 84
     - id: '04312878'
-      name: 和益
-      totalPages: 105
+      name: 和益化學工業
+      totalPages: 99
+    - id: '34227006'
+      name: 金元福包裝企業
+      totalPages: 160
+    - id: '36550632'
+      name: 國聯矽業化學
+      totalPages: 326
+    - id: '39054405'
+      name: 李長榮化學工業
+      totalPages: 62
     - id: '14057995'
-      name: 東聯
-      totalPages: 77
+      name: 東聯化學
+      totalPages: 151
     - id: '75339004'
-      name: 長興
-      totalPages: 122
+      name: 長興材料工業
+      totalPages: 117
     - id: '07066907'
-      name: 中纖
-      totalPages: 116
+      name: 中國人造纖維
+      totalPages: 126
     - id: '03795101'
-      name: 台肥
-      totalPages: 134
+      name: 台灣肥料
+      totalPages: 127
     - id: '23221384'
-      name: 中碳
-      totalPages: 130
+      name: 中鋼碳素化學
+      totalPages: 67
+    - id: '89397503'
+      name: 臺鹽實業
+      totalPages: 138
     - id: '68387705'
       name: 奇美實業
-      totalPages: 181
-    - id: '75970680'
-      name: 勝一
-      totalPages: 81
-    - id: '86522210'
-      name: 台塑化
-      totalPages: 122
-    - id: '86685142'
-      name: 台汽電
-      totalPages: 124
-    - id: '84526079'
-      name: 大汽電
-      totalPages: 145
-    - id: '03795904'
-      name: 台電
-      totalPages: 124
-    - id: '47217677'
-      name: 聯電
-      totalPages: 204
-    - id: '89004161'
-      name: 華泰
-      totalPages: 129
-    - id: '22099131'
-      name: 台積電
-      totalPages: 223
-    - id: '22099548'
-      name: 旺宏
-      totalPages: 128
-    - id: '47255947'
-      name: 台亞
       totalPages: 168
-    - id: '22099110'
-      name: 茂矽
-      totalPages: 61
-    - id: '22099218'
-      name: 華邦電
-      totalPages: 152
-    - id: '89390656'
-      name: 南亞科
-      totalPages: 225
-    - id: '05126366'
-      name: 超豐
-      totalPages: 112
-    - id: '22507241'
-      name: 京元電子
-      totalPages: 146
-    - id: '70752257'
-      name: 穩懋
-      totalPages: 112
-    - id: '70785139'
-      name: 景碩
-      totalPages: 170
-    - id: '16741846'
-      name: 精材
-      totalPages: 143
-    - id: '89406518'
-      name: 台勝科
-      totalPages: 102
-    - id: '30901647'
-      name: 辛耘
+    - id: '75970680'
+      name: 勝一化工
+      totalPages: 91
+    - id: '11914002'
+      name: 台灣玻璃工業
+      totalPages: 224
+    - id: '49701774'
+      name: 冠軍建材
+      totalPages: 115
+    - id: '16834268'
+      name: 富喬工業
+      totalPages: 71
+    - id: '33085508'
+      name: 正隆
+      totalPages: 144
+    - id: '94025264'
+      name: 中華紙漿
+      totalPages: 71
+    - id: '27719048'
+      name: 永豐餘工業用紙
+      totalPages: 202
+    - id: '34202841'
+      name: 榮成紙業
+      totalPages: 77
+    - id: '30414175'
+      name: 中國鋼鐵
+      totalPages: 79
+    - id: '75280209'
+      name: 東和鋼鐵企業
+      totalPages: 145
+    - id: '75992214'
+      name: 燁興企業
+      totalPages: 130
+    - id: '88187108'
+      name: 春雨工廠
+      totalPages: 115
+    - id: '07838854'
+      name: 中鴻鋼鐵
+      totalPages: 97
+    - id: '55389357'
+      name: 豐興鋼鐵
+      totalPages: 109
+    - id: '75947936'
+      name: 燁輝企業
+      totalPages: 111
+    - id: '69771636'
+      name: 威致鋼鐵工業
+      totalPages: 93
+    - id: '79837539'
+      name: 盛餘
+      totalPages: 99
+    - id: '75460005'
+      name: 唐榮鐵工廠
+      totalPages: 158
+    - id: '75470524'
+      name: 海光企業
+      totalPages: 89
+    - id: '23503047'
+      name: 上銀科技
+      totalPages: 158
+    - id: '11520909'
+      name: 南港輪胎
+      totalPages: 166
+    - id: '03553737'
+      name: 台橡
+      totalPages: 193
+    - id: '59504506'
+      name: 正新橡膠工業
+      totalPages: 129
+    - id: '59619900'
+      name: 建大工業
+      totalPages: 151
+    - id: '12209807'
+      name: 南帝化學工業
+      totalPages: 109
+    - id: '24004006'
+      name: 三陽工業
+      totalPages: 186
+    - id: '04695235'
+      name: 台灣國際造船
       totalPages: 100
-    - id: '54389725'
-      name: 漢磊
-      totalPages: 156
-    - id: '28112646'
-      name: 新唐
-      totalPages: 161
-    - id: '84149358'
-      name: 世界
-      totalPages: 243
-    - id: '34286449'
-      name: 台半
-      totalPages: 162
-    - id: '16130009'
-      name: 頎邦
+    - id: '47217677'
+      name: 聯華電子
+      totalPages: 215
+    - id: '04401392'
+      name: 華通電腦
+      totalPages: 135
+    - id: '76026851'
+      name: 楠梓電子
       totalPages: 117
-    - id: '16138282'
-      name: 合晶
-      totalPages: 110
-    - id: '16082267'
-      name: 力成
-      totalPages: 165
-    - id: '23218022'
-      name: 矽格
-      totalPages: 105
-    - id: '28113286'
-      name: 環球晶
-      totalPages: 141
-    - id: '28112667'
-      name: 力積電
-      totalPages: 199
-    - id: '80601119'
-      name: 采鈺
-      totalPages: 160
-    - id: '16130423'
-      name: 宏捷科
-      totalPages: 159
-    - id: '22101116'
-      name: 華東
-      totalPages: 74
-    - id: '23826736'
-      name: 福懋科
-      totalPages: 118
-    - id: '16130042'
-      name: 南茂
-      totalPages: 173
     - id: '12205020'
       name: 中環
-      totalPages: 127
-    - id: '84149738'
-      name: 友達
-      totalPages: 217
-    - id: '22480876'
-      name: 大立光
-      totalPages: 124
-    - id: '12800225'
-      name: 群創
-      totalPages: 204
-    - id: '27763753'
-      name: 聯合再生
-      totalPages: 153
-    - id: '27790294'
-      name: 誠美材
-      totalPages: 96
-    - id: '16450500'
-      name: 彩晶
-      totalPages: 144
-    - id: '28997300'
-      name: 元晶
-      totalPages: 85
-    - id: '22099890'
-      name: 元太
-      totalPages: 185
-    - id: '16432742'
-      name: 凌巨
-      totalPages: 95
-    - id: '16834268'
-      name: 富喬
-      totalPages: 77
-    - id: '04401392'
-      name: 華通
-      totalPages: 136
+      totalPages: 134
     - id: '22636630'
       name: 國巨
-      totalPages: 146
-    - id: '43816068'
-      name: 敬鵬
-      totalPages: 173
-    - id: '05637971'
-      name: 燿華
-      totalPages: 82
-    - id: '19004316'
-      name: 華新科
-      totalPages: 100
-    - id: '23535435'
-      name: 欣興
-      totalPages: 128
-    - id: '70776899'
-      name: 達邁
-      totalPages: 107
-    - id: '86691377'
-      name: 建榮
-      totalPages: 88
-    - id: '86980046'
-      name: 嘉聯益
-      totalPages: 110
-    - id: '04226091'
-      name: 台燿
-      totalPages: 102
-    - id: '16096804'
-      name: 南電
-      totalPages: 138
-    - id: '16447610'
-      name: 金居
-      totalPages: 92
-    - id: '35412204'
-      name: 華新
-      totalPages: 160
-    - id: '11914002'
-      name: 台玻
-      totalPages: 105
-    - id: '23503047'
-      name: 上銀
-      totalPages: 154
-    - id: '22822281'
-      name: 廣達
-      totalPages: 169
-    - id: '69905810'
-      name: 可成
-      totalPages: 114
-    - id: '96922622'
-      name: 台耀
-      totalPages: 84
-    - id: '23145632'
-      name: 帆宣
-      totalPages: 105
-    - id: '89528054'
-      name: 鋼聯
-      totalPages: 133
-    - id: '86871981'
-      name: 潤泰材
+      totalPages: 155
+    - id: '89004161'
+      name: 華泰電子
+      totalPages: 148
+    - id: '51158518'
+      name: 美商達爾國際
       totalPages: 67
-    - id: '73252657'
-      name: 統一實
+    - id: '55991080'
+      name: 矽品精密工業
+      totalPages: 140
+    - id: '75688109'
+      name: 漢泰鋼鐵廠
+      totalPages: 72
+    - id: '22099131'
+      name: 台灣積體電路製造
+      totalPages: 278
+    - id: '22099548'
+      name: 旺宏電子
       totalPages: 120
-    - id: '56054251'
-      name: 巨大
+    - id: '47255947'
+      name: 台亞半導體
+      totalPages: 178
+    - id: '22099110'
+      name: 台灣茂矽電子
+      totalPages: 80
+    - id: '22099218'
+      name: 華邦電子
+      totalPages: 175
+    - id: '43816068'
+      name: 敬鵬工業
+      totalPages: 194
+    - id: '05637971'
+      name: 燿華電子
+      totalPages: 87
+    - id: '30955404'
+      name: 金像電子
+      totalPages: 135
+    - id: '55625676'
+      name: 菱生精密工業
+      totalPages: 85
+    - id: '22822281'
+      name: 廣達電腦
+      totalPages: 170
+    - id: '89390656'
+      name: 南亞科技
+      totalPages: 223
+    - id: '84149738'
+      name: 友達光電
+      totalPages: 272
+    - id: '05126366'
+      name: 超豐電子
+      totalPages: 129
+    - id: '22507241'
+      name: 京元電子
+      totalPages: 156
+    - id: '69905810'
+      name: 可成科技
+      totalPages: 107
+    - id: '19004316'
+      name: 華新科技
+      totalPages: 114
+    - id: '97160544'
+      name: 漢翔航空工業
+      totalPages: 136
+    - id: '22480876'
+      name: 大立光電
+      totalPages: 102
+    - id: '23535435'
+      name: 欣興電子
+      totalPages: 144
+    - id: '70750217'
+      name: 精金科技
+      totalPages: 155
+    - id: '70752257'
+      name: 穩懋半導體
+      totalPages: 113
+    - id: '70785139'
+      name: 景碩科技
+      totalPages: 204
+    - id: '70751779'
+      name: 欣銓科技
+      totalPages: 154
+    - id: '70552666'
+      name: 台星科
+      totalPages: 119
+    - id: '16741846'
+      name: 精材科技
+      totalPages: 117
+    - id: '12800225'
+      name: 群創光電
+      totalPages: 194
+    - id: '89406518'
+      name: 台塑勝高科技
+      totalPages: 54
+    - id: '27763753'
+      name: 聯合再生能源
+      totalPages: 151
+    - id: '30901647'
+      name: 辛耘企業
+      totalPages: 134
+    - id: '70776899'
+      name: 達邁科技
+      totalPages: 123
+    - id: '54389725'
+      name: 漢磊科技
+      totalPages: 169
+    - id: '76027628'
+      name: 日月光半導體製造
+      totalPages: 272
+    - id: '12529007'
+      name: 環泰企業
+      totalPages: 155
+    - id: '18770509'
+      name: 東隆興業
+      totalPages: 81
+    - id: '96922622'
+      name: 台耀化學
+      totalPages: 82
+    - id: '28112646'
+      name: 新唐科技
+      totalPages: 190
+    - id: '27790294'
+      name: 誠美材料科技
+      totalPages: 109
+    - id: '97173920'
+      name: 李長榮科技
+      totalPages: 116
+    - id: '84252697'
+      name: 榮剛材料科技
+      totalPages: 146
+    - id: '86691377'
+      name: 建榮工業材料
+      totalPages: 98
+    - id: '80353271'
+      name: 台灣美光晶圓科技
+      totalPages: 89
+    - id: '84149786'
+      name: 晶元光電
+      totalPages: 203
+    - id: '86120031'
+      name: 信昌化學工業
+      totalPages: 71
+    - id: '04388145'
+      name: 台灣康寧顯示玻璃
+      totalPages: 44
+    - id: '11072509'
+      name: 三福氣體
+      totalPages: 116
+    - id: '11384708'
+      name: 長春人造樹脂廠
+      totalPages: 158
+    - id: '11384806'
+      name: 長春石油化學
+      totalPages: 158
+    - id: '12233428'
+      name: 大連化學工業
+      totalPages: 158
+    - id: '16441469'
+      name: 能元科技
+      totalPages: 69
+    - id: '16631664'
+      name: 艾克爾國際科技
+      totalPages: 42
+    - id: '84149358'
+      name: 世界先進積體電路
+      totalPages: 254
+    - id: '34286449'
+      name: 台灣半導體
+      totalPages: 151
+    - id: '16450500'
+      name: 瀚宇彩晶
+      totalPages: 168
+    - id: '16130009'
+      name: 頎邦科技
+      totalPages: 141
+    - id: '86980046'
+      name: 嘉聯益科技
+      totalPages: 114
+    - id: '16138282'
+      name: 合晶科技
+      totalPages: 107
+    - id: '16082267'
+      name: 力成科技
+      totalPages: 198
+    - id: '23218022'
+      name: 矽格
+      totalPages: 104
+    - id: '04226091'
+      name: 台燿科技
+      totalPages: 128
+    - id: '28997300'
+      name: 元晶太陽能科技
+      totalPages: 94
+    - id: '28113286'
+      name: 環球晶圓
       totalPages: 177
+    - id: '25021158'
+      name: 晶碩光學
+      totalPages: 87
+    - id: '86522210'
+      name: 台塑石化
+      totalPages: 116
+    - id: '89528054'
+      name: 台灣鋼聯
+      totalPages: 136
+    - id: '28112667'
+      name: 力晶積成電子製造
+      totalPages: 155
+    - id: '80601119'
+      name: 采鈺科技
+      totalPages: 126
+    - id: '22327037'
+      name: 永豐餘消費品實業
+      totalPages: 107
+    - id: '84149884'
+      name: 昇陽國際半導體
+      totalPages: 109
+    - id: '16096804'
+      name: 南亞電路板
+      totalPages: 124
+    - id: '22099890'
+      name: 元太科技工業
+      totalPages: 196
+    - id: '16130423'
+      name: 宏捷科技
+      totalPages: 160
+    - id: '16432742'
+      name: 凌巨科技
+      totalPages: 173
+    - id: '22101116'
+      name: 華東科技
+      totalPages: 114
+    - id: '23826736'
+      name: 福懋科技
+      totalPages: 127
+    - id: '16130042'
+      name: 南茂科技
+      totalPages: 153
+    - id: '16447610'
+      name: 金居開發
+      totalPages: 102
+    - id: '86871981'
+      name: 潤泰精密材料
+      totalPages: 69
+    - id: '73252657'
+      name: 統一實業
+      totalPages: 124
+    - id: '56054251'
+      name: 巨大機械工業
+      totalPages: 243
     - id: '86119908'
       name: 中聯資源
       totalPages: 122
     - id: '58176511'
-      name: 宏全
+      name: 宏全國際
+      totalPages: 124
+    - id: '22099343'
+      name: 台灣高技
+      totalPages: 85
+    - id: '28518076'
+      name: 台灣美光記憶體
+      totalPages: 89
+    - id: '89002500'
+      name: 台灣恩智浦半導體
+      totalPages: 168
+    - id: '96971313'
+      name: 中鋼鋁業
       totalPages: 152
-
+    - id: '11913502'
+      name: 台灣水泥
+      totalPages: 269
+    - id: '03244509'
+      name: 亞洲水泥
+      totalPages: 165
+    - id: '84613756'
+      name: 中龍鋼鐵
+      totalPages: 109

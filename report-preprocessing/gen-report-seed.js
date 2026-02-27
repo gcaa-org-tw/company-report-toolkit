@@ -37,7 +37,7 @@ async function main() {
   spinner.start(`Processing 0/${totalReports} PDFs...`)
 
   for (const pdfFile of pdfFiles) {
-    const { companyId, year } = extractPdfNameInfo(pdfFile)
+    const { companyId, year } = extractPdfNameInfo(pdfFile, companyMap)
 
     try {
       const totalPages = await getTotalPages(pdfFile)
