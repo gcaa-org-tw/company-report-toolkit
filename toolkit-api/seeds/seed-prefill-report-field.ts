@@ -76,8 +76,10 @@ async function seed() {
   // Load all field-metas into a lookup map keyed by id
   const fieldMetas = await metaService.find({ paginate: false }) as any[]
   const fieldMetaSet = new Set<number>()
+  const fieldMetaTypeMap = new Map<number, string>()
   for (const meta of fieldMetas) {
     fieldMetaSet.add(meta.id)
+    fieldMetaTypeMap.set(meta.id, meta.dataType)
   }
 
   spinner.succeed(`Loaded ${companies.length} companies, ${reports.length} reports, ${fieldMetas.length} field-metas`)
@@ -128,8 +130,13 @@ async function seed() {
         }
 
         // Map value: trim; empty string → undefined
+        // For boolean fields, transform True/False → 是/否 to match UI convention
         const rawValue = (data['欄位數值'] ?? '').toString().trim()
-        const value = rawValue || undefined
+        let value: string | undefined = rawValue || undefined
+        if (value !== undefined && fieldMetaTypeMap.get(fieldId) === 'boolean') {
+          if (value === 'True') value = '是'
+          else if (value === 'False') value = '否'
+        }
 
         // Map unit: trim; "NA" or empty → undefined
         const rawUnit = (data['欄位單位'] ?? '').toString().trim()
